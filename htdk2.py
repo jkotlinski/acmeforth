@@ -2,6 +2,8 @@
 
 import sys
 
+DEBUG = True
+
 class Word:
 	def __init__(self, name, xt, immediate, ip):
 		self.name = name
@@ -119,12 +121,14 @@ def interpret():
 	global tib
 	while True:
 		word = read_word().lower()
-		# print(word)
+		if DEBUG:
+			print(word)
 		if state:
 			compile(word)
 		else:
 			evaluate(word)
-		# print(stack)
+		if DEBUG:
+			print(stack)
 
 def HEX():
 	base = 16
@@ -141,9 +145,11 @@ def docol(word):
 		code = heap[ip]
 		ip += 1
 		if type(code) == Word:
-			# print("exec " + code.name)
+			if DEBUG:
+				print("exec " + code.name)
 			code.xt()
-			# print(stack)
+			if DEBUG:
+				print(stack)
 		else:
 			# print(code)
 			sys.exit("What?")
