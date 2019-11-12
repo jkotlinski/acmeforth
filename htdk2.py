@@ -24,11 +24,12 @@ here = 0
 tib_count = 0
 latest = None
 ip = 0
+to_in_addr = 0
 
 digits = "0123456789abcdefghijklmnopqrstuvwxyz"
 
 def TO_IN():
-	return 0
+	stack.append(to_in_addr)
 
 def add_word(name, xt, immediate = False):
 	words[name] = Word(name, xt, immediate, -1)
@@ -65,24 +66,24 @@ def REFILL():
 	for c in input():
 		heap[tib + tib_count] = c
 		tib_count += 1
-	heap[TO_IN()] = 0
+	heap[to_in_addr] = 0
 
 def read_word():
 	global tib
 
 	while True:
 		# skips leading whitespace
-		while heap[TO_IN()] < tib_count:
-			if heap[tib + heap[TO_IN()]] == ' ':
-				heap[TO_IN()] += 1
+		while heap[to_in_addr] < tib_count:
+			if heap[tib + heap[to_in_addr]] == ' ':
+				heap[to_in_addr] += 1
 			else:
 				break
 
 		# reads the word
 		word = ""
-		while heap[TO_IN()] < tib_count:
-			c = heap[tib + heap[TO_IN()]]
-			heap[TO_IN()] += 1
+		while heap[to_in_addr] < tib_count:
+			c = heap[tib + heap[to_in_addr]]
+			heap[to_in_addr] += 1
 			if c == ' ':
 				break
 			word += c
@@ -123,6 +124,7 @@ def interpret():
 			compile(word)
 		else:
 			evaluate(word)
+		print(stack)
 
 def HEX():
 	base = 16
@@ -136,16 +138,16 @@ def docol(word):
 	print("DOCOL")
 	global ip
 	ip = word.ip
-	while True:
+	while ip:
 		code = heap[ip]
 		ip += 1
 		if type(code) == Word:
-			# print("exec " + code.name)
+			print("exec " + code.name)
 			code.xt()
+			print(stack)
 		else:
 			# print(code)
 			sys.exit("What?")
-	sys.exit("DOCOL")
 
 def CREATE():
 	global latest
@@ -231,7 +233,7 @@ def CR():
 	print()
 
 def CELLS():
-	stack.append(1)
+	pass
 
 def ALLOT():
 	for i in range(stack[-1]):
@@ -240,9 +242,9 @@ def ALLOT():
 
 def SQUOTE():
 	s = ""
-	while heap[TO_IN()] < tib_count:
-		c = heap[tib + heap[TO_IN()]]
-		heap[TO_IN()] += 1
+	while heap[to_in_addr] < tib_count:
+		c = heap[tib + heap[to_in_addr]]
+		heap[to_in_addr] += 1
 		if c == '"':
 			break
 		s += c
@@ -268,6 +270,13 @@ def TYPE():
 	print("".join(heap[stack[-2]:stack[-2]+stack[-1]]), end='')
 	DROP()
 	DROP()
+
+def EXIT():
+	global ip
+	if return_stack:
+		ip = return_stack.pop()
+	else:
+		ip = None
 
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
@@ -295,7 +304,7 @@ add_word("do", DO, True)
 add_word("(do)", _DO)
 add_word("loop", LOOP, True)
 add_word("(loop)", _LOOP)
-add_word("exit", lambda : sys.exit("exit"))
+add_word("exit", EXIT)
 add_word("type", TYPE)
 add_word("source", SOURCE)
 add_word("@", FETCH)
