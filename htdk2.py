@@ -339,8 +339,12 @@ def XOR():
 	stack.pop()
 
 def RSHIFT():
-	u = stack.pop()
-	stack[-1] >>= u
+	if stack[-2] < 0:
+		# Workaround for infinite number of bits.
+		stack[-2] = -(-stack[-2] >> stack[-1])
+	else:
+		stack[-2] >>= stack[-1]
+	stack.pop()
 
 def INVERT():
 	stack[-1] = ~stack[-1]
@@ -348,6 +352,9 @@ def INVERT():
 def CONSTANT():
 	CREATE()
 	words[latest].xt = lambda v=stack.pop() : stack.append(v)
+
+def TWOMUL():
+	stack[-1] <<= 1
 
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
@@ -397,6 +404,7 @@ add_word("and", AND)
 add_word("or", OR)
 add_word("xor", XOR)
 add_word("rshift", RSHIFT)
+add_word("2*", TWOMUL)
 add_word("invert", INVERT)
 add_word("constant", CONSTANT)
 
