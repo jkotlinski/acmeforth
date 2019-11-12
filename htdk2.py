@@ -219,7 +219,11 @@ def QUIT():
 		interpret()
 
 def _DO():
-	sys.exit("(do)")
+	TO_R() # index
+	TO_R() # limit
+
+def I():
+	stack.append(return_stack[-2])
 
 def DO():
 	heap.append(words["(do)"])
@@ -295,6 +299,10 @@ def EQUALS():
 	stack[-2] = stack[-1] == stack[-2]
 	stack.pop()
 
+def PLUS():
+	stack[-2] += stack[-1]
+	stack.pop()
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
@@ -313,7 +321,7 @@ add_word("if", IF, True)
 add_word("else", ELSE, True)
 add_word("then", THEN, True)
 add_word("cr", CR)
-add_word("i", lambda : sys.exit("i"))
+add_word("i", I)
 add_word("=", EQUALS)
 add_word("0=", lambda : sys.exit("0="))
 add_word('s"', SQUOTE, True)
@@ -325,7 +333,7 @@ add_word("exit", EXIT)
 add_word("type", TYPE)
 add_word("source", SOURCE)
 add_word("@", FETCH)
-add_word("+", lambda : sys.exit("+"))
+add_word("+", PLUS)
 add_word("cells", CELLS)
 add_word("quit", QUIT)
 add_word("create", CREATE)
