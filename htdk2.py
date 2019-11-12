@@ -265,7 +265,6 @@ def SLITERAL():
 	global ip
 	stack.append(ip + 1)
 	stack.append(heap[ip])
-	TYPE()
 	ip += heap[ip] + 1
 
 def SQUOTE():
@@ -295,7 +294,7 @@ def R_TO():
 	stack.append(return_stack.pop())
 
 def TYPE():
-	print("".join(heap[stack[-2]:stack[-2]+stack[-1]]), end='')
+	print("".join(heap[stack[-2]:stack[-2]+stack[-1]]), end='', flush=True)
 	DROP()
 	DROP()
 
