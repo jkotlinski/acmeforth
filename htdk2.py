@@ -119,12 +119,12 @@ def interpret():
 	global tib
 	while True:
 		word = read_word().lower()
-		print(word)
+		# print(word)
 		if state:
 			compile(word)
 		else:
 			evaluate(word)
-		print(stack)
+		# print(stack)
 
 def HEX():
 	base = 16
@@ -135,16 +135,15 @@ def STORE():
 	DROP()
 
 def docol(word):
-	print("DOCOL")
 	global ip
 	ip = word.ip
 	while ip:
 		code = heap[ip]
 		ip += 1
 		if type(code) == Word:
-			print("exec " + code.name)
+			# print("exec " + code.name)
 			code.xt()
-			print(stack)
+			# print(stack)
 		else:
 			# print(code)
 			sys.exit("What?")
