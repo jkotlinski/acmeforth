@@ -12,14 +12,16 @@ class Word:
 	def __repr__(self):
 		return self.name
 
-ram = []
+ram = [0] * 80
 base = 10
 state = False
 words = {}
 stack = []
 control_stack = []
-tib = None
+tib = 0
+here = 0
 to_in = 0
+tib_count = 0
 latest = None
 ip = 0
 
@@ -56,7 +58,11 @@ def evaluate(word):
 def REFILL():
 	global tib
 	global to_in
-	tib = input()
+	global tib_count
+	tib_count = 0
+	for c in input():
+		ram[tib + tib_count] = c
+		tib_count += 1
 	to_in = 0
 
 def read_word():
@@ -65,16 +71,16 @@ def read_word():
 
 	while True:
 		# skips leading whitespace
-		while to_in < len(tib):
-			if tib[to_in] == ' ':
+		while to_in < tib_count:
+			if ram[tib + to_in] == ' ':
 				to_in += 1
 			else:
 				break
 
 		# reads the word
 		word = ""
-		while to_in < len(tib):
-			c = tib[to_in]
+		while to_in < tib_count:
+			c = ram[tib + to_in]
 			to_in += 1
 			if c == ' ':
 				break
@@ -127,12 +133,23 @@ def STORE():
 	DROP()
 
 def docol(word):
-	print("DOCOL")
+	global ip
+	ip = 0
+	while True:
+		code = word.bytecode[ip]
+		if type(code) == Word:
+			print("exec "),
+			print(code)
+			code.fn()
+		else:
+			sys.exit("What?")
+		ip += 1
+	sys.exit("DOCOL")
 
 def CREATE():
 	global latest
 	latest = read_word().lower()
-	words[latest] = Word(latest, lambda : docol(w), False)
+	words[latest] = Word(latest, lambda : docol(words[latest]), False)
 
 def DEPTH():
 	return len(stack)
@@ -230,8 +247,8 @@ def ALLOT():
 def SQUOTE():
 	global to_in
 	s = ""
-	while to_in < len(tib):
-		c = tib[to_in]
+	while to_in < tib_count:
+		c = ram[tib + to_in]
 		to_in += 1
 		if c == '"':
 			break
@@ -239,6 +256,13 @@ def SQUOTE():
 	b = words[latest].bytecode
 	b.append(words["sliteral"])
 	b.append(s)
+
+def SOURCE():
+	stack.append(tib)
+	stack.append(tib_count)
+
+def FETCH():
+	stack[-1] = ram[stack[-1]]
 
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
@@ -268,8 +292,8 @@ add_word("loop", LOOP, True)
 add_word("(loop)", _LOOP)
 add_word("exit", lambda : sys.exit("exit"))
 add_word("type", lambda : sys.exit("type"))
-add_word("source", lambda : sys.exit("source"))
-add_word("@", lambda : sys.exit("@"))
+add_word("source", SOURCE)
+add_word("@", FETCH)
 add_word("+", lambda : sys.exit("+"))
 add_word("cells", CELLS)
 add_word("quit", QUIT)
