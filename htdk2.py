@@ -14,9 +14,11 @@ base = 10
 state = False
 words = {}
 stack = []
+control_stack = []
 tib = None
 to_in = 0
 latest = None
+ip = 0
 
 digits = "0123456789abcdefghijklmnopqrstuvwxyz"
 
@@ -37,7 +39,6 @@ def evaluate_number(word):
 	stack += [number]
 
 def evaluate(word):
-	print("EVAL " + word)
 	if word in words:
 		words[word].fn()
 	else:
@@ -46,7 +47,7 @@ def evaluate(word):
 		else:
 			sys.exit("unknown word '" + word + "'")
 
-def refill():
+def REFILL():
 	global tib
 	global to_in
 	tib = input()
@@ -77,9 +78,9 @@ def read_word():
 			return word
 
 		# word not found, refill and try again
-		refill()
+		REFILL()
 
-def variable():
+def VARIABLE():
 	l = len(ram)
 	words[read_word().lower()] = Word(lambda : stack.append(l))
 	ram.append(None)
@@ -98,7 +99,7 @@ def compile(word):
 	else:
 		if is_number(word):
 			evaluate_number(word)
-			fn.append(stack[-1])
+			bytecode.append(stack[-1])
 			stack.pop()
 		else:
 			sys.exit("unknown word '" + word + "'")
@@ -114,10 +115,10 @@ def interpret():
 		else:
 			evaluate(word)
 
-def hex():
+def HEX():
 	base = 16
 
-def store():
+def STORE():
 	ram[stack[-1]] = stack[-2]
 	stack.pop()
 	stack.pop()
@@ -132,26 +133,55 @@ def create():
 	w.fn = lambda : docol(w)
 	words[latest] = w
 
-def depth():
+def DEPTH():
 	return len(stack)
 
-def colon():
+def COLON():
 	global state
 	create()
 	state = True
 
-def qdup():
+def DUP():
+	stack.push(stack[-1])
+
+def QDUP():
 	if stack[-1]:
-		stack.push(stack[-1])
+		DUP()
 
-words["\\"] = Word(refill, True)
-words["hex"] = Word(hex)
-words["variable"] = Word(variable)
-words["!"] = Word(store)
-words[":"] = Word(colon)
-words["depth"] = Word(depth)
-words["?dup"] = Word(qdup)
+def ZBRANCH():
+	global ip
+	ip += 1
+	if not stack[-1]:
+		ip += bytecode[ip]
 
-while True:
-	refill()
-	interpret()
+def IF():
+	b = words[latest].bytecode
+	b.append(words["0branch"])
+	b.append(0)
+	control_stack.append(len(b))
+
+def ZLESS():
+	return stack[-1] < 0
+
+def NEGATE():
+	stack[-1] = -stack[-1]
+
+def QUIT():
+	while True:
+		REFILL()
+		interpret()
+
+words["\\"] = Word(REFILL, True)
+words["hex"] = Word(HEX)
+words["variable"] = Word(VARIABLE)
+words["!"] = Word(STORE)
+words[":"] = Word(COLON)
+words["depth"] = Word(DEPTH)
+words["?dup"] = Word(QDUP)
+words["dup"] = Word(DUP)
+words["0<"] = Word(ZLESS)
+words["0branch"] = Word(ZBRANCH)
+words["negate"] = Word(NEGATE)
+words["if"] = Word(IF, True)
+
+QUIT()
