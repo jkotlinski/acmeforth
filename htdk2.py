@@ -1,0 +1,157 @@
+#!/usr/bin/python3
+
+import sys
+
+ram = []
+
+class Word:
+	def __init__(self, fn, immediate = False):
+		self.fn = fn
+		self.immediate = immediate
+		self.bytecode = []
+
+base = 10
+state = False
+words = {}
+stack = []
+tib = None
+to_in = 0
+latest = None
+
+digits = "0123456789abcdefghijklmnopqrstuvwxyz"
+
+def is_number(word):
+	for d in word:
+		if d not in digits:
+			return False
+		if digits.index(d) >= base:
+			return False
+	return True
+
+def evaluate_number(word):
+	global stack
+	number = 0
+	for d in word:
+		number *= base
+		number += digits.index(d)
+	stack += [number]
+
+def evaluate(word):
+	print("EVAL " + word)
+	if word in words:
+		words[word].fn()
+	else:
+		if is_number(word):
+			evaluate_number(word)
+		else:
+			sys.exit("unknown word '" + word + "'")
+
+def refill():
+	global tib
+	global to_in
+	tib = input()
+	to_in = 0
+
+def read_word():
+	global to_in
+	global tib
+
+	while True:
+		# skips leading whitespace
+		while to_in < len(tib):
+			if tib[to_in] == ' ':
+				to_in += 1
+			else:
+				break
+
+		# reads the word
+		word = ""
+		while to_in < len(tib):
+			c = tib[to_in]
+			if c == ' ':
+				break
+			word += c
+			to_in += 1
+
+		if word:
+			return word
+
+		# word not found, refill and try again
+		refill()
+
+def variable():
+	l = len(ram)
+	words[read_word().lower()] = Word(lambda : stack.append(l))
+	ram.append(None)
+
+def compile(word):
+	print("COMPILE " + word)
+	global stack
+	bytecode = words[latest].bytecode
+	if word in words:
+		if words[word].immediate:
+			words[word].fn()
+		else:
+			bytecode.append(words[word])
+			print("append " + word)
+			print(bytecode)
+	else:
+		if is_number(word):
+			evaluate_number(word)
+			fn.append(stack[-1])
+			stack.pop()
+		else:
+			sys.exit("unknown word '" + word + "'")
+	
+
+def interpret():
+	global tib
+	global to_in
+	while True:
+		word = read_word().lower()
+		if state:
+			compile(word)
+		else:
+			evaluate(word)
+
+def hex():
+	base = 16
+
+def store():
+	ram[stack[-1]] = stack[-2]
+	stack.pop()
+	stack.pop()
+
+def docol(word):
+	print("DOCOL")
+
+def create():
+	global latest
+	latest = read_word().lower()
+	w = Word(latest)
+	w.fn = lambda : docol(w)
+	words[latest] = w
+
+def depth():
+	return len(stack)
+
+def colon():
+	global state
+	create()
+	state = True
+
+def qdup():
+	if stack[-1]:
+		stack.push(stack[-1])
+
+words["\\"] = Word(refill, True)
+words["hex"] = Word(hex)
+words["variable"] = Word(variable)
+words["!"] = Word(store)
+words[":"] = Word(colon)
+words["depth"] = Word(depth)
+words["?dup"] = Word(qdup)
+
+while True:
+	refill()
+	interpret()
