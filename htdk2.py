@@ -36,6 +36,8 @@ def add_word(name, xt, immediate = False):
 	words[name] = Word(name, xt, immediate)
 
 def is_number(word):
+	if word[0] == '-':
+		word = word[1:]
 	for d in word:
 		if d not in digits:
 			return False
@@ -46,9 +48,14 @@ def is_number(word):
 def evaluate_number(word):
 	global stack
 	number = 0
+	negate = word[0] == '-'
+	if negate:
+		word = word[1:]
 	for d in word:
 		number *= base
 		number += digits.index(d)
+	if negate:
+		number = -number
 	stack += [number]
 
 def evaluate(word):
@@ -313,6 +320,13 @@ def PLUS():
 def ZEQUAL():
 	stack[-1] = stack[-1] == 0
 
+def AND():
+	stack[-2] &= stack[-1]
+	stack.pop()
+
+def INVERT():
+	stack[-1] = ~stack[-1]
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
@@ -357,5 +371,7 @@ add_word("[char]", lambda : sys.exit("[char]"))
 add_word("*", lambda : sys.exit("*"))
 add_word("emit", lambda : sys.exit("emit"))
 add_word("(", LPAREN, True)
+add_word("and", AND)
+add_word("invert", INVERT)
 
 QUIT()
