@@ -2,14 +2,14 @@
 
 import sys
 
-DEBUG = True
+DEBUG = False
 
 class Word:
 	def __init__(self, name, xt, immediate, ip):
 		self.name = name
-		self.ip = ip
 		self.xt = xt
 		self.immediate = immediate
+		self.ip = ip
 
 	def __repr__(self):
 		return self.name
@@ -138,9 +138,9 @@ def STORE():
 	DROP()
 	DROP()
 
-def docol(word):
+def docol(ip_):
 	global ip
-	ip = word.ip
+	ip = ip_
 	while ip:
 		code = heap[ip]
 		ip += 1
@@ -157,10 +157,10 @@ def docol(word):
 def CREATE():
 	global latest
 	latest = read_word().lower()
-	words[latest] = Word(latest, lambda : docol(words[latest]), False, len(heap))
+	words[latest] = Word(latest, lambda ip=len(heap) : docol(ip), False, len(heap))
 
 def DEPTH():
-	return len(stack)
+	stack.append(len(stack))
 
 def COLON():
 	global state
@@ -292,6 +292,10 @@ def LPAREN():
 			heap[to_in_addr] += 1
 		REFILL()
 
+def EQUALS():
+	stack[-2] = stack[-1] == stack[-2]
+	stack.pop()
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
@@ -311,7 +315,7 @@ add_word("else", ELSE, True)
 add_word("then", THEN, True)
 add_word("cr", CR)
 add_word("i", lambda : sys.exit("i"))
-add_word("=", lambda : sys.exit("="))
+add_word("=", EQUALS)
 add_word("0=", lambda : sys.exit("0="))
 add_word('s"', SQUOTE, True)
 add_word("do", DO, True)
