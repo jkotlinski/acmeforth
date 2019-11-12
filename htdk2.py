@@ -277,6 +277,15 @@ def EXIT():
 	else:
 		ip = None
 
+def LPAREN():
+	while True:
+		while heap[to_in_addr] < tib_count:
+			if heap[tib + heap[to_in_addr]] == ')':
+				heap[to_in_addr] += 1
+				return
+			heap[to_in_addr] += 1
+		REFILL()
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
@@ -320,5 +329,6 @@ add_word(">in", TO_IN)
 add_word("[char]", lambda : sys.exit("[char]"))
 add_word("*", lambda : sys.exit("*"))
 add_word("emit", lambda : sys.exit("emit"))
+add_word("(", LPAREN, True)
 
 QUIT()
