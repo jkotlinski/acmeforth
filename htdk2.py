@@ -139,13 +139,13 @@ def docol(word):
 	ip = word.ip
 	while True:
 		code = heap[ip]
+		ip += 1
 		if type(code) == Word:
 			print("exec " + code.name)
 			code.xt()
 		else:
 			print(code)
 			sys.exit("What?")
-		ip += 1
 	sys.exit("DOCOL")
 
 def CREATE():
@@ -170,7 +170,7 @@ def DROP():
 	stack.pop()
 
 def DUP():
-	stack.push(stack[-1])
+	stack.append(stack[-1])
 
 def QDUP():
 	if stack[-1]:
@@ -178,16 +178,13 @@ def QDUP():
 
 def BRANCH():
 	global ip
-	ip = heap[ip + 1]
-	print(ip)
+	ip = heap[ip]
 
 def ZBRANCH():
 	global ip
 	if stack[-1]:
-		print("..skip")
 		ip += 1
 	else:
-		print("..branch")
 		BRANCH()
 
 def IF():
@@ -263,6 +260,9 @@ def SOURCE():
 def FETCH():
 	stack[-1] = heap[stack[-1]]
 
+def TO_IN():
+	stack.append(to_in)
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
@@ -302,7 +302,7 @@ add_word("sliteral", lambda : sys.exit("sliteral"))
 add_word("leave", lambda : sys.exit("leave"))
 add_word(">r", lambda : sys.exit(">r"))
 add_word("r>", lambda : sys.exit("r>"))
-add_word(">in", lambda : sys.exit(">in"))
+add_word(">in", TO_IN)
 add_word("[char]", lambda : sys.exit("[char]"))
 add_word("*", lambda : sys.exit("*"))
 add_word("emit", lambda : sys.exit("emit"))
