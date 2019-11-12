@@ -75,10 +75,10 @@ def read_word():
 		word = ""
 		while to_in < len(tib):
 			c = tib[to_in]
+			to_in += 1
 			if c == ' ':
 				break
 			word += c
-			to_in += 1
 
 		if word:
 			return word
@@ -93,7 +93,6 @@ def VARIABLE():
 	ram.append(None)
 
 def compile(word):
-	print("COMPILE " + word)
 	global stack
 	bytecode = words[latest].bytecode
 	if word in words:
@@ -108,8 +107,6 @@ def compile(word):
 			DROP()
 		else:
 			sys.exit("unknown word '" + word + "'")
-	print(bytecode)
-	
 
 def interpret():
 	global tib
@@ -149,6 +146,8 @@ def SEMICOLON():
 	global state
 	words[latest].bytecode.append(words["exit"])
 	state = False
+	print(words[latest])
+	print(words[latest].bytecode)
 
 def DROP():
 	stack.pop()
@@ -229,7 +228,17 @@ def ALLOT():
 	stack.pop()
 
 def SQUOTE():
-	sys.exit("not impl")
+	global to_in
+	s = ""
+	while to_in < len(tib):
+		c = tib[to_in]
+		to_in += 1
+		if c == '"':
+			break
+		s += c
+	b = words[latest].bytecode
+	b.append(words["sliteral"])
+	b.append(s)
 
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
@@ -266,5 +275,13 @@ add_word("cells", CELLS)
 add_word("quit", QUIT)
 add_word("create", CREATE)
 add_word("allot", ALLOT)
+add_word("sliteral", lambda : sys.exit("sliteral"))
+add_word("leave", lambda : sys.exit("leave"))
+add_word(">r", lambda : sys.exit(">r"))
+add_word("r>", lambda : sys.exit("r>"))
+add_word(">in", lambda : sys.exit(">in"))
+add_word("[char]", lambda : sys.exit("[char]"))
+add_word("*", lambda : sys.exit("*"))
+add_word("emit", lambda : sys.exit("emit"))
 
 QUIT()
