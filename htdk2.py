@@ -103,9 +103,8 @@ def read_word():
 		REFILL()
 
 def VARIABLE():
-	l = len(heap)
-	name = read_word().lower()
-	words[name] = Word(name, lambda : stack.append(l), False)
+	CREATE()
+	words[latest].xt = lambda l=len(heap) : stack.append(l)
 	heap.append(None)
 
 def compile(word):
@@ -262,6 +261,13 @@ def ALLOT():
 		heap.append(0)
 	stack.pop()
 
+def SLITERAL():
+	global ip
+	stack.append(ip + 1)
+	stack.append(heap[ip])
+	TYPE()
+	ip += heap[ip] + 1
+
 def SQUOTE():
 	s = ""
 	while heap[to_in_addr] < tib_count:
@@ -324,8 +330,24 @@ def AND():
 	stack[-2] &= stack[-1]
 	stack.pop()
 
+def OR():
+	stack[-2] |= stack[-1]
+	stack.pop()
+
+def XOR():
+	stack[-2] ^= stack[-1]
+	stack.pop()
+
+def RSHIFT():
+	u = stack.pop()
+	stack[-1] >>= u
+
 def INVERT():
 	stack[-1] = ~stack[-1]
+
+def CONSTANT():
+	CREATE()
+	words[latest].xt = lambda v=stack.pop() : stack.append(v)
 
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
@@ -362,7 +384,7 @@ add_word("cells", CELLS)
 add_word("quit", QUIT)
 add_word("create", CREATE)
 add_word("allot", ALLOT)
-add_word("sliteral", lambda : sys.exit("sliteral"))
+add_word("sliteral", SLITERAL)
 add_word("leave", lambda : sys.exit("leave"))
 add_word(">r", TO_R)
 add_word("r>", R_TO)
@@ -372,6 +394,10 @@ add_word("*", lambda : sys.exit("*"))
 add_word("emit", lambda : sys.exit("emit"))
 add_word("(", LPAREN, True)
 add_word("and", AND)
+add_word("or", OR)
+add_word("xor", XOR)
+add_word("rshift", RSHIFT)
 add_word("invert", INVERT)
+add_word("constant", CONSTANT)
 
 QUIT()
