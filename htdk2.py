@@ -2,8 +2,6 @@
 
 import sys
 
-ram = []
-
 class Word:
 	def __init__(self, name, fn, immediate):
 		self.name = name
@@ -14,6 +12,7 @@ class Word:
 	def __repr__(self):
 		return self.name
 
+ram = []
 base = 10
 state = False
 words = {}
@@ -133,7 +132,7 @@ def STORE():
 def docol(word):
 	print("DOCOL")
 
-def create():
+def CREATE():
 	global latest
 	latest = read_word().lower()
 	words[latest] = Word(latest, lambda : docol(w), False)
@@ -143,7 +142,7 @@ def DEPTH():
 
 def COLON():
 	global state
-	create()
+	CREATE()
 	state = True
 
 def SEMICOLON():
@@ -221,6 +220,17 @@ def LOOP():
 def CR():
 	print()
 
+def CELLS():
+	stack.append(1)
+
+def ALLOT():
+	for i in range(stack[-1]):
+		ram.append(0)
+	stack.pop()
+
+def SQUOTE():
+	sys.exit("not impl")
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
@@ -238,11 +248,23 @@ add_word("negate", NEGATE)
 add_word("if", IF, True)
 add_word("else", ELSE, True)
 add_word("then", THEN, True)
-add_word("do", DO, True)
 add_word("cr", CR)
+add_word("i", lambda : sys.exit("i"))
+add_word("=", lambda : sys.exit("="))
+add_word("0=", lambda : sys.exit("0="))
+add_word('s"', SQUOTE, True)
+add_word("do", DO, True)
 add_word("(do)", _DO)
 add_word("loop", LOOP, True)
 add_word("(loop)", _LOOP)
 add_word("exit", lambda : sys.exit("exit"))
+add_word("type", lambda : sys.exit("type"))
+add_word("source", lambda : sys.exit("source"))
+add_word("@", lambda : sys.exit("@"))
+add_word("+", lambda : sys.exit("+"))
+add_word("cells", CELLS)
+add_word("quit", QUIT)
+add_word("create", CREATE)
+add_word("allot", ALLOT)
 
 QUIT()
