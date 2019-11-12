@@ -5,10 +5,14 @@ import sys
 ram = []
 
 class Word:
-	def __init__(self, fn, immediate = False):
+	def __init__(self, name, fn, immediate):
+		self.name = name
 		self.fn = fn
 		self.immediate = immediate
 		self.bytecode = []
+
+	def __repr__(self):
+		return self.name
 
 base = 10
 state = False
@@ -21,6 +25,9 @@ latest = None
 ip = 0
 
 digits = "0123456789abcdefghijklmnopqrstuvwxyz"
+
+def add_word(name, fn, immediate = False):
+	words[name] = Word(name, fn, immediate)
 
 def is_number(word):
 	for d in word:
@@ -82,7 +89,8 @@ def read_word():
 
 def VARIABLE():
 	l = len(ram)
-	words[read_word().lower()] = Word(lambda : stack.append(l))
+	name = read_word().lower()
+	words[name] = Word(name, lambda : stack.append(l), False)
 	ram.append(None)
 
 def compile(word):
@@ -94,15 +102,14 @@ def compile(word):
 			words[word].fn()
 		else:
 			bytecode.append(words[word])
-			print("append " + word)
-			print(bytecode)
 	else:
 		if is_number(word):
 			evaluate_number(word)
 			bytecode.append(stack[-1])
-			stack.pop()
+			DROP()
 		else:
 			sys.exit("unknown word '" + word + "'")
+	print(bytecode)
 	
 
 def interpret():
@@ -120,8 +127,8 @@ def HEX():
 
 def STORE():
 	ram[stack[-1]] = stack[-2]
-	stack.pop()
-	stack.pop()
+	DROP()
+	DROP()
 
 def docol(word):
 	print("DOCOL")
@@ -129,9 +136,7 @@ def docol(word):
 def create():
 	global latest
 	latest = read_word().lower()
-	w = Word(latest)
-	w.fn = lambda : docol(w)
-	words[latest] = w
+	words[latest] = Word(latest, lambda : docol(w), False)
 
 def DEPTH():
 	return len(stack)
@@ -141,6 +146,14 @@ def COLON():
 	create()
 	state = True
 
+def SEMICOLON():
+	global state
+	words[latest].bytecode.append(words["exit"])
+	state = False
+
+def DROP():
+	stack.pop()
+
 def DUP():
 	stack.push(stack[-1])
 
@@ -148,17 +161,34 @@ def QDUP():
 	if stack[-1]:
 		DUP()
 
+def BRANCH():
+	global ip
+	ip = bytecode[ip + 1]
+
 def ZBRANCH():
 	global ip
-	ip += 1
-	if not stack[-1]:
-		ip += bytecode[ip]
+	if stack[-1]:
+		ip += 1
+	else:
+		BRANCH()
 
 def IF():
 	b = words[latest].bytecode
 	b.append(words["0branch"])
-	b.append(0)
 	control_stack.append(len(b))
+	b.append(0)
+
+def ELSE():
+	b = words[latest].bytecode
+	b[control_stack[-1]] = len(b)
+	b.append(words["branch"])
+	control_stack[-1] = len(b)
+	b.append(0)
+
+def THEN():
+	b = words[latest].bytecode
+	b[control_stack[-1]] = len(b)
+	control_stack.pop()
 
 def ZLESS():
 	return stack[-1] < 0
@@ -171,17 +201,48 @@ def QUIT():
 		REFILL()
 		interpret()
 
-words["\\"] = Word(REFILL, True)
-words["hex"] = Word(HEX)
-words["variable"] = Word(VARIABLE)
-words["!"] = Word(STORE)
-words[":"] = Word(COLON)
-words["depth"] = Word(DEPTH)
-words["?dup"] = Word(QDUP)
-words["dup"] = Word(DUP)
-words["0<"] = Word(ZLESS)
-words["0branch"] = Word(ZBRANCH)
-words["negate"] = Word(NEGATE)
-words["if"] = Word(IF, True)
+def _DO():
+	sys.exit("(do)")
+
+def DO():
+	b = words[latest].bytecode
+	b.append(words["(do)"])
+	control_stack.append(len(b))
+
+def _LOOP():
+	sys.exit("(loop)")
+
+def LOOP():
+	b = words[latest].bytecode
+	b.append(words["(loop)"])
+	b.append(control_stack[-1])
+	control_stack.pop()
+
+def CR():
+	print()
+
+add_word("\\", REFILL, True)
+add_word("hex", HEX)
+add_word("variable", VARIABLE)
+add_word("!", STORE)
+add_word(":", COLON)
+add_word(";", SEMICOLON, True)
+add_word("depth", DEPTH)
+add_word("?dup", QDUP)
+add_word("dup", DUP)
+add_word("drop", DROP)
+add_word("0<", ZLESS)
+add_word("0branch", ZBRANCH)
+add_word("branch", BRANCH)
+add_word("negate", NEGATE)
+add_word("if", IF, True)
+add_word("else", ELSE, True)
+add_word("then", THEN, True)
+add_word("do", DO, True)
+add_word("cr", CR)
+add_word("(do)", _DO)
+add_word("loop", LOOP, True)
+add_word("(loop)", _LOOP)
+add_word("exit", lambda : sys.exit("exit"))
 
 QUIT()
