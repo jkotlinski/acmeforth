@@ -12,21 +12,23 @@ class Word:
 	def __repr__(self):
 		return self.name
 
-heap = [0] * 80
+heap = [None] * 200
 base = 10
 state = False
 words = {}
 stack = []
 control_stack = []
 return_stack = []
-tib = 0
+tib = 1
 here = 0
-to_in = 0
 tib_count = 0
 latest = None
 ip = 0
 
 digits = "0123456789abcdefghijklmnopqrstuvwxyz"
+
+def TO_IN():
+	return 0
 
 def add_word(name, xt, immediate = False):
 	words[name] = Word(name, xt, immediate, -1)
@@ -58,31 +60,29 @@ def evaluate(word):
 
 def REFILL():
 	global tib
-	global to_in
 	global tib_count
 	tib_count = 0
 	for c in input():
 		heap[tib + tib_count] = c
 		tib_count += 1
-	to_in = 0
+	heap[TO_IN()] = 0
 
 def read_word():
-	global to_in
 	global tib
 
 	while True:
 		# skips leading whitespace
-		while to_in < tib_count:
-			if heap[tib + to_in] == ' ':
-				to_in += 1
+		while heap[TO_IN()] < tib_count:
+			if heap[tib + heap[TO_IN()]] == ' ':
+				heap[TO_IN()] += 1
 			else:
 				break
 
 		# reads the word
 		word = ""
-		while to_in < tib_count:
-			c = heap[tib + to_in]
-			to_in += 1
+		while heap[TO_IN()] < tib_count:
+			c = heap[tib + heap[TO_IN()]]
+			heap[TO_IN()] += 1
 			if c == ' ':
 				break
 			word += c
@@ -116,7 +116,6 @@ def compile(word):
 
 def interpret():
 	global tib
-	global to_in
 	while True:
 		word = read_word().lower()
 		print(word)
@@ -141,10 +140,10 @@ def docol(word):
 		code = heap[ip]
 		ip += 1
 		if type(code) == Word:
-			print("exec " + code.name)
+			# print("exec " + code.name)
 			code.xt()
 		else:
-			print(code)
+			# print(code)
 			sys.exit("What?")
 	sys.exit("DOCOL")
 
@@ -182,7 +181,7 @@ def BRANCH():
 
 def ZBRANCH():
 	global ip
-	if stack[-1]:
+	if stack.pop():
 		ip += 1
 	else:
 		BRANCH()
@@ -240,11 +239,10 @@ def ALLOT():
 	stack.pop()
 
 def SQUOTE():
-	global to_in
 	s = ""
-	while to_in < tib_count:
-		c = heap[tib + to_in]
-		to_in += 1
+	while heap[TO_IN()] < tib_count:
+		c = heap[tib + heap[TO_IN()]]
+		heap[TO_IN()] += 1
 		if c == '"':
 			break
 		s += c
@@ -260,8 +258,16 @@ def SOURCE():
 def FETCH():
 	stack[-1] = heap[stack[-1]]
 
-def TO_IN():
-	stack.append(to_in)
+def TO_R():
+	return_stack.append(stack.pop())
+
+def R_TO():
+	stack.append(return_stack.pop())
+
+def TYPE():
+	print("".join(heap[stack[-2]:stack[-2]+stack[-1]]), end='')
+	DROP()
+	DROP()
 
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
@@ -290,7 +296,7 @@ add_word("(do)", _DO)
 add_word("loop", LOOP, True)
 add_word("(loop)", _LOOP)
 add_word("exit", lambda : sys.exit("exit"))
-add_word("type", lambda : sys.exit("type"))
+add_word("type", TYPE)
 add_word("source", SOURCE)
 add_word("@", FETCH)
 add_word("+", lambda : sys.exit("+"))
@@ -300,8 +306,8 @@ add_word("create", CREATE)
 add_word("allot", ALLOT)
 add_word("sliteral", lambda : sys.exit("sliteral"))
 add_word("leave", lambda : sys.exit("leave"))
-add_word(">r", lambda : sys.exit(">r"))
-add_word("r>", lambda : sys.exit("r>"))
+add_word(">r", TO_R)
+add_word("r>", R_TO)
 add_word(">in", TO_IN)
 add_word("[char]", lambda : sys.exit("[char]"))
 add_word("*", lambda : sys.exit("*"))
