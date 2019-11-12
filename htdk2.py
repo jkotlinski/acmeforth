@@ -230,7 +230,14 @@ def DO():
 	control_stack.append(len(heap))
 
 def _LOOP():
-	sys.exit("(loop)")
+	global ip
+	return_stack[-2] += 1
+	if return_stack[-2] == return_stack[-1]:
+		return_stack.pop()
+		return_stack.pop()
+		ip += 1
+	else:
+		ip = heap[ip]
 
 def LOOP():
 	heap.append(words["(loop)"])
@@ -303,6 +310,9 @@ def PLUS():
 	stack[-2] += stack[-1]
 	stack.pop()
 
+def ZEQUAL():
+	stack[-1] = stack[-1] == 0
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
@@ -323,7 +333,7 @@ add_word("then", THEN, True)
 add_word("cr", CR)
 add_word("i", I)
 add_word("=", EQUALS)
-add_word("0=", lambda : sys.exit("0="))
+add_word("0=", ZEQUAL)
 add_word('s"', SQUOTE, True)
 add_word("do", DO, True)
 add_word("(do)", _DO)
