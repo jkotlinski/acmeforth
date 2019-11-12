@@ -156,7 +156,7 @@ def docol(ip_):
 def CREATE():
 	global latest
 	latest = read_word().lower()
-	words[latest] = Word(latest, lambda ip=len(heap) : docol(ip), False, len(heap))
+	words[latest] = Word(latest, lambda i=len(heap) : stack.append(i), False, None)
 
 def DEPTH():
 	stack.append(len(stack))
