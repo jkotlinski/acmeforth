@@ -3,21 +3,22 @@
 import sys
 
 class Word:
-	def __init__(self, name, fn, immediate):
+	def __init__(self, name, xt, immediate, ip):
 		self.name = name
-		self.fn = fn
+		self.ip = ip
+		self.xt = xt
 		self.immediate = immediate
-		self.bytecode = []
 
 	def __repr__(self):
 		return self.name
 
-ram = [0] * 80
+heap = [0] * 80
 base = 10
 state = False
 words = {}
 stack = []
 control_stack = []
+return_stack = []
 tib = 0
 here = 0
 to_in = 0
@@ -27,8 +28,8 @@ ip = 0
 
 digits = "0123456789abcdefghijklmnopqrstuvwxyz"
 
-def add_word(name, fn, immediate = False):
-	words[name] = Word(name, fn, immediate)
+def add_word(name, xt, immediate = False):
+	words[name] = Word(name, xt, immediate, -1)
 
 def is_number(word):
 	for d in word:
@@ -48,7 +49,7 @@ def evaluate_number(word):
 
 def evaluate(word):
 	if word in words:
-		words[word].fn()
+		words[word].xt()
 	else:
 		if is_number(word):
 			evaluate_number(word)
@@ -61,7 +62,7 @@ def REFILL():
 	global tib_count
 	tib_count = 0
 	for c in input():
-		ram[tib + tib_count] = c
+		heap[tib + tib_count] = c
 		tib_count += 1
 	to_in = 0
 
@@ -72,7 +73,7 @@ def read_word():
 	while True:
 		# skips leading whitespace
 		while to_in < tib_count:
-			if ram[tib + to_in] == ' ':
+			if heap[tib + to_in] == ' ':
 				to_in += 1
 			else:
 				break
@@ -80,7 +81,7 @@ def read_word():
 		# reads the word
 		word = ""
 		while to_in < tib_count:
-			c = ram[tib + to_in]
+			c = heap[tib + to_in]
 			to_in += 1
 			if c == ' ':
 				break
@@ -93,23 +94,22 @@ def read_word():
 		REFILL()
 
 def VARIABLE():
-	l = len(ram)
+	l = len(heap)
 	name = read_word().lower()
-	words[name] = Word(name, lambda : stack.append(l), False)
-	ram.append(None)
+	words[name] = Word(name, lambda : stack.append(l), False, len(heap))
+	heap.append(None)
 
 def compile(word):
 	global stack
-	bytecode = words[latest].bytecode
 	if word in words:
 		if words[word].immediate:
-			words[word].fn()
+			words[word].xt()
 		else:
-			bytecode.append(words[word])
+			heap.append(words[word])
 	else:
 		if is_number(word):
 			evaluate_number(word)
-			bytecode.append(stack[-1])
+			heap.append(stack[-1])
 			DROP()
 		else:
 			sys.exit("unknown word '" + word + "'")
@@ -119,6 +119,7 @@ def interpret():
 	global to_in
 	while True:
 		word = read_word().lower()
+		print(word)
 		if state:
 			compile(word)
 		else:
@@ -128,20 +129,21 @@ def HEX():
 	base = 16
 
 def STORE():
-	ram[stack[-1]] = stack[-2]
+	heap[stack[-1]] = stack[-2]
 	DROP()
 	DROP()
 
 def docol(word):
+	print("DOCOL")
 	global ip
-	ip = 0
+	ip = word.ip
 	while True:
-		code = word.bytecode[ip]
+		code = heap[ip]
 		if type(code) == Word:
-			print("exec "),
-			print(code)
-			code.fn()
+			print("exec " + code.name)
+			code.xt()
 		else:
+			print(code)
 			sys.exit("What?")
 		ip += 1
 	sys.exit("DOCOL")
@@ -149,7 +151,7 @@ def docol(word):
 def CREATE():
 	global latest
 	latest = read_word().lower()
-	words[latest] = Word(latest, lambda : docol(words[latest]), False)
+	words[latest] = Word(latest, lambda : docol(words[latest]), False, len(heap))
 
 def DEPTH():
 	return len(stack)
@@ -161,10 +163,8 @@ def COLON():
 
 def SEMICOLON():
 	global state
-	words[latest].bytecode.append(words["exit"])
+	heap.append(words["exit"])
 	state = False
-	print(words[latest])
-	print(words[latest].bytecode)
 
 def DROP():
 	stack.pop()
@@ -178,31 +178,31 @@ def QDUP():
 
 def BRANCH():
 	global ip
-	ip = bytecode[ip + 1]
+	ip = heap[ip + 1]
+	print(ip)
 
 def ZBRANCH():
 	global ip
 	if stack[-1]:
+		print("..skip")
 		ip += 1
 	else:
+		print("..branch")
 		BRANCH()
 
 def IF():
-	b = words[latest].bytecode
-	b.append(words["0branch"])
-	control_stack.append(len(b))
-	b.append(0)
+	heap.append(words["0branch"])
+	control_stack.append(len(heap))
+	heap.append(0)
 
 def ELSE():
-	b = words[latest].bytecode
-	b[control_stack[-1]] = len(b)
-	b.append(words["branch"])
-	control_stack[-1] = len(b)
-	b.append(0)
+	heap.append(words["branch"])
+	heap.append(0)
+	heap[control_stack[-1]] = len(heap)
+	control_stack[-1] = len(heap) - 1
 
 def THEN():
-	b = words[latest].bytecode
-	b[control_stack[-1]] = len(b)
+	heap[control_stack[-1]] = len(heap)
 	control_stack.pop()
 
 def ZLESS():
@@ -220,17 +220,15 @@ def _DO():
 	sys.exit("(do)")
 
 def DO():
-	b = words[latest].bytecode
-	b.append(words["(do)"])
-	control_stack.append(len(b))
+	heap.append(words["(do)"])
+	control_stack.append(len(heap))
 
 def _LOOP():
 	sys.exit("(loop)")
 
 def LOOP():
-	b = words[latest].bytecode
-	b.append(words["(loop)"])
-	b.append(control_stack[-1])
+	heap.append(words["(loop)"])
+	heap.append(control_stack[-1])
 	control_stack.pop()
 
 def CR():
@@ -241,28 +239,29 @@ def CELLS():
 
 def ALLOT():
 	for i in range(stack[-1]):
-		ram.append(0)
+		heap.append(0)
 	stack.pop()
 
 def SQUOTE():
 	global to_in
 	s = ""
 	while to_in < tib_count:
-		c = ram[tib + to_in]
+		c = heap[tib + to_in]
 		to_in += 1
 		if c == '"':
 			break
 		s += c
-	b = words[latest].bytecode
-	b.append(words["sliteral"])
-	b.append(s)
+	heap.append(words["sliteral"])
+	heap.append(len(s))
+	for c in s:
+		heap.append(c)
 
 def SOURCE():
 	stack.append(tib)
 	stack.append(tib_count)
 
 def FETCH():
-	stack[-1] = ram[stack[-1]]
+	stack[-1] = heap[stack[-1]]
 
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
