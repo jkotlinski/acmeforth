@@ -2,7 +2,7 @@
 
 import sys
 
-DEBUG = False
+DEBUG = True
 
 class Word:
 	def __init__(self, name, xt, immediate, ip):
@@ -151,8 +151,7 @@ def docol(ip_):
 			if DEBUG:
 				print(stack)
 		else:
-			# print(code)
-			sys.exit("What?")
+			stack.append(code)
 
 def CREATE():
 	global latest
