@@ -2,14 +2,13 @@
 
 import sys
 
-DEBUG = True
+DEBUG = False
 
 class Word:
-	def __init__(self, name, xt, immediate, ip):
+	def __init__(self, name, xt, immediate):
 		self.name = name
 		self.xt = xt
 		self.immediate = immediate
-		self.ip = ip
 
 	def __repr__(self):
 		return self.name
@@ -34,7 +33,7 @@ def TO_IN():
 	stack.append(to_in_addr)
 
 def add_word(name, xt, immediate = False):
-	words[name] = Word(name, xt, immediate, -1)
+	words[name] = Word(name, xt, immediate)
 
 def is_number(word):
 	for d in word:
@@ -99,7 +98,7 @@ def read_word():
 def VARIABLE():
 	l = len(heap)
 	name = read_word().lower()
-	words[name] = Word(name, lambda : stack.append(l), False, len(heap))
+	words[name] = Word(name, lambda : stack.append(l), False)
 	heap.append(None)
 
 def compile(word):
@@ -156,7 +155,7 @@ def docol(ip_):
 def CREATE():
 	global latest
 	latest = read_word().lower()
-	words[latest] = Word(latest, lambda i=len(heap) : stack.append(i), False, None)
+	words[latest] = Word(latest, lambda i=len(heap) : stack.append(i), False)
 
 def DEPTH():
 	stack.append(len(stack))
@@ -164,6 +163,7 @@ def DEPTH():
 def COLON():
 	global state
 	CREATE()
+	words[latest].xt = lambda ip=len(heap) : docol(ip)
 	state = True
 
 def SEMICOLON():
