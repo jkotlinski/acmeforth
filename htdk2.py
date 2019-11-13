@@ -470,6 +470,66 @@ def UM_MULTIPLY():
 	stack[-1] = ctypes.c_int(s >> 32).value
 	stack[-2] = ctypes.c_int(s).value
 
+def TUCK(): # ( b a -- a b a )
+	SWAP()
+	OVER()
+
+def UM_MOD(): # ( lsw msw divisor -- rem quot )
+	lsw = stack[-3]
+	msw = stack[-2]
+	n = (msw << 32) | ctypes.c_uint(lsw).value
+	stack[-3] = ctypes.c_uint(n % stack[-1]).value
+	stack[-2] = ctypes.c_int(n // stack[-1]).value
+	stack.pop()
+
+def M_PLUS(): # ( d1 u -- d2 )
+	lsw = stack[-3]
+	msw = stack[-2]
+	n = (msw << 32) | ctypes.c_uint(lsw).value
+	n += stack[-1]
+	stack[-3] = ctypes.c_uint(n).value
+	stack[-2] = ctypes.c_int(n >> 32).value
+	stack.pop()
+
+# from FIG UK
+def D_NEGATE():
+	INVERT()
+	TO_R()
+	INVERT()
+	R_TO()
+	stack.append(1)
+	M_PLUS()
+
+# from Gforth
+def FM_MOD(): # ( d n -- rem quot )
+	# dup >r
+	DUP()
+	TO_R()
+	# dup 0< if negate >r dnegate r> then
+	DUP()
+	ZLESS()
+	if stack.pop():
+		NEGATE()
+		TO_R()
+		D_NEGATE()
+		R_TO()
+	# over 0< if tuck + swap then
+	OVER()
+	ZLESS()
+	if stack.pop():
+		TUCK()
+		PLUS()
+		SWAP()
+	# um/mod
+	UM_MOD()
+	# r> 0< if swap negate swap then
+	R_TO()
+	ZLESS()
+	if stack.pop():
+		SWAP()
+		NEGATE()
+		SWAP()
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
@@ -543,5 +603,6 @@ add_word("s>d", S_TO_D)
 add_word("*", MULTIPLY)
 add_word("m*", M_MULTIPLY)
 add_word("um*", UM_MULTIPLY)
+add_word("fm/mod", FM_MOD)
 
 QUIT()
