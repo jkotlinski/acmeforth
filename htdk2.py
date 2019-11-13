@@ -342,8 +342,10 @@ def XOR():
 	stack.pop()
 
 def RSHIFT():
-	stack[-2] = util.rshift(stack[-2], stack[-1])
+	l = ctypes.c_uint(stack[-2])
+	l.value >>= stack[-1]
 	stack.pop()
+	stack[-1] = l.value
 
 def LSHIFT():
 	l = ctypes.c_int(stack[-2])
