@@ -687,6 +687,12 @@ def FIND(): # ( c-addr -- c-addr 0 | xt 1 | xt -1 )
 def EXECUTE():
 	stack.pop()()
 
+def COUNT():
+	DUP()
+	ONEPLUS()
+	SWAP()
+	FETCH()
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
@@ -797,5 +803,6 @@ add_word("execute", EXECUTE)
 add_word("[']", COMPILE_TICK, True)
 add_word("immediate", IMMEDIATE)
 add_word("find", FIND)
+add_word("count", COUNT)
 
 QUIT()
