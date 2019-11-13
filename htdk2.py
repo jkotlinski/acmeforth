@@ -363,6 +363,30 @@ def TWOMUL():
 def TWODIV():
 	stack[-1] >>= 1
 
+def U_LESS_THAN():
+	if stack[-1] < 0:
+		stack[-1] += 2 ** 32
+	if stack[-2] < 0:
+		stack[-2] += 2 ** 32
+	stack[-2] = -1 if stack[-2] < stack[-1] else 0
+	stack.pop()
+
+def LESS_THAN():
+	stack[-2] = -1 if stack[-2] < stack[-1] else 0
+	stack.pop()
+
+def GREATER_THAN():
+	stack[-2] = -1 if stack[-2] > stack[-1] else 0
+	stack.pop()
+
+def MIN():
+	stack[-2] = min(stack[-2], stack[-1])
+	stack.pop()
+
+def MAX():
+	stack[-2] = max(stack[-2], stack[-1])
+	stack.pop()
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
@@ -416,5 +440,10 @@ add_word("2*", TWOMUL)
 add_word("2/", TWODIV)
 add_word("invert", INVERT)
 add_word("constant", CONSTANT)
+add_word("<", LESS_THAN)
+add_word(">", GREATER_THAN)
+add_word("u<", U_LESS_THAN)
+add_word("min", MIN)
+add_word("max", MAX)
 
 QUIT()
