@@ -676,7 +676,7 @@ def FIND(): # ( c-addr -- c-addr 0 | xt 1 | xt -1 )
 	wordname = ""
 	addr = stack[-1]
 	for i in range(heap[addr]):
-		wordname += chr(heap[addr + i + 1])
+		wordname += chr(heap[addr + i + 1]).lower()
 	if wordname in words:
 		word = words[wordname]
 		stack[-1] = word.xt
