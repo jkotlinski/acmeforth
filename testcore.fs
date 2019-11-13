@@ -553,6 +553,12 @@ T{ 1STA 2NDA U< -> <TRUE> }T      \ HERE MUST GROW WITH ALLOT
 T{ 1STA 1+ -> 2NDA }T         \ ... BY ONE ADDRESS UNIT
 ( MISSING TEST: NEGATIVE ALLOT )
 
+\ Added by GWJ so that ALIGN can be used before , (comma) is tested
+1 ALIGNED CONSTANT ALMNT   \ -- 1|2|4|8 for 8|16|32|64 bit alignment
+ALIGN
+T{ HERE 1 ALLOT ALIGN HERE SWAP - ALMNT = -> <TRUE> }T
+\ End of extra test
+
 HERE 1 ,
 HERE 2 ,
 CONSTANT 2ND
@@ -614,21 +620,18 @@ T{ -1 1ST +! 1ST @ -> 0 }T
 \ ------------------------------------------------------------------------
 TESTING CHAR [CHAR] [ ] BL S"
 
-d8 value X \ petscii
-c8 value H \ petscii
-
 T{ BL -> 20 }T
-T{ CHAR X -> X }T
-T{ CHAR HELLO -> H }T
+T{ CHAR X -> 58 }T
+T{ CHAR HELLO -> 48 }T
 T{ : GC1 [CHAR] X ; -> }T
 T{ : GC2 [CHAR] HELLO ; -> }T
-T{ GC1 -> X }T
-T{ GC2 -> H }T
+T{ GC1 -> 58 }T
+T{ GC2 -> 48 }T
 T{ : GC3 [ GC1 ] LITERAL ; -> }T
-T{ GC3 -> X }T
+T{ GC3 -> 58 }T
 T{ : GC4 S" XY" ; -> }T
 T{ GC4 SWAP DROP -> 2 }T
-T{ GC4 DROP DUP C@ SWAP CHAR+ C@ -> X X 1+ }T
+T{ GC4 DROP DUP C@ SWAP CHAR+ C@ -> 58 59 }T
 
 \ ------------------------------------------------------------------------
 TESTING ' ['] FIND EXECUTE IMMEDIATE COUNT LITERAL POSTPONE STATE
@@ -804,7 +807,7 @@ T{ 2 SCANS !
 T{ GS2 -> 123 123 123 123 123 }T
 
 : GS3 WORD COUNT SWAP C@ ;
-T{ BL GS3 HELLO -> 5 H }T
+T{ BL GS3 HELLO -> 5 CHAR H }T
 T{ CHAR " GS3 GOODBYE" -> 7 CHAR G }T
 T{ BL GS3
 DROP -> 0 }T            \ BLANK LINE RETURN ZERO-LENGTH STRING
@@ -829,7 +832,7 @@ TESTING <# # #S #> HOLD SIGN BASE >NUMBER HEX DECIMAL
       R> DROP 2DROP <FALSE>      \ LENGTHS MISMATCH
    THEN ;
 
-: GP1  <# [char] A HOLD [char] B HOLD 0 0 #> S" BA" S= ;
+: GP1  <# 41 HOLD 42 HOLD 0 0 #> S" BA" S= ;
 T{ GP1 -> <TRUE> }T
 
 : GP2  <# -1 SIGN 0 SIGN -1 SIGN 0 0 #> S" --" S= ;
