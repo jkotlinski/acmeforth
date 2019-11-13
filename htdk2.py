@@ -218,7 +218,7 @@ def THEN():
 	control_stack.pop()
 
 def ZLESS():
-	return stack[-1] < 0
+	stack[-1] = -1 if stack[-1] < 0 else 0
 
 def NEGATE():
 	stack[-1] = -stack[-1]
@@ -319,7 +319,7 @@ def LPAREN():
 		REFILL()
 
 def EQUALS():
-	stack[-2] = stack[-1] == stack[-2]
+	stack[-2] = -1 if stack[-1] == stack[-2] else 0
 	stack.pop()
 
 def PLUS():
@@ -327,7 +327,7 @@ def PLUS():
 	stack.pop()
 
 def ZEQUAL():
-	stack[-1] = stack[-1] == 0
+	stack[-1] = 0 if stack[-1] else -1
 
 def AND():
 	stack[-2] &= stack[-1]
