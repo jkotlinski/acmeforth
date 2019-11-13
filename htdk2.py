@@ -22,7 +22,6 @@ stack = []
 control_stack = []
 return_stack = []
 tib = 1
-here = 0
 tib_count = 0
 latest = None
 ip = 0
@@ -616,6 +615,9 @@ def POSTPONE():
 	name = read_word()
 	heap.append(words[name])
 
+def HERE():
+	stack.append(len(heap))
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
@@ -703,5 +705,6 @@ add_word("postpone", POSTPONE, True)
 add_word("*/mod", STAR_SLASH_MOD)
 add_word("/mod", SLASH_MOD)
 add_word("mod", MOD)
+add_word("here", HERE)
 
 QUIT()
