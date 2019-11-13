@@ -338,11 +338,7 @@ def XOR():
 	stack.pop()
 
 def RSHIFT():
-	if stack[-2] < 0:
-		# Workaround for infinite number of bits.
-		stack[-2] = -(-stack[-2] >> stack[-1])
-	else:
-		stack[-2] >>= stack[-1]
+	stack[-2] >>= stack[-1]
 	stack.pop()
 
 def INVERT():
