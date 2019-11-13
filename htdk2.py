@@ -347,9 +347,12 @@ def R_FETCH():
 	stack.append(return_stack[-1])
 
 def TYPE():
-	print("".join(heap[stack[-2]:stack[-2]+stack[-1]]), end='', flush=True)
-	DROP()
-	DROP()
+	l = heap[stack[-2] : stack[-2] + stack[-1]]
+	for i in range(len(l)):
+		if type(l[i]) == int:
+			l[i] = chr(l[i])
+	print("".join(l), end='', flush=True)
+	TWODROP()
 
 def EXIT():
 	global ip
@@ -669,6 +672,18 @@ def COMPILE_TICK():
 def IMMEDIATE():
 	words[latest].immediate = True
 
+def FIND(): # ( c-addr -- c-addr 0 | xt 1 | xt -1 )
+	wordname = ""
+	addr = stack[-1]
+	for i in range(heap[addr]):
+		wordname += chr(heap[addr + i + 1])
+	if wordname in words:
+		word = words[wordname]
+		stack[-1] = word.xt
+		stack.append(1 if word.immediate else -1)
+	else:
+		stack.append(0)
+
 def EXECUTE():
 	stack.pop()()
 
@@ -781,5 +796,6 @@ add_word("'", TICK)
 add_word("execute", EXECUTE)
 add_word("[']", COMPILE_TICK, True)
 add_word("immediate", IMMEDIATE)
+add_word("find", FIND)
 
 QUIT()
