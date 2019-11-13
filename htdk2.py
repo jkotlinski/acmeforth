@@ -285,7 +285,7 @@ def DO():
 
 def _LOOP():
 	global ip
-	return_stack[-2] += 1
+	return_stack[-2] = ctypes.c_int(return_stack[-2] + 1).value
 	if return_stack[-2] == return_stack[-1]:
 		return_stack.pop()
 		return_stack.pop()
