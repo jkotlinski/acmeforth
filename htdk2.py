@@ -580,9 +580,25 @@ def SLASH_MOD():
 	R_TO()
 	FM_MOD()
 
+def MOD():
+	SLASH_MOD()
+	DROP()
+
 # from FIG UK
 def SLASH():
 	SLASH_MOD()
+	NIP()
+
+# from FIG UK
+def STAR_SLASH_MOD():
+	TO_R()
+	M_MULTIPLY()
+	R_TO()
+	FM_MOD()
+
+# from FIG UK
+def STAR_SLASH():
+	STAR_SLASH_MOD()
 	NIP()
 
 def L_BRACKET():
@@ -679,10 +695,13 @@ add_word("sm/rem", SM_REM)
 add_word("[", L_BRACKET, True)
 add_word("]", R_BRACKET)
 add_word("/", SLASH)
+add_word("*/", STAR_SLASH)
 add_word("nip", NIP)
 add_word("tuck", TUCK)
 add_word("literal", LITERAL, True)
 add_word("postpone", POSTPONE, True)
+add_word("*/mod", STAR_SLASH_MOD)
 add_word("/mod", SLASH_MOD)
+add_word("mod", MOD)
 
 QUIT()
