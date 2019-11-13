@@ -478,7 +478,7 @@ def TUCK(): # ( b a -- a b a )
 def UM_MOD(): # ( lsw msw divisor -- rem quot )
 	lsw = stack[-3]
 	msw = stack[-2]
-	n = (msw << 32) | ctypes.c_uint(lsw).value
+	n = (ctypes.c_uint(msw).value << 32) | ctypes.c_uint(lsw).value
 	d = ctypes.c_uint(stack[-1]).value
 	stack[-3] = ctypes.c_uint(n % stack[-1]).value
 	stack[-2] = ctypes.c_int(n // d).value
@@ -642,6 +642,7 @@ add_word("*", MULTIPLY)
 add_word("m*", M_MULTIPLY)
 add_word("um*", UM_MULTIPLY)
 add_word("fm/mod", FM_MOD)
+add_word("um/mod", UM_MOD)
 add_word("sm/rem", SM_REM)
 
 QUIT()
