@@ -16,18 +16,23 @@ class Word:
 
 heap = [None] * 200
 base = 10
-state = False
 words = {}
 stack = []
 control_stack = []
 return_stack = []
-tib = 1
 tib_count = 0
 latest = None
 ip = 0
+
+# Forth variable space.
 to_in_addr = 0
+state_addr = 1
+tib = 2
 
 digits = "0123456789abcdefghijklmnopqrstuvwxyz"
+
+def STATE():
+	stack.append(state_addr)
 
 def TO_IN():
 	stack.append(to_in_addr)
@@ -129,7 +134,7 @@ def interpret():
 		word = read_word().lower()
 		if DEBUG:
 			print(word)
-		if state:
+		if heap[state_addr]:
 			compile(word)
 		else:
 			evaluate(word)
@@ -177,15 +182,13 @@ def DEPTH():
 	stack.append(len(stack))
 
 def COLON():
-	global state
 	CREATE()
 	words[latest].xt = lambda ip=len(heap) : docol(ip)
-	state = True
+	heap[state_addr] = True
 
 def SEMICOLON():
-	global state
 	heap.append(words["exit"])
-	state = False
+	heap[state_addr] = False
 
 def DROP():
 	stack.pop()
@@ -615,12 +618,10 @@ def STAR_SLASH():
 	NIP()
 
 def L_BRACKET():
-	global state
-	state = False
+	heap[state_addr] = False
 
 def R_BRACKET():
-	global state
-	state = True
+	heap[state_addr] = True
 
 def POSTPONE():
 	name = read_word().lower()
@@ -817,5 +818,6 @@ add_word("immediate", IMMEDIATE)
 add_word("find", FIND)
 add_word("count", COUNT)
 add_word("lit", LIT)
+add_word("state", STATE)
 
 QUIT()
