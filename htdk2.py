@@ -149,6 +149,9 @@ def TWOSTORE():
 	heap[a] = stack.pop()
 	heap[a + 1] = stack.pop()
 
+def PLUSSTORE():
+	heap[stack.pop()] += stack.pop()
+
 def docol(ip_):
 	global ip
 	return_stack.append(ip)
@@ -627,13 +630,28 @@ def COMMA():
 	heap.append(stack.pop())
 
 def BEGIN():
-	control_stack.append(len(heap))
+	dest = len(heap)
+	control_stack.append(dest)
+
+def WHILE():
+	heap.append(words["0branch"])
+	orig = len(heap)
+	control_stack.insert(-1, orig)
+	heap.append(None)
+
+def REPEAT():
+	heap.append(words["branch"])
+	dest = control_stack.pop()
+	heap.append(dest)
+	orig = control_stack.pop()
+	heap[orig] = len(heap)
 
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
 add_word("!", STORE)
 add_word("2!", TWOSTORE)
+add_word("+!", PLUSSTORE)
 add_word(":", COLON)
 add_word(";", SEMICOLON, True)
 add_word("depth", DEPTH)
@@ -729,5 +747,7 @@ add_word("char+", ONEPLUS)
 add_word("c@", FETCH)
 add_word("c!", STORE)
 add_word("begin", BEGIN, True)
+add_word("while", WHILE, True)
+add_word("repeat", REPEAT, True)
 
 QUIT()
