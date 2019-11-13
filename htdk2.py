@@ -346,7 +346,9 @@ def RSHIFT():
 	stack.pop()
 
 def LSHIFT():
-	stack[-2] = util.lshift(stack[-2], stack[-1])
+	l = ctypes.c_int(stack[-2])
+	l.value <<= stack[-1]
+	stack[-2] = l.value
 	stack.pop()
 
 def INVERT():
