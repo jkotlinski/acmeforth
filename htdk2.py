@@ -623,7 +623,7 @@ def R_BRACKET():
 	state = True
 
 def POSTPONE():
-	name = read_word()
+	name = read_word().lower()
 	heap.append(words[name])
 
 def HERE():
