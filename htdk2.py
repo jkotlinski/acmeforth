@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 
+DEBUG = 0
+
 import ctypes
 import sys
-
-DEBUG = False
 
 class Word:
 	def __init__(self, name, xt, immediate):
@@ -149,6 +149,7 @@ def STORE():
 
 def docol(ip_):
 	global ip
+	return_stack.append(ip)
 	ip = ip_
 	while ip:
 		code = heap[ip]
@@ -595,6 +596,10 @@ def R_BRACKET():
 def LITERAL():
 	heap.append(stack.pop())
 
+def POSTPONE():
+	name = read_word()
+	heap.append(words[name])
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
@@ -677,5 +682,7 @@ add_word("/", SLASH)
 add_word("nip", NIP)
 add_word("tuck", TUCK)
 add_word("literal", LITERAL, True)
+add_word("postpone", POSTPONE, True)
+add_word("/mod", SLASH_MOD)
 
 QUIT()
