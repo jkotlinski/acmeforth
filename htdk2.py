@@ -1,8 +1,11 @@
 #!/usr/bin/python3
 
+import ctypes
 import sys
 
 DEBUG = False
+
+util = ctypes.cdll.LoadLibrary("./libutil.so")
 
 class Word:
 	def __init__(self, name, xt, immediate):
@@ -136,6 +139,7 @@ def interpret():
 			print(stack)
 
 def HEX():
+	global base
 	base = 16
 
 def STORE():
@@ -338,7 +342,11 @@ def XOR():
 	stack.pop()
 
 def RSHIFT():
-	stack[-2] >>= stack[-1]
+	stack[-2] = util.rshift(stack[-2], stack[-1])
+	stack.pop()
+
+def LSHIFT():
+	stack[-2] = util.lshift(stack[-2], stack[-1])
 	stack.pop()
 
 def INVERT():
@@ -349,7 +357,11 @@ def CONSTANT():
 	words[latest].xt = lambda v=stack.pop() : stack.append(v)
 
 def TWOMUL():
-	stack[-1] <<= 1
+	stack.append(1)
+	LSHIFT()
+
+def TWODIV():
+	stack[-1] >>= 1
 
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
@@ -398,8 +410,10 @@ add_word("(", LPAREN, True)
 add_word("and", AND)
 add_word("or", OR)
 add_word("xor", XOR)
+add_word("lshift", LSHIFT)
 add_word("rshift", RSHIFT)
 add_word("2*", TWOMUL)
+add_word("2/", TWODIV)
 add_word("invert", INVERT)
 add_word("constant", CONSTANT)
 
