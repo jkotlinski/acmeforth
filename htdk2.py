@@ -119,8 +119,7 @@ def compile(word):
 	else:
 		if is_number(word):
 			evaluate_number(word)
-			heap.append(stack[-1])
-			DROP()
+			COMMA()
 		else:
 			sys.exit("unknown word '" + word + "'")
 
@@ -143,8 +142,12 @@ def HEX():
 
 def STORE():
 	heap[stack[-1]] = stack[-2]
-	DROP()
-	DROP()
+	TWODROP()
+
+def TWOSTORE():
+	a = stack.pop()
+	heap[a] = stack.pop()
+	heap[a + 1] = stack.pop()
 
 def docol(ip_):
 	global ip
@@ -297,7 +300,7 @@ def CELLS():
 
 def ALLOT():
 	for i in range(stack[-1]):
-		heap.append(0)
+		heap.append(None)
 	stack.pop()
 
 def SLITERAL():
@@ -325,6 +328,11 @@ def SOURCE():
 
 def FETCH():
 	stack[-1] = heap[stack[-1]]
+
+def TWOFETCH():
+	a = stack[-1]
+	stack[-1] = heap[a + 1]
+	stack.append(heap[a])
 
 def TO_R():
 	return_stack.append(stack.pop())
@@ -608,9 +616,6 @@ def R_BRACKET():
 	global state
 	state = True
 
-def LITERAL():
-	heap.append(stack.pop())
-
 def POSTPONE():
 	name = read_word()
 	heap.append(words[name])
@@ -618,10 +623,14 @@ def POSTPONE():
 def HERE():
 	stack.append(len(heap))
 
+def COMMA():
+	heap.append(stack.pop())
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
 add_word("!", STORE)
+add_word("2!", TWOSTORE)
 add_word(":", COLON)
 add_word(";", SEMICOLON, True)
 add_word("depth", DEPTH)
@@ -655,6 +664,7 @@ add_word("exit", EXIT)
 add_word("type", TYPE)
 add_word("source", SOURCE)
 add_word("@", FETCH)
+add_word("2@", TWOFETCH)
 add_word("1+", ONEPLUS)
 add_word("1-", ONEMINUS)
 add_word("+", PLUS)
@@ -700,11 +710,20 @@ add_word("/", SLASH)
 add_word("*/", STAR_SLASH)
 add_word("nip", NIP)
 add_word("tuck", TUCK)
-add_word("literal", LITERAL, True)
+add_word("literal", COMMA, True)
 add_word("postpone", POSTPONE, True)
 add_word("*/mod", STAR_SLASH_MOD)
 add_word("/mod", SLASH_MOD)
 add_word("mod", MOD)
 add_word("here", HERE)
+add_word("chars", lambda *nop:nop)
+add_word("align", lambda *nop:nop)
+add_word("aligned", lambda *nop:nop)
+add_word(",", COMMA)
+add_word("c,", COMMA)
+add_word("cell+", ONEPLUS)
+add_word("char+", ONEPLUS)
+add_word("c@", FETCH)
+add_word("c!", STORE)
 
 QUIT()
