@@ -39,6 +39,8 @@ def add_word(name, xt, immediate = False):
 def is_number(word):
 	if word[0] == '-':
 		word = word[1:]
+		if not word:
+			return False
 	for d in word:
 		if d not in digits:
 			return False
@@ -182,8 +184,42 @@ def SEMICOLON():
 def DROP():
 	stack.pop()
 
+def TWODROP():
+	stack.pop()
+	stack.pop()
+
 def DUP():
 	stack.append(stack[-1])
+
+def TWODUP():
+	stack.append(stack[-2])
+	stack.append(stack[-2])
+
+def OVER():
+	stack.append(stack[-2])
+
+def TWOOVER():
+	stack.append(stack[-4])
+	stack.append(stack[-4])
+
+def ROT():
+	t = stack[-3]
+	stack[-3] = stack[-2]
+	stack[-2] = stack[-1]
+	stack[-1] = t
+
+def SWAP():
+	t = stack[-1]
+	stack[-1] = stack[-2]
+	stack[-2] = t
+
+def TWOSWAP():
+	t = stack[-1]
+	stack[-1] = stack[-3]
+	stack[-3] = t
+	t = stack[-2]
+	stack[-2] = stack[-4]
+	stack[-4] = t
 
 def QDUP():
 	if stack[-1]:
@@ -295,6 +331,9 @@ def TO_R():
 def R_TO():
 	stack.append(return_stack.pop())
 
+def R_FETCH():
+	stack.append(return_stack[-1])
+
 def TYPE():
 	print("".join(heap[stack[-2]:stack[-2]+stack[-1]]), end='', flush=True)
 	DROP()
@@ -322,6 +361,10 @@ def EQUALS():
 
 def PLUS():
 	stack[-2] += stack[-1]
+	stack.pop()
+
+def MINUS():
+	stack[-2] -= stack[-1]
 	stack.pop()
 
 def ZEQUAL():
@@ -398,7 +441,14 @@ add_word(";", SEMICOLON, True)
 add_word("depth", DEPTH)
 add_word("?dup", QDUP)
 add_word("dup", DUP)
+add_word("2dup", TWODUP)
+add_word("over", OVER)
+add_word("2over", TWOOVER)
+add_word("rot", ROT)
+add_word("swap", SWAP)
+add_word("2swap", TWOSWAP)
 add_word("drop", DROP)
+add_word("2drop", TWODROP)
 add_word("0<", ZLESS)
 add_word("0branch", ZBRANCH)
 add_word("branch", BRANCH)
@@ -420,6 +470,7 @@ add_word("type", TYPE)
 add_word("source", SOURCE)
 add_word("@", FETCH)
 add_word("+", PLUS)
+add_word("-", MINUS)
 add_word("cells", CELLS)
 add_word("quit", QUIT)
 add_word("create", CREATE)
@@ -428,6 +479,7 @@ add_word("sliteral", SLITERAL)
 add_word("leave", lambda : sys.exit("leave"))
 add_word(">r", TO_R)
 add_word("r>", R_TO)
+add_word("r@", R_FETCH)
 add_word(">in", TO_IN)
 add_word("[char]", lambda : sys.exit("[char]"))
 add_word("*", lambda : sys.exit("*"))
