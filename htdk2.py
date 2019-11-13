@@ -5,8 +5,6 @@ import sys
 
 DEBUG = False
 
-util = ctypes.cdll.LoadLibrary("./libutil.so")
-
 class Word:
 	def __init__(self, name, xt, immediate):
 		self.name = name
