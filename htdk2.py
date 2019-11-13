@@ -471,6 +471,10 @@ def UM_MULTIPLY():
 	stack[-1] = ctypes.c_int(s >> 32).value
 	stack[-2] = ctypes.c_int(s).value
 
+def NIP(): # ( a b c -- a c )
+	SWAP()
+	DROP()
+
 def TUCK(): # ( b a -- a b a )
 	SWAP()
 	OVER()
@@ -568,6 +572,26 @@ def SM_REM():
 	R_TO()
 	Q_NEGATE()
 
+# from FIG UK
+def SLASH_MOD():
+	TO_R()
+	S_TO_D()
+	R_TO()
+	FM_MOD()
+
+# from FIG UK
+def SLASH():
+	SLASH_MOD()
+	NIP()
+
+def L_BRACKET():
+	global state
+	state = False
+
+def R_BRACKET():
+	global state
+	state = True
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
@@ -644,5 +668,10 @@ add_word("um*", UM_MULTIPLY)
 add_word("fm/mod", FM_MOD)
 add_word("um/mod", UM_MOD)
 add_word("sm/rem", SM_REM)
+add_word("[", L_BRACKET, True)
+add_word("]", R_BRACKET)
+add_word("/", SLASH)
+add_word("nip", NIP)
+add_word("tuck", TUCK)
 
 QUIT()
