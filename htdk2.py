@@ -624,7 +624,14 @@ def R_BRACKET():
 
 def POSTPONE():
 	name = read_word().lower()
-	heap.append(words[name])
+	if words[name].immediate:
+		# Compiles the word instead of executing it immediately.
+		heap.append(words[name])
+	else:
+		# Instead of compiling the word, compile code that compiles the word.
+		heap.append(words["lit"])
+		heap.append(words[name])
+		heap.append(words[","])
 
 def HERE():
 	stack.append(len(heap))
@@ -692,6 +699,11 @@ def COUNT():
 	ONEPLUS()
 	SWAP()
 	FETCH()
+
+def LIT():
+	global ip
+	stack.append(heap[ip])
+	ip += 1
 
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
@@ -804,5 +816,6 @@ add_word("[']", COMPILE_TICK, True)
 add_word("immediate", IMMEDIATE)
 add_word("find", FIND)
 add_word("count", COUNT)
+add_word("lit", LIT)
 
 QUIT()
