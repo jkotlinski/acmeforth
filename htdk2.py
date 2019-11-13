@@ -461,10 +461,14 @@ def MULTIPLY():
 	stack[-1] = v.value
 
 def M_MULTIPLY():
-	v = ctypes.c_int(stack[-2])
-	v.value *= stack[-1]
-	stack[-1] = -1 if stack[-1] * stack[-2] < 0 else 0
-	stack[-2] = v.value
+	s = stack[-2] * stack[-1]
+	stack[-1] = ctypes.c_int(s >> 32).value
+	stack[-2] = ctypes.c_int(s).value
+
+def UM_MULTIPLY():
+	s = ctypes.c_uint(stack[-2]).value * ctypes.c_uint(stack[-1]).value
+	stack[-1] = ctypes.c_int(s >> 32).value
+	stack[-2] = ctypes.c_int(s).value
 
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
@@ -538,5 +542,6 @@ add_word("max", MAX)
 add_word("s>d", S_TO_D)
 add_word("*", MULTIPLY)
 add_word("m*", M_MULTIPLY)
+add_word("um*", UM_MULTIPLY)
 
 QUIT()
