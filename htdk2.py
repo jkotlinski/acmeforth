@@ -657,6 +657,21 @@ def COMPILE_CHAR():
 	CHAR()
 	COMMA()
 
+def TICK():
+	w = read_word().lower()
+	xt = words[w].xt
+	stack.append(xt)
+
+def COMPILE_TICK():
+	TICK()
+	heap.append(stack.pop())
+
+def IMMEDIATE():
+	words[latest].immediate = True
+
+def EXECUTE():
+	stack.pop()()
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
@@ -762,5 +777,9 @@ add_word("repeat", REPEAT, True)
 add_word("bl", BL)
 add_word("char", CHAR)
 add_word("[char]", COMPILE_CHAR, True)
+add_word("'", TICK)
+add_word("execute", EXECUTE)
+add_word("[']", COMPILE_TICK, True)
+add_word("immediate", IMMEDIATE)
 
 QUIT()
