@@ -359,13 +359,32 @@ def EQUALS():
 	stack[-2] = -1 if stack[-1] == stack[-2] else 0
 	stack.pop()
 
+def ONEPLUS():
+	l = ctypes.c_int(stack[-1])
+	l.value += 1
+	stack[-1] = l.value
+
+def ONEMINUS():
+	l = ctypes.c_int(stack[-1])
+	l.value -= 1
+	stack[-1] = l.value
+
 def PLUS():
-	stack[-2] += stack[-1]
+	l = ctypes.c_int(stack[-2])
+	l.value += stack[-1]
 	stack.pop()
+	stack[-1] = l.value
 
 def MINUS():
-	stack[-2] -= stack[-1]
+	l = ctypes.c_int(stack[-2])
+	l.value -= stack[-1]
 	stack.pop()
+	stack[-1] = l.value
+
+def ABS():
+	l = ctypes.c_int(stack[-1])
+	l.value = abs(l.value)
+	stack[-1] = l.value
 
 def ZEQUAL():
 	stack[-1] = 0 if stack[-1] else -1
@@ -469,8 +488,11 @@ add_word("exit", EXIT)
 add_word("type", TYPE)
 add_word("source", SOURCE)
 add_word("@", FETCH)
+add_word("1+", ONEPLUS)
+add_word("1-", ONEMINUS)
 add_word("+", PLUS)
 add_word("-", MINUS)
+add_word("abs", ABS)
 add_word("cells", CELLS)
 add_word("quit", QUIT)
 add_word("create", CREATE)
