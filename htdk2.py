@@ -710,6 +710,9 @@ def LIT():
 	stack.append(heap[ip])
 	ip += 1
 
+def RECURSE():
+	heap.append(words[latest])
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
@@ -824,5 +827,6 @@ add_word("find", FIND)
 add_word("count", COUNT)
 add_word("lit", LIT)
 add_word("state", STATE)
+add_word("recurse", RECURSE, True)
 
 QUIT()
