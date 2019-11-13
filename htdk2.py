@@ -323,7 +323,7 @@ def SQUOTE():
 	heap.append(words["sliteral"])
 	heap.append(len(s))
 	for c in s:
-		heap.append(c)
+		heap.append(ord(c))
 
 def SOURCE():
 	stack.append(tib)
