@@ -649,6 +649,14 @@ def REPEAT():
 def BL():
 	stack.append(ord(' '))
 
+def CHAR():
+	w = read_word()
+	stack.append(ord(w[0]))
+
+def COMPILE_CHAR():
+	CHAR()
+	COMMA()
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
@@ -704,7 +712,6 @@ add_word(">r", TO_R)
 add_word("r>", R_TO)
 add_word("r@", R_FETCH)
 add_word(">in", TO_IN)
-add_word("[char]", lambda : sys.exit("[char]"))
 add_word("emit", lambda : sys.exit("emit"))
 add_word("(", LPAREN, True)
 add_word("and", AND)
@@ -753,5 +760,7 @@ add_word("begin", BEGIN, True)
 add_word("while", WHILE, True)
 add_word("repeat", REPEAT, True)
 add_word("bl", BL)
+add_word("char", CHAR)
+add_word("[char]", COMPILE_CHAR, True)
 
 QUIT()
