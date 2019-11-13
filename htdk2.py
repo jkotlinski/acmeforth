@@ -626,6 +626,9 @@ def HERE():
 def COMMA():
 	heap.append(stack.pop())
 
+def BEGIN():
+	control_stack.append(len(heap))
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
@@ -725,5 +728,6 @@ add_word("cell+", ONEPLUS)
 add_word("char+", ONEPLUS)
 add_word("c@", FETCH)
 add_word("c!", STORE)
+add_word("begin", BEGIN, True)
 
 QUIT()
