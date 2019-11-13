@@ -255,7 +255,8 @@ def ZLESS():
 	stack[-1] = -1 if stack[-1] < 0 else 0
 
 def NEGATE():
-	stack[-1] = -stack[-1]
+	INVERT()
+	ONEPLUS()
 
 def QUIT():
 	while True:
@@ -478,8 +479,9 @@ def UM_MOD(): # ( lsw msw divisor -- rem quot )
 	lsw = stack[-3]
 	msw = stack[-2]
 	n = (msw << 32) | ctypes.c_uint(lsw).value
+	d = ctypes.c_uint(stack[-1]).value
 	stack[-3] = ctypes.c_uint(n % stack[-1]).value
-	stack[-2] = ctypes.c_int(n // stack[-1]).value
+	stack[-2] = ctypes.c_int(n // d).value
 	stack.pop()
 
 def M_PLUS(): # ( d1 u -- d2 )
@@ -487,7 +489,7 @@ def M_PLUS(): # ( d1 u -- d2 )
 	msw = stack[-2]
 	n = (msw << 32) | ctypes.c_uint(lsw).value
 	n += stack[-1]
-	stack[-3] = ctypes.c_uint(n).value
+	stack[-3] = ctypes.c_int(n).value
 	stack[-2] = ctypes.c_int(n >> 32).value
 	stack.pop()
 
@@ -529,6 +531,42 @@ def FM_MOD(): # ( d n -- rem quot )
 		SWAP()
 		NEGATE()
 		SWAP()
+
+# from FIG UK : ?dnegate 0< if dnegate then ;
+def Q_D_NEGATE():
+	ZLESS()
+	if stack.pop():
+		D_NEGATE()
+
+# from FIG UK
+def D_ABS():
+	DUP()
+	Q_D_NEGATE()
+
+# from FIG UK : ?negate 0< if negate then ;
+def Q_NEGATE():
+	ZLESS()
+	if stack.pop():
+		NEGATE()
+
+# from FIG UK
+def SM_REM():
+	TWODUP()
+	XOR()
+	TO_R()
+	OVER()
+	TO_R()
+	ABS()
+	TO_R()
+	D_ABS()
+	R_TO()
+	UM_MOD()
+	SWAP()
+	R_TO()
+	Q_NEGATE()
+	SWAP()
+	R_TO()
+	Q_NEGATE()
 
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
@@ -604,5 +642,6 @@ add_word("*", MULTIPLY)
 add_word("m*", M_MULTIPLY)
 add_word("um*", UM_MULTIPLY)
 add_word("fm/mod", FM_MOD)
+add_word("sm/rem", SM_REM)
 
 QUIT()
