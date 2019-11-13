@@ -6,9 +6,9 @@ import ctypes
 import sys
 
 class Word:
-	def __init__(self, name, fn, immediate):
+	def __init__(self, name, xt, immediate):
 		self.name = name
-		self.fn = fn
+		self.xt = xt
 		self.immediate = immediate
 
 	def __repr__(self):
@@ -32,8 +32,8 @@ digits = "0123456789abcdefghijklmnopqrstuvwxyz"
 def TO_IN():
 	stack.append(to_in_addr)
 
-def add_word(name, fn, immediate = False):
-	words[name] = Word(name, fn, immediate)
+def add_word(name, xt, immediate = False):
+	words[name] = Word(name, xt, immediate)
 
 def is_number(word):
 	if word[0] == '-':
@@ -62,7 +62,7 @@ def evaluate_number(word):
 
 def evaluate(word):
 	if word in words:
-		words[word].fn()
+		words[word].xt()
 	else:
 		if is_number(word):
 			evaluate_number(word)
@@ -106,14 +106,14 @@ def read_word():
 
 def VARIABLE():
 	CREATE()
-	words[latest].fn = lambda l=len(heap) : stack.append(l)
+	words[latest].xt = lambda l=len(heap) : stack.append(l)
 	heap.append(None)
 
 def compile(word):
 	global stack
 	if word in words:
 		if words[word].immediate:
-			words[word].fn()
+			words[word].xt()
 		else:
 			heap.append(words[word])
 	else:
@@ -162,7 +162,7 @@ def docol(ip_):
 		if type(code) == Word:
 			if DEBUG:
 				print("exec " + code.name)
-			code.fn()
+			code.xt()
 			if DEBUG:
 				print(stack)
 		else:
@@ -179,7 +179,7 @@ def DEPTH():
 def COLON():
 	global state
 	CREATE()
-	words[latest].fn = lambda ip=len(heap) : docol(ip)
+	words[latest].xt = lambda ip=len(heap) : docol(ip)
 	state = True
 
 def SEMICOLON():
@@ -433,7 +433,7 @@ def INVERT():
 
 def CONSTANT():
 	CREATE()
-	words[latest].fn = lambda v=stack.pop() : stack.append(v)
+	words[latest].xt = lambda v=stack.pop() : stack.append(v)
 
 def TWOMUL():
 	stack.append(1)
@@ -662,7 +662,8 @@ def COMPILE_CHAR():
 
 def TICK():
 	w = read_word().lower()
-	stack.append(words[w])
+	xt = words[w].xt
+	stack.append(xt)
 
 def COMPILE_TICK():
 	TICK()
@@ -678,13 +679,13 @@ def FIND(): # ( c-addr -- c-addr 0 | xt 1 | xt -1 )
 		wordname += chr(heap[addr + i + 1])
 	if wordname in words:
 		word = words[wordname]
-		stack[-1] = word
+		stack[-1] = word.xt
 		stack.append(1 if word.immediate else -1)
 	else:
 		stack.append(0)
 
 def EXECUTE():
-	stack.pop().fn()
+	stack.pop()()
 
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
