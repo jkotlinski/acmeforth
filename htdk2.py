@@ -592,6 +592,9 @@ def R_BRACKET():
 	global state
 	state = True
 
+def LITERAL():
+	heap.append(stack.pop())
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
@@ -673,5 +676,6 @@ add_word("]", R_BRACKET)
 add_word("/", SLASH)
 add_word("nip", NIP)
 add_word("tuck", TUCK)
+add_word("literal", LITERAL, True)
 
 QUIT()
