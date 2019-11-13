@@ -646,6 +646,9 @@ def REPEAT():
 	orig = control_stack.pop()
 	heap[orig] = len(heap)
 
+def BL():
+	stack.append(ord(' '))
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
@@ -749,5 +752,6 @@ add_word("c!", STORE)
 add_word("begin", BEGIN, True)
 add_word("while", WHILE, True)
 add_word("repeat", REPEAT, True)
+add_word("bl", BL)
 
 QUIT()
