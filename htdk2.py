@@ -399,7 +399,7 @@ def SLITERAL():
 	stack.append(heap[ip])
 	ip += heap[ip] + 1
 
-def SQUOTE():
+def S_QUOTE():
 	s = ""
 	while heap[to_in_addr] < tib_count:
 		c = heap[tib_addr + heap[to_in_addr]]
@@ -747,7 +747,7 @@ def UNTIL():
 	heap.append(control_stack.pop())
 
 def BL():
-	stack.append(' ')
+	stack.append(ord(' '))
 
 def CHAR():
 	w = read_word()
@@ -929,6 +929,49 @@ def MOVE(): # ( src dst u -- )
 	TWODROP()
 	DROP()
 
+def DOT_QUOTE():
+	S_QUOTE()
+	heap.append(words["type"])
+
+def DOT(): # ( n -- )
+	S_TO_D()
+	SWAP()
+	OVER()
+	DABS()
+	LT_HASH()
+	HASH_S()
+	ROT()
+	SIGN()
+	RT_HASH()
+	TYPE()
+	SPACE()
+
+def SPACE():
+	print(" ", end='')
+
+def SPACES():
+	for i in range(stack.pop()):
+		SPACE()
+
+def U_DOT(): # ( u -- )
+	stack.append(0)
+	LT_HASH()
+	HASH_S()
+	RT_HASH()
+	TYPE()
+	SPACE()
+
+def EMIT():
+	print(chr(stack.pop()), end='')
+
+def DABS():
+	d = ctypes.c_long(stack[-1])
+	d.value <<= 32
+	d.value |= ctypes.c_uint(stack[-2]).value
+	d.value = abs(d.value)
+	stack[-1] = d.value >> 32
+	stack[-2] = d.value & 0xffffffff
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("decimal", DECIMAL)
@@ -961,7 +1004,7 @@ add_word("i", I)
 add_word("j", J)
 add_word("=", EQUALS)
 add_word("0=", ZEQUAL)
-add_word('s"', SQUOTE, True)
+add_word('s"', S_QUOTE, True)
 add_word("do", DO, True)
 add_word("(do)", _DO)
 add_word("loop", LOOP, True)
@@ -989,7 +1032,6 @@ add_word(">r", TO_R)
 add_word("r>", R_TO)
 add_word("r@", R_FETCH)
 add_word(">in", TO_IN)
-add_word("emit", lambda : sys.exit("emit"))
 add_word("(", LPAREN, True)
 add_word("and", AND)
 add_word("or", OR)
@@ -1065,5 +1107,12 @@ add_word("base", BASE)
 add_word(">number", TO_NUMBER)
 add_word("fill", FILL)
 add_word("move", MOVE)
+add_word('."', DOT_QUOTE, True)
+add_word(".", DOT)
+add_word("spaces", SPACES)
+add_word("space", SPACE)
+add_word("u.", U_DOT)
+add_word("emit", EMIT)
+add_word("dabs", DABS)
 
 QUIT()
