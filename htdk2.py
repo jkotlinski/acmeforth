@@ -9,6 +9,7 @@ class Word:
 	def __init__(self, name, xt, immediate):
 		self.name = name
 		self.xt = xt
+		self.ip = None
 		self.immediate = immediate
 
 	def __repr__(self):
@@ -113,9 +114,14 @@ def read_word():
 		# word not found, refill and try again
 		REFILL()
 
+def CREATE():
+	global latest
+	latest = read_word().lower()
+	words[latest] = Word(latest, lambda l=len(heap) : stack.append(l), False)
+	words[latest].ip = len(heap)
+
 def VARIABLE():
 	CREATE()
-	words[latest].xt = lambda l=len(heap) : stack.append(l)
 	heap.append(None)
 
 def compile(word):
@@ -177,17 +183,12 @@ def docol(ip_):
 		else:
 			stack.append(code)
 
-def CREATE():
-	global latest
-	latest = read_word().lower()
-	words[latest] = Word(latest, lambda i=len(heap) : stack.append(i), False)
-
 def DEPTH():
 	stack.append(len(stack))
 
 def COLON():
 	CREATE()
-	DODOES()
+	words[latest].xt = lambda ip = words[latest].ip : docol(ip)
 	set_state(True)
 
 def SEMICOLON():
@@ -491,7 +492,7 @@ def INVERT():
 
 def CONSTANT():
 	CREATE()
-	words[latest].xt = lambda v=stack.pop() : stack.append(v)
+	words[latest].xt = lambda v = stack.pop() : stack.append(v)
 
 def TWOMUL():
 	stack.append(1)
@@ -768,8 +769,21 @@ def LIT():
 def RECURSE():
 	heap.append(words[latest])
 
-def DODOES():
-	words[latest].xt = lambda ip=len(heap) : docol(ip)
+def DOES_TO():
+	global ip
+	def dodoes(i):
+		# Appends a-addr of latest word.
+		stack.append(words[latest].ip)
+		docol(i)
+	words[latest].xt = lambda l=ip : dodoes(l)
+	EXIT()
+
+def TO_BODY(): # ( xt -- a-addr )
+	for word in words.values():
+		if word.xt == stack[-1]:
+			stack[-1] = word.ip
+			return
+	assert False
 
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
@@ -891,6 +905,7 @@ add_word("lit", LIT)
 add_word("state", STATE)
 add_word("recurse", RECURSE, True)
 add_word("within", WITHIN)
-add_word("does>", DODOES, True)
+add_word("does>", DOES_TO)
+add_word(">body", TO_BODY)
 
 QUIT()
