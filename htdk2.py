@@ -922,6 +922,13 @@ def FILL(): # ( c-addr u char -- )
 	TWODROP()
 	DROP()
 
+def MOVE(): # ( src dst u -- )
+	tmp = heap[stack[-3] : stack[-3] + stack[-1]]
+	for i in range(len(tmp)):
+		heap[stack[-2] + i] = tmp[i]
+	TWODROP()
+	DROP()
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("decimal", DECIMAL)
@@ -1057,5 +1064,6 @@ add_word("#>", RT_HASH)
 add_word("base", BASE)
 add_word(">number", TO_NUMBER)
 add_word("fill", FILL)
+add_word("move", MOVE)
 
 QUIT()
