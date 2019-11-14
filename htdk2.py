@@ -765,6 +765,9 @@ def LIT():
 def RECURSE():
 	heap.append(words[latest])
 
+def DODOES():
+	words[latest].xt = lambda ip=len(heap) : docol(ip)
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
@@ -885,5 +888,6 @@ add_word("lit", LIT)
 add_word("state", STATE)
 add_word("recurse", RECURSE, True)
 add_word("within", WITHIN)
+add_word("does>", DODOES, True)
 
 QUIT()
