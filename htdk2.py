@@ -15,7 +15,6 @@ class Word:
 	def __repr__(self):
 		return self.name
 
-heap = [None] * 200
 base = 10
 words = {}
 stack = []
@@ -27,9 +26,11 @@ latest = None
 ip = 0
 
 # Forth variable space.
+init_heap_size = 200
 to_in_addr = 0
 state_addr = 1
 tib = 2
+heap = [None] * init_heap_size
 
 digits = "0123456789abcdefghijklmnopqrstuvwxyz"
 
@@ -88,30 +89,28 @@ def REFILL():
 		tib_count += 1
 	heap[to_in_addr] = 0
 
-def read_word():
-	global tib
-
-	while True:
-		# skips leading whitespace
-		while heap[to_in_addr] < tib_count:
-			if heap[tib + heap[to_in_addr]] == ' ':
-				heap[to_in_addr] += 1
-			else:
-				break
-
-		# reads the word
-		word = ""
-		while heap[to_in_addr] < tib_count:
-			c = heap[tib + heap[to_in_addr]]
+def parse():
+	# skips leading whitespace
+	while heap[to_in_addr] < tib_count:
+		if heap[tib + heap[to_in_addr]] == ' ':
 			heap[to_in_addr] += 1
-			if c == ' ':
-				break
-			word += c
+		else:
+			break
+	# reads the word
+	word = ""
+	while heap[to_in_addr] < tib_count:
+		c = heap[tib + heap[to_in_addr]]
+		heap[to_in_addr] += 1
+		if c == ' ':
+			break
+		word += c
+	return word
 
+def read_word():
+	while True:
+		word = parse()
 		if word:
 			return word
-
-		# word not found, refill and try again
 		REFILL()
 
 def CREATE():
@@ -139,7 +138,6 @@ def compile(word):
 			sys.exit("unknown word '" + word + "'")
 
 def interpret():
-	global tib
 	while True:
 		word = read_word().lower()
 		if DEBUG:
@@ -784,6 +782,37 @@ def TO_BODY(): # ( xt -- a-addr )
 			return
 	assert False
 
+def EVALUATE(): # ( c-addr u -- )
+	global tib_count
+
+	# Stash tib, tib_count, >in
+	orig_tib = heap[tib : tib + tib_count]
+	orig_tib_count = tib_count
+	orig_to_in = heap[to_in_addr]
+
+	# Set temporary tib, tib_count, >in
+	heap[to_in_addr] = 0
+	tib_count = stack.pop()
+	for i in range(tib_count):
+		heap[tib + i] = chr(heap[stack[-1] + i])
+	stack.pop()
+
+	# Evaluate until tib is consumed
+	while True:
+		word = parse()
+		if not word:
+			break
+		if heap[state_addr]:
+			compile(word)
+		else:
+			evaluate(word)
+
+	# Restore tib, tib_count, >in
+	heap[to_in_addr] = orig_to_in
+	tib_count = orig_tib_count
+	for i in range(tib_count):
+		heap[tib + i] = orig_tib[i]
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
@@ -906,5 +935,6 @@ add_word("recurse", RECURSE, True)
 add_word("within", WITHIN)
 add_word("does>", DOES_TO)
 add_word(">body", TO_BODY)
+add_word("evaluate", EVALUATE)
 
 QUIT()
