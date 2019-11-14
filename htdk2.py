@@ -799,7 +799,7 @@ def EVALUATE(): # ( c-addr u -- )
 
 	# Evaluate until tib is consumed
 	while True:
-		word = parse()
+		word = parse().lower()
 		if not word:
 			break
 		if heap[state_addr]:
@@ -812,6 +812,10 @@ def EVALUATE(): # ( c-addr u -- )
 	tib_count = orig_tib_count
 	for i in range(tib_count):
 		heap[tib + i] = orig_tib[i]
+
+def SOURCE(): # ( -- c-addr u )
+	stack.append(tib)
+	stack.append(tib_count)
 
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
@@ -936,5 +940,6 @@ add_word("within", WITHIN)
 add_word("does>", DOES_TO)
 add_word(">body", TO_BODY)
 add_word("evaluate", EVALUATE)
+add_word("source", SOURCE)
 
 QUIT()
