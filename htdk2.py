@@ -15,7 +15,6 @@ class Word:
 	def __repr__(self):
 		return self.name
 
-base = 10
 words = {}
 stack = []
 control_stack = []
@@ -27,8 +26,9 @@ ip = 0
 
 # Forth variable space.
 to_in_addr = 0
-state_addr = 1
-word_addr = 2
+state_addr = to_in_addr + 1
+base_addr = state_addr + 1
+word_addr = base_addr + 1
 pictured_numeric_addr = word_addr + 40
 tib_addr = pictured_numeric_addr + 70
 init_heap_size = tib_addr + 200
@@ -51,11 +51,15 @@ class Heap:
 		self.heap.append(val)
 
 heap = Heap(init_heap_size)
+heap[base_addr] = 10
 
 digits = "0123456789abcdefghijklmnopqrstuvwxyz"
 
 def set_state(flag):
 	heap[state_addr] = -1 if flag else 0
+
+def BASE():
+	stack.append(base_addr)
 
 def STATE():
 	stack.append(state_addr)
@@ -74,7 +78,7 @@ def is_number(word):
 	for d in word:
 		if d not in digits:
 			return False
-		if digits.index(d) >= base:
+		if digits.index(d) >= heap[base_addr]:
 			return False
 	return True
 
@@ -85,7 +89,7 @@ def evaluate_number(word):
 	if negate:
 		word = word[1:]
 	for d in word:
-		number *= base
+		number *= heap[base_addr]
 		number += digits.index(d)
 	if negate:
 		number = -number
@@ -174,8 +178,7 @@ def interpret():
 			print(stack)
 
 def HEX():
-	global base
-	base = 16
+	heap[base_addr] = 16
 
 def STORE():
 	heap[stack[-1]] = stack[-2]
@@ -861,8 +864,8 @@ def SIGN(): # ( i -- )
 
 def HASH(): # ( ud1 -- ud2 )
 	d = (stack[-1] << 32) + stack[-2]
-	return_stack.append(digits[d % base])
-	d //= base
+	return_stack.append(digits[d % heap[base_addr]])
+	d //= heap[base_addr]
 	stack[-2] = d & 0xffffffff
 	stack[-1] = d >> 32
 
@@ -1014,5 +1017,6 @@ add_word("sign", SIGN)
 add_word("#", HASH)
 add_word("#s", HASH_S)
 add_word("#>", RT_HASH)
+add_word("base", BASE)
 
 QUIT()
