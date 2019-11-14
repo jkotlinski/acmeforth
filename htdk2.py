@@ -100,6 +100,8 @@ def parse():
 	word = ""
 	while heap[to_in_addr] < tib_count:
 		c = heap[tib + heap[to_in_addr]]
+		if type(c) == int:
+			c = chr(c)
 		heap[to_in_addr] += 1
 		if c == ' ':
 			break
@@ -783,19 +785,18 @@ def TO_BODY(): # ( xt -- a-addr )
 	assert False
 
 def EVALUATE(): # ( c-addr u -- )
+	global tib
 	global tib_count
 
 	# Stash tib, tib_count, >in
-	orig_tib = heap[tib : tib + tib_count]
+	orig_tib = tib
 	orig_tib_count = tib_count
 	orig_to_in = heap[to_in_addr]
 
 	# Set temporary tib, tib_count, >in
 	heap[to_in_addr] = 0
 	tib_count = stack.pop()
-	for i in range(tib_count):
-		heap[tib + i] = chr(heap[stack[-1] + i])
-	stack.pop()
+	tib = stack.pop()
 
 	# Evaluate until tib is consumed
 	while True:
@@ -810,8 +811,7 @@ def EVALUATE(): # ( c-addr u -- )
 	# Restore tib, tib_count, >in
 	heap[to_in_addr] = orig_to_in
 	tib_count = orig_tib_count
-	for i in range(tib_count):
-		heap[tib + i] = orig_tib[i]
+	tib = orig_tib
 
 def SOURCE(): # ( -- c-addr u )
 	stack.append(tib)
