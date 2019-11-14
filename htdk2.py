@@ -180,6 +180,9 @@ def interpret():
 def HEX():
 	heap[base_addr] = 16
 
+def DECIMAL():
+	heap[base_addr] = 10
+
 def STORE():
 	heap[stack[-1]] = stack[-2]
 	TWODROP()
@@ -913,6 +916,7 @@ def TO_NUMBER(): # ( ud1 c-addr1 u1 -- ud2 c-addr2 u2 )
 
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
+add_word("decimal", DECIMAL)
 add_word("variable", VARIABLE)
 add_word("!", STORE)
 add_word("2!", TWOSTORE)
