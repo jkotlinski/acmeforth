@@ -32,6 +32,9 @@ tib = 2
 
 digits = "0123456789abcdefghijklmnopqrstuvwxyz"
 
+def set_state(flag):
+	heap[state_addr] = -1 if flag else 0
+
 def STATE():
 	stack.append(state_addr)
 
@@ -184,12 +187,12 @@ def DEPTH():
 
 def COLON():
 	CREATE()
-	words[latest].xt = lambda ip=len(heap) : docol(ip)
-	heap[state_addr] = True
+	DODOES()
+	set_state(True)
 
 def SEMICOLON():
 	heap.append(words["exit"])
-	heap[state_addr] = False
+	set_state(False)
 
 def DROP():
 	stack.pop()
@@ -670,10 +673,10 @@ def STAR_SLASH():
 	NIP()
 
 def L_BRACKET():
-	heap[state_addr] = False
+	set_state(False)
 
 def R_BRACKET():
-	heap[state_addr] = True
+	set_state(True)
 
 def POSTPONE():
 	name = read_word().lower()
