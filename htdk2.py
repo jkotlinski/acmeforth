@@ -283,6 +283,11 @@ def DO():
 	heap.append(words["(do)"])
 	control_stack.append(len(heap))
 
+def LOOP():
+	heap.append(words["(loop)"])
+	heap.append(control_stack[-1])
+	control_stack.pop()
+
 def _LOOP():
 	global ip
 	return_stack[-2] = ctypes.c_int(return_stack[-2] + 1).value
@@ -293,10 +298,36 @@ def _LOOP():
 	else:
 		ip = heap[ip]
 
-def LOOP():
-	heap.append(words["(loop)"])
+# forth-standard.org
+def WITHIN(): # ( test lower upper -- flag )
+	OVER()
+	MINUS()
+	TO_R()
+	MINUS()
+	R_TO()
+	U_LESS()
+
+def PLUSLOOP():
+	heap.append(words["(+loop)"])
 	heap.append(control_stack[-1])
 	control_stack.pop()
+
+def _PLUSLOOP():
+	global ip
+	pre_increment = return_stack[-2]
+	return_stack[-2] = ctypes.c_int(return_stack[-2] + stack.pop()).value
+	post_increment = return_stack[-2]
+	test_value = return_stack[-1] - 1
+	stack.append(test_value)
+	stack.append(post_increment)
+	stack.append(pre_increment)
+	WITHIN()
+	if stack.pop():
+		return_stack.pop()
+		return_stack.pop()
+		ip += 1
+	else:
+		ip = heap[ip]
 
 def CR():
 	print()
@@ -445,7 +476,7 @@ def TWOMUL():
 def TWODIV():
 	stack[-1] >>= 1
 
-def U_LESS_THAN():
+def U_LESS():
 	if stack[-1] < 0:
 		stack[-1] += 2 ** 32
 	if stack[-2] < 0:
@@ -748,6 +779,8 @@ add_word("do", DO, True)
 add_word("(do)", _DO)
 add_word("loop", LOOP, True)
 add_word("(loop)", _LOOP)
+add_word("+loop", PLUSLOOP, True)
+add_word("(+loop)", _PLUSLOOP)
 add_word("exit", EXIT)
 add_word("type", TYPE)
 add_word("source", SOURCE)
@@ -781,7 +814,7 @@ add_word("invert", INVERT)
 add_word("constant", CONSTANT)
 add_word("<", LESS_THAN)
 add_word(">", GREATER_THAN)
-add_word("u<", U_LESS_THAN)
+add_word("u<", U_LESS)
 add_word("min", MIN)
 add_word("max", MAX)
 add_word("s>d", S_TO_D)
@@ -828,5 +861,6 @@ add_word("count", COUNT)
 add_word("lit", LIT)
 add_word("state", STATE)
 add_word("recurse", RECURSE, True)
+add_word("within", WITHIN)
 
 QUIT()
