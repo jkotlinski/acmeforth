@@ -972,6 +972,14 @@ def DABS():
 	stack[-1] = d.value >> 32
 	stack[-2] = d.value & 0xffffffff
 
+def ACCEPT(): # ( c-addr n1 -- n2 )
+	s = input()
+	l = min(len(s), stack[-1])
+	for i in range(l):
+		heap[stack[-2] + i] = s[i]
+	stack.pop()
+	stack[-1] = l
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("decimal", DECIMAL)
@@ -1114,5 +1122,6 @@ add_word("space", SPACE)
 add_word("u.", U_DOT)
 add_word("emit", EMIT)
 add_word("dabs", DABS)
+add_word("accept", ACCEPT)
 
 QUIT()
