@@ -29,7 +29,7 @@ ip = 0
 init_heap_size = 200
 to_in_addr = 0
 state_addr = 1
-tib = 2
+tib_addr = 2
 heap = [None] * init_heap_size
 
 digits = "0123456789abcdefghijklmnopqrstuvwxyz"
@@ -81,25 +81,24 @@ def evaluate(word):
 			sys.exit("unknown word '" + word + "'")
 
 def REFILL():
-	global tib
 	global tib_count
 	tib_count = 0
 	for c in input():
-		heap[tib + tib_count] = c
+		heap[tib_addr + tib_count] = c
 		tib_count += 1
 	heap[to_in_addr] = 0
 
 def parse():
 	# skips leading whitespace
 	while heap[to_in_addr] < tib_count:
-		if heap[tib + heap[to_in_addr]] == ' ':
+		if heap[tib_addr + heap[to_in_addr]] == ' ':
 			heap[to_in_addr] += 1
 		else:
 			break
 	# reads the word
 	word = ""
 	while heap[to_in_addr] < tib_count:
-		c = heap[tib + heap[to_in_addr]]
+		c = heap[tib_addr + heap[to_in_addr]]
 		if type(c) == int:
 			c = chr(c)
 		heap[to_in_addr] += 1
@@ -374,7 +373,7 @@ def SLITERAL():
 def SQUOTE():
 	s = ""
 	while heap[to_in_addr] < tib_count:
-		c = heap[tib + heap[to_in_addr]]
+		c = heap[tib_addr + heap[to_in_addr]]
 		heap[to_in_addr] += 1
 		if c == '"':
 			break
@@ -385,7 +384,7 @@ def SQUOTE():
 		heap.append(ord(c))
 
 def SOURCE():
-	stack.append(tib)
+	stack.append(tib_addr)
 	stack.append(tib_count)
 
 def FETCH():
@@ -423,7 +422,7 @@ def EXIT():
 def LPAREN():
 	while True:
 		while heap[to_in_addr] < tib_count:
-			if heap[tib + heap[to_in_addr]] == ')':
+			if heap[tib_addr + heap[to_in_addr]] == ')':
 				heap[to_in_addr] += 1
 				return
 			heap[to_in_addr] += 1
@@ -785,18 +784,18 @@ def TO_BODY(): # ( xt -- a-addr )
 	assert False
 
 def EVALUATE(): # ( c-addr u -- )
-	global tib
+	global tib_addr
 	global tib_count
 
-	# Stash tib, tib_count, >in
-	orig_tib = tib
+	# Stash tib_addr, tib_count, >in
+	orig_tib = tib_addr
 	orig_tib_count = tib_count
 	orig_to_in = heap[to_in_addr]
 
-	# Set temporary tib, tib_count, >in
+	# Set temporary tib_addr, tib_count, >in
 	heap[to_in_addr] = 0
 	tib_count = stack.pop()
-	tib = stack.pop()
+	tib_addr = stack.pop()
 
 	# Evaluate until tib is consumed
 	while True:
@@ -808,13 +807,13 @@ def EVALUATE(): # ( c-addr u -- )
 		else:
 			evaluate(word)
 
-	# Restore tib, tib_count, >in
+	# Restore tib_addr, tib_count, >in
 	heap[to_in_addr] = orig_to_in
 	tib_count = orig_tib_count
-	tib = orig_tib
+	tib_addr = orig_tib
 
 def SOURCE(): # ( -- c-addr u )
-	stack.append(tib)
+	stack.append(tib_addr)
 	stack.append(tib_count)
 
 add_word("\\", REFILL, True)
