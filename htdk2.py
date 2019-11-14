@@ -866,6 +866,10 @@ def HASH(): # ( ud1 -- ud2 )
 	stack[-2] = d & 0xffffffff
 	stack[-1] = d >> 32
 
+def HASH_S(): # ( ud1 -- ud2 )
+	while stack[-1] or stack[-2]:
+		HASH()
+
 def RT_HASH(): # ( xd -- c-addr u )
 	TWODROP()
 	stack.append(pictured_numeric_addr)
@@ -1008,6 +1012,7 @@ add_word("<#", LT_HASH)
 add_word("hold", HOLD)
 add_word("sign", SIGN)
 add_word("#", HASH)
+add_word("#s", HASH_S)
 add_word("#>", RT_HASH)
 
 QUIT()
