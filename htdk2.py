@@ -859,6 +859,13 @@ def SIGN(): # ( i -- )
 	if stack.pop() < 0:
 		return_stack.append('-')
 
+def HASH(): # ( ud1 -- ud2 )
+	d = (stack[-1] << 32) + stack[-2]
+	return_stack.append(digits[d % base])
+	d //= base
+	stack[-2] = d & 0xffffffff
+	stack[-1] = d >> 32
+
 def RT_HASH(): # ( xd -- c-addr u )
 	TWODROP()
 	stack.append(pictured_numeric_addr)
@@ -1000,6 +1007,7 @@ add_word("word", WORD)
 add_word("<#", LT_HASH)
 add_word("hold", HOLD)
 add_word("sign", SIGN)
+add_word("#", HASH)
 add_word("#>", RT_HASH)
 
 QUIT()
