@@ -863,11 +863,12 @@ def SIGN(): # ( i -- )
 		return_stack.append('-')
 
 def HASH(): # ( ud1 -- ud2 )
-	d = (stack[-1] << 32) + stack[-2]
-	return_stack.append(digits[d % heap[base_addr]])
-	d //= heap[base_addr]
-	stack[-2] = d & 0xffffffff
-	stack[-1] = d >> 32
+	d = ctypes.c_ulong(stack[-1] << 32)
+	d.value += ctypes.c_uint(stack[-2]).value
+	return_stack.append(digits[d.value % heap[base_addr]])
+	d.value //= heap[base_addr]
+	stack[-2] = d.value & 0xffffffff
+	stack[-1] = d.value >> 32
 
 def HASH_S(): # ( ud1 -- ud2 )
 	while stack[-1] or stack[-2]:
