@@ -20,6 +20,7 @@ words = {}
 stack = []
 control_stack = []
 return_stack = []
+leave_stack = []
 tib_count = 0
 latest = None
 ip = 0
@@ -286,10 +287,15 @@ def DO():
 	heap.append(words["(do)"])
 	control_stack.append(len(heap))
 
+def resolve_leaves():
+	while leave_stack:
+		heap[leave_stack.pop()] = len(heap)
+
 def LOOP():
 	heap.append(words["(loop)"])
 	heap.append(control_stack[-1])
 	control_stack.pop()
+	resolve_leaves()
 
 def _LOOP():
 	global ip
@@ -300,6 +306,14 @@ def _LOOP():
 		ip += 1
 	else:
 		ip = heap[ip]
+
+def LEAVE():
+	heap.append(words["r>"])
+	heap.append(words["r>"])
+	heap.append(words["2drop"])
+	heap.append(words["branch"])
+	leave_stack.append(len(heap))
+	heap.append(None)
 
 # forth-standard.org
 def WITHIN(): # ( test lower upper -- flag )
@@ -314,6 +328,7 @@ def PLUSLOOP():
 	heap.append(words["(+loop)"])
 	heap.append(control_stack[-1])
 	control_stack.pop()
+	resolve_leaves()
 
 def _PLUSLOOP():
 	global ip
@@ -800,7 +815,7 @@ add_word("quit", QUIT)
 add_word("create", CREATE)
 add_word("allot", ALLOT)
 add_word("sliteral", SLITERAL)
-add_word("leave", lambda : sys.exit("leave"))
+add_word("leave", LEAVE, True)
 add_word(">r", TO_R)
 add_word("r>", R_TO)
 add_word("r@", R_FETCH)
