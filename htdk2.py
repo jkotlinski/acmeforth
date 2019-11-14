@@ -308,12 +308,15 @@ def _LOOP():
 		ip = heap[ip]
 
 def LEAVE():
-	heap.append(words["r>"])
-	heap.append(words["r>"])
-	heap.append(words["2drop"])
+	UNLOOP()
 	heap.append(words["branch"])
 	leave_stack.append(len(heap))
 	heap.append(None)
+
+def UNLOOP():
+	heap.append(words["r>"])
+	heap.append(words["r>"])
+	heap.append(words["2drop"])
 
 # forth-standard.org
 def WITHIN(): # ( test lower upper -- flag )
@@ -816,6 +819,7 @@ add_word("create", CREATE)
 add_word("allot", ALLOT)
 add_word("sliteral", SLITERAL)
 add_word("leave", LEAVE, True)
+add_word("unloop", UNLOOP, True)
 add_word(">r", TO_R)
 add_word("r>", R_TO)
 add_word("r@", R_FETCH)
