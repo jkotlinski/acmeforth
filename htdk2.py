@@ -855,6 +855,10 @@ def LT_HASH():
 def HOLD(): # ( char -- )
 	TO_R()
 
+def SIGN(): # ( i -- )
+	if stack.pop() < 0:
+		return_stack.append('-')
+
 def RT_HASH(): # ( xd -- c-addr u )
 	TWODROP()
 	stack.append(pictured_numeric_addr)
@@ -995,6 +999,7 @@ add_word("source", SOURCE)
 add_word("word", WORD)
 add_word("<#", LT_HASH)
 add_word("hold", HOLD)
+add_word("sign", SIGN)
 add_word("#>", RT_HASH)
 
 QUIT()
