@@ -888,6 +888,29 @@ def RT_HASH(): # ( xd -- c-addr u )
 		heap[pictured_numeric_addr + strlen] = c
 		strlen += 1
 
+def TO_NUMBER(): # ( ud1 c-addr1 u1 -- ud2 c-addr2 u2 )
+	while stack[-1]:
+		c = chr(heap[stack[-2]]).lower()
+		if c not in digits:
+			break
+		i = digits.index(c)
+		if i == -1 or i >= heap[base_addr]:
+			break
+
+		# Accumulate i to ud.
+		ud = ctypes.c_ulong(stack[-3])
+		ud.value <<= 32
+		ud.value += ctypes.c_uint(stack[-4]).value
+		ud.value *= heap[base_addr]
+		ud.value += i
+		stack[-4] = ctypes.c_int(ud.value & 0xffffffff).value
+		stack[-3] = ctypes.c_int(ud.value >> 32).value
+
+		ONEMINUS()
+		SWAP()
+		ONEPLUS()
+		SWAP()
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("variable", VARIABLE)
@@ -1020,5 +1043,6 @@ add_word("#", HASH)
 add_word("#s", HASH_S)
 add_word("#>", RT_HASH)
 add_word("base", BASE)
+add_word(">number", TO_NUMBER)
 
 QUIT()
