@@ -89,7 +89,7 @@ def REFILL():
 		tib_count += 1
 	heap[to_in_addr] = 0
 
-def parse(delimiter = ' '):
+def parse(delimiter):
 	# skips leading whitespace
 	while heap[to_in_addr] < tib_count:
 		if heap[tib_addr + heap[to_in_addr]] == ' ':
@@ -106,9 +106,9 @@ def parse(delimiter = ' '):
 		word += c
 	return word
 
-def read_word(delimiter = ' '):
+def read_word():
 	while True:
-		word = parse(delimiter)
+		word = parse(' ')
 		if word:
 			return word
 		REFILL()
@@ -803,7 +803,7 @@ def EVALUATE(): # ( c-addr u -- )
 
 	# Evaluate until tib is consumed
 	while True:
-		word = parse().lower()
+		word = parse(' ').lower()
 		if not word:
 			break
 		if heap[state_addr]:
@@ -821,7 +821,7 @@ def SOURCE(): # ( -- c-addr u )
 	stack.append(tib_count)
 
 def WORD():
-	w = read_word(stack.pop())
+	w = parse(stack.pop())
 	l = len(w)
 	heap[word_addr] = l
 	for i in range(l):
