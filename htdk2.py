@@ -914,6 +914,14 @@ def TO_NUMBER(): # ( ud1 c-addr1 u1 -- ud2 c-addr2 u2 )
 		ONEPLUS()
 		SWAP()
 
+def FILL(): # ( c-addr u char -- )
+	while stack[-2]:
+		heap[stack[-3]] = stack[-1]
+		stack[-2] -= 1
+		stack[-3] += 1
+	TWODROP()
+	DROP()
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("decimal", DECIMAL)
@@ -1048,5 +1056,6 @@ add_word("#s", HASH_S)
 add_word("#>", RT_HASH)
 add_word("base", BASE)
 add_word(">number", TO_NUMBER)
+add_word("fill", FILL)
 
 QUIT()
