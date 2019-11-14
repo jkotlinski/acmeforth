@@ -990,6 +990,9 @@ def ACCEPT(): # ( c-addr n1 -- n2 )
 	stack.pop()
 	stack[-1] = l
 
+def DOT_LPAREN():
+	print(parse(')'), end='')
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("decimal", DECIMAL)
@@ -1133,5 +1136,6 @@ add_word("u.", U_DOT)
 add_word("emit", EMIT)
 add_word("dabs", DABS)
 add_word("accept", ACCEPT)
+add_word(".(", DOT_LPAREN)
 
 QUIT()
