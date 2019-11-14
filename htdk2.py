@@ -109,6 +109,9 @@ def REFILL():
 	heap[to_in_addr] = 0
 
 def parse(delimiter):
+	if type(delimiter) == type(' '):
+		delimiter = ord(delimiter)
+
 	# skips leading whitespace
 	while heap[to_in_addr] < tib_count:
 		if heap[tib_addr + heap[to_in_addr]] == ord(' '):
@@ -120,7 +123,7 @@ def parse(delimiter):
 	while heap[to_in_addr] < tib_count:
 		c = heap[tib_addr + heap[to_in_addr]]
 		heap[to_in_addr] += 1
-		if c == ord(delimiter):
+		if c == delimiter:
 			break
 		word += chr(c)
 	return word
@@ -742,7 +745,7 @@ def BL():
 
 def CHAR():
 	w = read_word()
-	stack.append(w[0])
+	stack.append(ord(w[0]))
 
 def COMPILE_CHAR():
 	CHAR()
