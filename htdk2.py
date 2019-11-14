@@ -279,6 +279,9 @@ def _DO():
 def I():
 	stack.append(return_stack[-2])
 
+def J():
+	stack.append(return_stack[-4])
+
 def DO():
 	heap.append(words["(do)"])
 	control_stack.append(len(heap))
@@ -772,6 +775,7 @@ add_word("else", ELSE, True)
 add_word("then", THEN, True)
 add_word("cr", CR)
 add_word("i", I)
+add_word("j", J)
 add_word("=", EQUALS)
 add_word("0=", ZEQUAL)
 add_word('s"', SQUOTE, True)
