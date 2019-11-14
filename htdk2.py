@@ -770,7 +770,6 @@ def RECURSE():
 	heap.append(words[latest])
 
 def DOES_TO():
-	global ip
 	def dodoes(i):
 		# Appends a-addr of latest word.
 		stack.append(words[latest].ip)
