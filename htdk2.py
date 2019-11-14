@@ -142,8 +142,12 @@ def read_word():
 def CREATE():
 	global latest
 	latest = read_word().lower()
+	previous_word = None
+	if latest in words:
+		previous_word = words[latest]
 	words[latest] = Word(latest, lambda l=len(heap) : stack.append(l), False)
 	words[latest].ip = len(heap)
+	return previous_word
 
 def VARIABLE():
 	CREATE()
@@ -214,14 +218,20 @@ def docol(ip_):
 def DEPTH():
 	stack.append(len(stack))
 
+compiling_word = None
+
 def COLON():
-	CREATE()
-	words[latest].xt = lambda ip = words[latest].ip : docol(ip)
+	global compiling_word
+	old_word = CREATE()
+	compiling_word = words[latest]
+	words[latest] = old_word
+	compiling_word.xt = lambda ip = compiling_word.ip : docol(ip)
 	set_state(True)
 
 def SEMICOLON():
 	heap.append(words["exit"])
 	set_state(False)
+	words[latest] = compiling_word
 
 def DROP():
 	stack.pop()
