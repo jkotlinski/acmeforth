@@ -29,7 +29,8 @@ ip = 0
 init_heap_size = 200
 to_in_addr = 0
 state_addr = 1
-tib_addr = 2
+word_addr = 2
+tib_addr = 60
 heap = [None] * init_heap_size
 
 digits = "0123456789abcdefghijklmnopqrstuvwxyz"
@@ -88,7 +89,7 @@ def REFILL():
 		tib_count += 1
 	heap[to_in_addr] = 0
 
-def parse():
+def parse(delimiter = ' '):
 	# skips leading whitespace
 	while heap[to_in_addr] < tib_count:
 		if heap[tib_addr + heap[to_in_addr]] == ' ':
@@ -99,17 +100,15 @@ def parse():
 	word = ""
 	while heap[to_in_addr] < tib_count:
 		c = heap[tib_addr + heap[to_in_addr]]
-		if type(c) == int:
-			c = chr(c)
 		heap[to_in_addr] += 1
-		if c == ' ':
+		if c == delimiter:
 			break
 		word += c
 	return word
 
-def read_word():
+def read_word(delimiter = ' '):
 	while True:
-		word = parse()
+		word = parse(delimiter)
 		if word:
 			return word
 		REFILL()
@@ -381,7 +380,7 @@ def SQUOTE():
 	heap.append(words["sliteral"])
 	heap.append(len(s))
 	for c in s:
-		heap.append(ord(c))
+		heap.append(c)
 
 def SOURCE():
 	stack.append(tib_addr)
@@ -428,8 +427,13 @@ def LPAREN():
 			heap[to_in_addr] += 1
 		REFILL()
 
+def char_to_int(c):
+	return ord(c) if type(c) == type(' ') else c
+
 def EQUALS():
-	stack[-2] = -1 if stack[-1] == stack[-2] else 0
+	lhs = char_to_int(stack[-2])
+	rhs = char_to_int(stack[-1])
+	stack[-2] = -1 if lhs == rhs else 0
 	stack.pop()
 
 def ONEPLUS():
@@ -717,11 +721,11 @@ def UNTIL():
 	heap.append(control_stack.pop())
 
 def BL():
-	stack.append(ord(' '))
+	stack.append(' ')
 
 def CHAR():
 	w = read_word()
-	stack.append(ord(w[0]))
+	stack.append(w[0])
 
 def COMPILE_CHAR():
 	CHAR()
@@ -743,7 +747,7 @@ def FIND(): # ( c-addr -- c-addr 0 | xt 1 | xt -1 )
 	wordname = ""
 	addr = stack[-1]
 	for i in range(heap[addr]):
-		wordname += chr(heap[addr + i + 1]).lower()
+		wordname += heap[addr + i + 1].lower()
 	if wordname in words:
 		word = words[wordname]
 		stack[-1] = word.xt
@@ -815,6 +819,14 @@ def EVALUATE(): # ( c-addr u -- )
 def SOURCE(): # ( -- c-addr u )
 	stack.append(tib_addr)
 	stack.append(tib_count)
+
+def WORD():
+	w = read_word(stack.pop())
+	l = len(w)
+	heap[word_addr] = l
+	for i in range(l):
+		heap[word_addr + i + 1] = w[i]
+	stack.append(word_addr)
 
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
@@ -940,5 +952,6 @@ add_word("does>", DOES_TO)
 add_word(">body", TO_BODY)
 add_word("evaluate", EVALUATE)
 add_word("source", SOURCE)
+add_word("word", WORD)
 
 QUIT()
