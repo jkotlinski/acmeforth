@@ -388,15 +388,22 @@ def _PLUSLOOP():
 	post_increment = return_stack[-2]
 	test_value = return_stack[-1] - 1
 	stack.append(test_value)
-	stack.append(pre_increment)
-	stack.append(post_increment)
+	if increment > 0:
+		stack.append(pre_increment)
+		stack.append(post_increment)
+	else:
+		stack.append(post_increment)
+		stack.append(pre_increment)
+	# crossed limit?
 	WITHIN()
 	if stack.pop():
-		ip = heap[ip]
-	else:
+		# yes, exit loop
 		return_stack.pop()
 		return_stack.pop()
 		ip += 1
+	else:
+		# no, iterate
+		ip = heap[ip]
 
 def CR():
 	print()
