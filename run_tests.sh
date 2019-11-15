@@ -1,1 +1,1 @@
-cat tester.fs testcore.fs | ./htdk2.py
+cat tester.fs testcore.fs testcoreplus.fs | ./htdk2.py
