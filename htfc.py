@@ -357,10 +357,6 @@ def QUIT():
 		REFILL()
 		interpret()
 
-def _DO():
-	TO_R() # index
-	TO_R() # limit
-
 def I():
 	stack.append(return_stack[-2])
 
@@ -369,6 +365,29 @@ def J():
 
 def DO():
 	append(words["(do)"])
+	control_stack.append(here)
+
+def _DO():
+	TO_R() # index
+	TO_R() # limit
+
+def _QUESTION_DO():
+	global ip
+	TWODUP()
+	EQUALS()
+	if stack.pop():
+		# Don't enter loop.
+		TWODROP()
+		ip = heap[ip]
+	else:
+		# Enter loop.
+		_DO()
+		ip += 1
+
+def QUESTION_DO():
+	append(words["(?do)"])
+	leave_stack.append(here)
+	append(None)
 	control_stack.append(here)
 
 def resolve_leaves():
@@ -1278,6 +1297,8 @@ add_word("2r>", TWO_R_TO)
 add_word("2r@", TWO_R_FETCH)
 add_word("unused", UNUSED)
 add_word("marker", MARKER)
+add_word("?do", QUESTION_DO, True)
+add_word("(?do)", _QUESTION_DO)
 
 try:
 	QUIT()
