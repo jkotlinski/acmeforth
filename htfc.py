@@ -31,11 +31,11 @@ base_addr = state_addr + 1
 word_addr = base_addr + 1
 pictured_numeric_addr = word_addr + 40
 tib_addr = pictured_numeric_addr + 70
-init_heap_size = tib_addr + 200
+here = tib_addr + 200
 
 class Heap:
-	def __init__(self, init_heap_size):
-		self.heap = [None] * init_heap_size
+	def __init__(self, size):
+		self.heap = [None] * size
 
 	def __getitem__(self, i):
 		c = self.heap[i]
@@ -47,19 +47,15 @@ class Heap:
 	def __len__(self):
 		return len(self.heap)
 
-	def append(self, val):
-		self.heap.append(val)
-
-	def allot(self, diff):
-		if diff < 0:
-			self.heap = self.heap[:diff]
-		else:
-			self.heap += [None] * diff
-
-heap = Heap(init_heap_size)
+heap = Heap(65536)
 heap[base_addr] = 10
 
 digits = "0123456789abcdefghijklmnopqrstuvwxyz"
+
+def append(val):
+	global here
+	heap[here] = val
+	here += 1
 
 def set_state(flag):
 	heap[state_addr] = -1 if flag else 0
@@ -184,13 +180,13 @@ def CREATE():
 	previous_word = None
 	if latest in words:
 		previous_word = words[latest]
-	words[latest] = Word(latest, lambda l=len(heap) : stack.append(l), False)
-	words[latest].body = len(heap)
+	words[latest] = Word(latest, lambda l=here : stack.append(l), False)
+	words[latest].body = here
 	return previous_word
 
 def VARIABLE():
 	CREATE()
-	heap.append(None)
+	append(None)
 
 def compile(word):
 	global stack
@@ -199,7 +195,7 @@ def compile(word):
 		if words[word].immediate:
 			words[word].xt()
 		else:
-			heap.append(words[word])
+			append(words[word])
 	else:
 		if is_number(word):
 			evaluate_number(word)
@@ -270,7 +266,7 @@ def COLON():
 
 def SEMICOLON():
 	global compiling_word
-	heap.append(words["exit"])
+	append(words["exit"])
 	set_state(False)
 	if compiling_word:
 		words[latest] = compiling_word
@@ -335,18 +331,18 @@ def ZBRANCH():
 		BRANCH()
 
 def IF():
-	heap.append(words["0branch"])
-	control_stack.append(len(heap))
-	heap.append(0)
+	append(words["0branch"])
+	control_stack.append(here)
+	append(0)
 
 def ELSE():
-	heap.append(words["branch"])
-	heap.append(0)
-	heap[control_stack[-1]] = len(heap)
-	control_stack[-1] = len(heap) - 1
+	append(words["branch"])
+	append(0)
+	heap[control_stack[-1]] = here
+	control_stack[-1] = here - 1
 
 def THEN():
-	heap[control_stack[-1]] = len(heap)
+	heap[control_stack[-1]] = here
 	control_stack.pop()
 
 def ZERO_LT():
@@ -372,16 +368,16 @@ def J():
 	stack.append(return_stack[-4])
 
 def DO():
-	heap.append(words["(do)"])
-	control_stack.append(len(heap))
+	append(words["(do)"])
+	control_stack.append(here)
 
 def resolve_leaves():
 	while leave_stack:
-		heap[leave_stack.pop()] = len(heap)
+		heap[leave_stack.pop()] = here
 
 def LOOP():
-	heap.append(words["(loop)"])
-	heap.append(control_stack[-1])
+	append(words["(loop)"])
+	append(control_stack[-1])
 	control_stack.pop()
 	resolve_leaves()
 
@@ -397,14 +393,14 @@ def _LOOP():
 
 def LEAVE():
 	UNLOOP()
-	heap.append(words["branch"])
-	leave_stack.append(len(heap))
-	heap.append(None)
+	append(words["branch"])
+	leave_stack.append(here)
+	append(None)
 
 def UNLOOP():
-	heap.append(words["r>"])
-	heap.append(words["r>"])
-	heap.append(words["2drop"])
+	append(words["r>"])
+	append(words["r>"])
+	append(words["2drop"])
 
 # forth-standard.org
 def WITHIN(): # ( test lower upper -- flag )
@@ -416,8 +412,8 @@ def WITHIN(): # ( test lower upper -- flag )
 	U_LESS()
 
 def PLUSLOOP():
-	heap.append(words["(+loop)"])
-	heap.append(control_stack[-1])
+	append(words["(+loop)"])
+	append(control_stack[-1])
 	control_stack.pop()
 	resolve_leaves()
 
@@ -456,7 +452,8 @@ def CELLS():
 	pass
 
 def ALLOT():
-	heap.allot(stack.pop())
+	global here
+	here += stack.pop()
 
 def SLITERAL():
 	global ip
@@ -472,10 +469,10 @@ def S_QUOTE():
 		if c == ord('"'):
 			break
 		s += chr(c)
-	heap.append(words["sliteral"])
-	heap.append(len(s))
+	append(words["sliteral"])
+	append(len(s))
 	for c in s:
-		heap.append(c)
+		append(c)
 
 def SOURCE():
 	print("=== SOURCE")
@@ -795,39 +792,39 @@ def POSTPONE():
 	name = read_word().lower()
 	if words[name].immediate:
 		# Compiles the word instead of executing it immediately.
-		heap.append(words[name])
+		append(words[name])
 	else:
 		# Instead of compiling the word, compile code that compiles the word.
-		heap.append(words["lit"])
-		heap.append(words[name])
-		heap.append(words[","])
+		append(words["lit"])
+		append(words[name])
+		append(words[","])
 
 def HERE():
-	stack.append(len(heap))
+	stack.append(here)
 
 def COMMA():
-	heap.append(stack.pop())
+	append(stack.pop())
 
 def BEGIN():
-	dest = len(heap)
+	dest = here
 	control_stack.append(dest)
 
 def WHILE():
-	heap.append(words["0branch"])
-	orig = len(heap)
+	append(words["0branch"])
+	orig = here
 	control_stack.insert(-1, orig)
-	heap.append(None)
+	append(None)
 
 def REPEAT():
-	heap.append(words["branch"])
+	append(words["branch"])
 	dest = control_stack.pop()
-	heap.append(dest)
+	append(dest)
 	orig = control_stack.pop()
-	heap[orig] = len(heap)
+	heap[orig] = here
 
 def UNTIL():
-	heap.append(words["0branch"])
-	heap.append(control_stack.pop())
+	append(words["0branch"])
+	append(control_stack.pop())
 
 def BL():
 	stack.append(ord(' '))
@@ -847,7 +844,7 @@ def TICK():
 
 def COMPILE_TICK():
 	TICK()
-	heap.append(stack.pop())
+	append(stack.pop())
 
 def IMMEDIATE():
 	words[latest].immediate = True
@@ -879,7 +876,7 @@ def LIT():
 	ip += 1
 
 def RECURSE():
-	heap.append(compiling_word)
+	append(compiling_word)
 
 def DOES_TO():
 	def dodoes(code, data):
@@ -1015,7 +1012,7 @@ def MOVE(): # ( src dst u -- )
 
 def DOT_QUOTE():
 	S_QUOTE()
-	heap.append(words["type"])
+	append(words["type"])
 
 def DOT(): # ( n -- )
 	S_TO_D()
@@ -1070,7 +1067,7 @@ def DOT_LPAREN():
 def COLON_NONAME():
 	global latest
 	latest = None
-	ip = len(heap)
+	ip = here
 	stack.append(ip)
 	compiling_word = Word(latest, lambda ip=ip : docol(ip), False)
 	compiling_word.ip = ip
@@ -1103,6 +1100,9 @@ def ZERO_GT():
 	SWAP()
 	ZERO_LT_GT()
 	AND()
+
+def UNUSED():
+	stack.append(len(heap) - here)
 
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
@@ -1260,6 +1260,7 @@ add_word("pick", PICK)
 add_word("2>r", TWO_TO_R)
 add_word("2r>", TWO_R_TO)
 add_word("2r@", TWO_R_FETCH)
+add_word("unused", UNUSED)
 
 try:
 	QUIT()
