@@ -118,10 +118,11 @@ def parse(delimiter):
 
 	# skips leading whitespace
 	while heap[to_in_addr] < tib_count:
-		if heap[tib_addr + heap[to_in_addr]] == ord(' '):
+		if chr(heap[tib_addr + heap[to_in_addr]]).isspace():
 			heap[to_in_addr] += 1
 		else:
 			break
+
 	# reads the word
 	word = ""
 	while heap[to_in_addr] < tib_count:
@@ -130,6 +131,7 @@ def parse(delimiter):
 		if c == delimiter:
 			break
 		word += chr(c)
+
 	return word
 
 def read_word():
