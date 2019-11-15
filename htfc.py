@@ -1006,6 +1006,15 @@ def ACCEPT(): # ( c-addr n1 -- n2 )
 def DOT_LPAREN():
 	print(parse(')'), end='')
 
+def COLON_NONAME():
+	global latest
+	latest = ""
+	ip = len(heap)
+	stack.append(ip)
+	compiling_word = Word(latest, lambda ip=ip : docol(ip), False)
+	compiling_word.ip = ip
+	set_state(True)
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("decimal", DECIMAL)
@@ -1150,6 +1159,7 @@ add_word("emit", EMIT)
 add_word("dabs", DABS)
 add_word("accept", ACCEPT)
 add_word(".(", DOT_LPAREN)
+add_word(":noname", COLON_NONAME)
 
 try:
 	QUIT()
