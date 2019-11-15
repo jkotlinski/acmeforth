@@ -266,8 +266,9 @@ def SEMICOLON():
 	global compiling_word
 	heap.append(words["exit"])
 	set_state(False)
-	words[latest] = compiling_word
-	compiling_word = None
+	if compiling_word:
+		words[latest] = compiling_word
+		compiling_word = None
 
 def DROP():
 	stack.pop()
@@ -865,6 +866,7 @@ def DOES_TO():
 
 def TO_BODY(): # ( xt -- a-addr )
 	for word in words.values():
+		assert word
 		if word.xt == stack[-1]:
 			stack[-1] = word.body
 			return
