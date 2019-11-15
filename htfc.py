@@ -297,16 +297,16 @@ def TWOOVER():
 	stack.append(stack[-4])
 	stack.append(stack[-4])
 
+def ROLL():
+	stack.append(stack.pop(-stack.pop()-1))
+
 def ROT():
-	t = stack[-3]
-	stack[-3] = stack[-2]
-	stack[-2] = stack[-1]
-	stack[-1] = t
+	stack.append(2)
+	ROLL()
 
 def SWAP():
-	t = stack[-1]
-	stack[-1] = stack[-2]
-	stack[-2] = t
+	stack.append(1)
+	ROLL()
 
 def TWOSWAP():
 	t = stack[-1]
@@ -1234,6 +1234,7 @@ add_word("<>", LT_GT)
 add_word("u>", U_GT)
 add_word("0<>", ZERO_LT_GT)
 add_word("0>", ZERO_GT)
+add_word("roll", ROLL)
 
 try:
 	QUIT()
