@@ -1,1 +1,1 @@
-cat tester.fs testcore.fs testcoreplus.fs | ./htfc.py
+cat tester.fs testcore.fs testcoreplus.fs testcoreext.fs | ./htfc.py

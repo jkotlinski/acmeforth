@@ -1055,6 +1055,16 @@ def COLON_NONAME():
 	compiling_word.ip = ip
 	set_state(True)
 
+def TRUE():
+	stack.append(-1)
+
+def FALSE():
+	stack.append(0)
+
+def LT_GT(): # <>
+	EQUALS()
+	ZEQUAL()
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("decimal", DECIMAL)
@@ -1200,6 +1210,9 @@ add_word("dabs", DABS)
 add_word("accept", ACCEPT)
 add_word(".(", DOT_LPAREN)
 add_word(":noname", COLON_NONAME)
+add_word("true", TRUE)
+add_word("false", FALSE)
+add_word("<>", LT_GT)
 
 try:
 	QUIT()
