@@ -346,7 +346,7 @@ def THEN():
 	heap[control_stack[-1]] = len(heap)
 	control_stack.pop()
 
-def ZLESS():
+def ZERO_LT():
 	stack[-1] = -1 if stack[-1] < 0 else 0
 
 def NEGATE():
@@ -677,7 +677,7 @@ def FM_MOD(): # ( d n -- rem quot )
 	TO_R()
 	# dup 0< if negate >r dnegate r> then
 	DUP()
-	ZLESS()
+	ZERO_LT()
 	if stack.pop():
 		NEGATE()
 		TO_R()
@@ -685,7 +685,7 @@ def FM_MOD(): # ( d n -- rem quot )
 		R_TO()
 	# over 0< if tuck + swap then
 	OVER()
-	ZLESS()
+	ZERO_LT()
 	if stack.pop():
 		TUCK()
 		PLUS()
@@ -694,7 +694,7 @@ def FM_MOD(): # ( d n -- rem quot )
 	UM_MOD()
 	# r> 0< if swap negate swap then
 	R_TO()
-	ZLESS()
+	ZERO_LT()
 	if stack.pop():
 		SWAP()
 		NEGATE()
@@ -702,7 +702,7 @@ def FM_MOD(): # ( d n -- rem quot )
 
 # from FIG UK : ?dnegate 0< if dnegate then ;
 def Q_D_NEGATE():
-	ZLESS()
+	ZERO_LT()
 	if stack.pop():
 		D_NEGATE()
 
@@ -713,7 +713,7 @@ def D_ABS():
 
 # from FIG UK : ?negate 0< if negate then ;
 def Q_NEGATE():
-	ZLESS()
+	ZERO_LT()
 	if stack.pop():
 		NEGATE()
 
@@ -1071,6 +1071,18 @@ def U_GT():
 	stack[-2] = -1 if lhs.value > rhs.value else 0
 	stack.pop()
 
+def ZERO_LT_GT():
+	ZEQUAL()
+	ZEQUAL()
+
+def ZERO_GT():
+	DUP()
+	ZERO_LT()
+	ZEQUAL()
+	SWAP()
+	ZERO_LT_GT()
+	AND()
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("decimal", DECIMAL)
@@ -1091,7 +1103,7 @@ add_word("swap", SWAP)
 add_word("2swap", TWOSWAP)
 add_word("drop", DROP)
 add_word("2drop", TWODROP)
-add_word("0<", ZLESS)
+add_word("0<", ZERO_LT)
 add_word("0branch", ZBRANCH)
 add_word("branch", BRANCH)
 add_word("negate", NEGATE)
@@ -1220,6 +1232,8 @@ add_word("true", TRUE)
 add_word("false", FALSE)
 add_word("<>", LT_GT)
 add_word("u>", U_GT)
+add_word("0<>", ZERO_LT_GT)
+add_word("0>", ZERO_GT)
 
 try:
 	QUIT()
