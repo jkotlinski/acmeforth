@@ -1142,6 +1142,10 @@ def MARKER():
 		words = old_words
 	words[latest].xt = restore
 
+def BUFFER_COLON():
+	CREATE()
+	ALLOT()
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("decimal", DECIMAL)
@@ -1303,6 +1307,7 @@ add_word("unused", UNUSED)
 add_word("marker", MARKER)
 add_word("?do", QUESTION_DO, True)
 add_word("(?do)", _QUESTION_DO)
+add_word("buffer:", BUFFER_COLON)
 
 try:
 	QUIT()
