@@ -9,7 +9,7 @@ class Word:
 	def __init__(self, name, xt, immediate):
 		self.name = name
 		self.xt = xt
-		self.ip = None
+		self.body = None
 		self.immediate = immediate
 
 	def __repr__(self):
@@ -148,7 +148,7 @@ def CREATE():
 	if latest in words:
 		previous_word = words[latest]
 	words[latest] = Word(latest, lambda l=len(heap) : stack.append(l), False)
-	words[latest].ip = len(heap)
+	words[latest].body = len(heap)
 	return previous_word
 
 def VARIABLE():
@@ -227,13 +227,15 @@ def COLON():
 	old_word = CREATE()
 	compiling_word = words[latest]
 	words[latest] = old_word
-	compiling_word.xt = lambda ip = compiling_word.ip : docol(ip)
+	compiling_word.xt = lambda ip = compiling_word.body : docol(ip)
 	set_state(True)
 
 def SEMICOLON():
+	global compiling_word
 	heap.append(words["exit"])
 	set_state(False)
 	words[latest] = compiling_word
+	compiling_word = None
 
 def DROP():
 	stack.pop()
@@ -822,17 +824,17 @@ def RECURSE():
 	heap.append(compiling_word)
 
 def DOES_TO():
-	def dodoes(i):
-		# Appends a-addr of latest word.
-		stack.append(words[latest].ip)
-		docol(i)
-	words[latest].xt = lambda l=ip : dodoes(l)
+	def dodoes(code, data):
+		stack.append(data)
+		docol(code)
+	w = compiling_word if compiling_word else words[latest]
+	words[latest].xt = lambda code=ip, data=w.body : dodoes(code, data)
 	EXIT()
 
 def TO_BODY(): # ( xt -- a-addr )
 	for word in words.values():
 		if word.xt == stack[-1]:
-			stack[-1] = word.ip
+			stack[-1] = word.body
 			return
 	assert False
 
