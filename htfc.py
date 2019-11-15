@@ -1042,7 +1042,7 @@ def DOT_LPAREN():
 
 def COLON_NONAME():
 	global latest
-	latest = ""
+	latest = None
 	ip = len(heap)
 	stack.append(ip)
 	compiling_word = Word(latest, lambda ip=ip : docol(ip), False)
