@@ -806,7 +806,7 @@ def LIT():
 	ip += 1
 
 def RECURSE():
-	heap.append(words[latest])
+	heap.append(compiling_word)
 
 def DOES_TO():
 	def dodoes(i):
