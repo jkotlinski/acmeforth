@@ -71,33 +71,64 @@ def add_word(name, xt, immediate = False):
 	words[name] = Word(name, xt, immediate)
 
 def is_number(word):
+	base = heap[base_addr]
+	if word[0] == "#":
+		base = 10
+		word = word[1:]
+		if not word:
+			return False
+	elif word[0] == "$":
+		base = 16
+		word = word[1:]
+		if not word:
+			return False
+	elif word[0] == "%":
+		base = 2
+		word = word[1:]
+		if not word:
+			return False
+	elif len(word) == 3 and word[0] == "'" and word[2] == "'":
+		return True
 	if word[0] == '-':
 		word = word[1:]
 		if not word:
 			return False
-	for d in word:
+	for d in word.lower():
 		if d not in digits:
 			return False
-		if digits.index(d) >= heap[base_addr]:
+		if digits.index(d) >= base:
 			return False
 	return True
 
 def evaluate_number(word):
 	global stack
 	number = 0
+	base = heap[base_addr]
+	if word[0] == "#":
+		base = 10
+		word = word[1:]
+	elif word[0] == "$":
+		base = 16
+		word = word[1:]
+	elif word[0] == "%":
+		base = 2
+		word = word[1:]
+	elif word[0] == "'":
+		stack.append(ord(word[1]))
+		return
 	negate = word[0] == '-'
 	if negate:
 		word = word[1:]
-	for d in word:
-		number *= heap[base_addr]
+	for d in word.lower():
+		number *= base
 		number += digits.index(d)
 	if negate:
 		number = -number
-	stack += [number]
+	stack.append(number)
 
 def evaluate(word):
-	if word in words:
-		words[word].xt()
+	if word.lower() in words:
+		words[word.lower()].xt()
 	else:
 		if is_number(word):
 			evaluate_number(word)
@@ -157,7 +188,8 @@ def VARIABLE():
 
 def compile(word):
 	global stack
-	if word in words:
+	if word.lower() in words:
+		word = word.lower()
 		if words[word].immediate:
 			words[word].xt()
 		else:
@@ -171,7 +203,7 @@ def compile(word):
 
 def interpret():
 	while True:
-		word = read_word().lower()
+		word = read_word()
 		if heap[state_addr]:
 			if DEBUG:
 				print("COMPILE", word)
