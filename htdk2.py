@@ -1138,4 +1138,7 @@ add_word("dabs", DABS)
 add_word("accept", ACCEPT)
 add_word(".(", DOT_LPAREN)
 
-QUIT()
+try:
+	QUIT()
+except EOFError:
+	sys.exit(0)
