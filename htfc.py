@@ -512,6 +512,11 @@ def TWO_TO_R():
 	TO_R()
 	TO_R()
 
+def TWO_R_TO():
+	R_TO()
+	R_TO()
+	SWAP()
+
 def TYPE():
 	l = heap[stack[-2] : stack[-2] + stack[-1]]
 	for i in range(len(l)):
@@ -1253,6 +1258,7 @@ add_word("0>", ZERO_GT)
 add_word("roll", ROLL)
 add_word("pick", PICK)
 add_word("2>r", TWO_TO_R)
+add_word("2r>", TWO_R_TO)
 add_word("2r@", TWO_R_FETCH)
 
 try:
