@@ -1108,6 +1108,17 @@ def ZERO_GT():
 def UNUSED():
 	stack.append(len(heap) - here)
 
+def MARKER():
+	old_words = words.copy()
+	old_here = here
+	CREATE()
+	def restore():
+		global here
+		global words
+		here = old_here
+		words = old_words
+	words[latest].xt = restore
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("decimal", DECIMAL)
@@ -1266,6 +1277,7 @@ add_word("2>r", TWO_TO_R)
 add_word("2r>", TWO_R_TO)
 add_word("2r@", TWO_R_FETCH)
 add_word("unused", UNUSED)
+add_word("marker", MARKER)
 
 try:
 	QUIT()
