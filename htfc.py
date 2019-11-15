@@ -826,6 +826,10 @@ def UNTIL():
 	append(words["0branch"])
 	append(control_stack.pop())
 
+def AGAIN():
+	append(words["branch"])
+	append(control_stack.pop())
+
 def BL():
 	stack.append(ord(' '))
 
@@ -1211,6 +1215,7 @@ add_word("begin", BEGIN, True)
 add_word("while", WHILE, True)
 add_word("repeat", REPEAT, True)
 add_word("until", UNTIL, True)
+add_word("again", AGAIN, True)
 add_word("bl", BL)
 add_word("char", CHAR)
 add_word("[char]", COMPILE_CHAR, True)
