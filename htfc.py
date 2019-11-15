@@ -378,7 +378,7 @@ def _QUESTION_DO():
 	if stack.pop():
 		# Don't enter loop.
 		TWODROP()
-		ip = heap[ip]
+		BRANCH()
 	else:
 		# Enter loop.
 		_DO()
@@ -393,7 +393,8 @@ def QUESTION_DO():
 def resolve_leaves():
 	while leave_stack:
 		assert control_stack
-		if leave_stack[-1] < control_stack[-1]:
+		# The additional -1 is for ?DO, which has a cell between (?DO) and the loop body.
+		if leave_stack[-1] < control_stack[-1] - 1:
 			break
 		heap[leave_stack.pop()] = here
 
