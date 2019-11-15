@@ -297,6 +297,9 @@ def TWOOVER():
 	stack.append(stack[-4])
 	stack.append(stack[-4])
 
+def PICK():
+	stack.append(stack[-stack.pop()-1])
+
 def ROLL():
 	stack.append(stack.pop(-stack.pop()-1))
 
@@ -1235,6 +1238,7 @@ add_word("u>", U_GT)
 add_word("0<>", ZERO_LT_GT)
 add_word("0>", ZERO_GT)
 add_word("roll", ROLL)
+add_word("pick", PICK)
 
 try:
 	QUIT()
