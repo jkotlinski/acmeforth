@@ -1065,6 +1065,12 @@ def LT_GT(): # <>
 	EQUALS()
 	ZEQUAL()
 
+def U_GT():
+	lhs = ctypes.c_uint(stack[-2])
+	rhs = ctypes.c_uint(stack[-1])
+	stack[-2] = -1 if lhs.value > rhs.value else 0
+	stack.pop()
+
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
 add_word("decimal", DECIMAL)
@@ -1213,6 +1219,7 @@ add_word(":noname", COLON_NONAME)
 add_word("true", TRUE)
 add_word("false", FALSE)
 add_word("<>", LT_GT)
+add_word("u>", U_GT)
 
 try:
 	QUIT()
