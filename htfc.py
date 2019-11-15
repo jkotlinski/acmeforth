@@ -50,6 +50,12 @@ class Heap:
 	def append(self, val):
 		self.heap.append(val)
 
+	def allot(self, diff):
+		if diff < 0:
+			self.heap = self.heap[:diff]
+		else:
+			self.heap += [None] * diff
+
 heap = Heap(init_heap_size)
 heap[base_addr] = 10
 
@@ -447,9 +453,7 @@ def CELLS():
 	pass
 
 def ALLOT():
-	for i in range(stack[-1]):
-		heap.append(None)
-	stack.pop()
+	heap.allot(stack.pop())
 
 def SLITERAL():
 	global ip
