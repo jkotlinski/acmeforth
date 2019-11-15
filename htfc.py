@@ -1148,9 +1148,13 @@ def BUFFER_COLON():
 
 def TO():
 	TICK()
-	# interpreting
 	TO_BODY()
-	STORE()
+	if heap[state_addr]:
+		COMMA()
+		stack.append(words["!"])
+		COMMA()
+	else:
+		STORE()
 
 add_word("\\", REFILL, True)
 add_word("hex", HEX)
@@ -1314,7 +1318,7 @@ add_word("marker", MARKER)
 add_word("?do", QUESTION_DO, True)
 add_word("(?do)", _QUESTION_DO)
 add_word("buffer:", BUFFER_COLON)
-add_word("to", TO)
+add_word("to", TO, True)
 
 def compile_forth(s):
 	for i in range(len(s)):
