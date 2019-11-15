@@ -379,20 +379,24 @@ def PLUSLOOP():
 
 def _PLUSLOOP():
 	global ip
+	increment = stack.pop()
+	if not increment:
+		ip = heap[ip]
+		return
 	pre_increment = return_stack[-2]
-	return_stack[-2] = ctypes.c_int(return_stack[-2] + stack.pop()).value
+	return_stack[-2] = ctypes.c_int(return_stack[-2] + increment).value
 	post_increment = return_stack[-2]
 	test_value = return_stack[-1] - 1
 	stack.append(test_value)
-	stack.append(post_increment)
 	stack.append(pre_increment)
+	stack.append(post_increment)
 	WITHIN()
 	if stack.pop():
+		ip = heap[ip]
+	else:
 		return_stack.pop()
 		return_stack.pop()
 		ip += 1
-	else:
-		ip = heap[ip]
 
 def CR():
 	print()
