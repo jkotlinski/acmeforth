@@ -392,13 +392,16 @@ def QUESTION_DO():
 
 def resolve_leaves():
 	while leave_stack:
+		assert control_stack
+		if leave_stack[-1] < control_stack[-1]:
+			break
 		heap[leave_stack.pop()] = here
 
 def LOOP():
 	append(words["(loop)"])
 	append(control_stack[-1])
-	control_stack.pop()
 	resolve_leaves()
+	control_stack.pop()
 
 def _LOOP():
 	global ip
@@ -433,8 +436,8 @@ def WITHIN(): # ( test lower upper -- flag )
 def PLUSLOOP():
 	append(words["(+loop)"])
 	append(control_stack[-1])
-	control_stack.pop()
 	resolve_leaves()
+	control_stack.pop()
 
 def _PLUSLOOP():
 	global ip
