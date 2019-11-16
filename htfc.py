@@ -1324,6 +1324,8 @@ compile_forth(
 : . s>d swap over dabs <# #s rot sign #> type space ;
 : ?dup dup if dup then ;
 : compile, , ;
+: save-input >in @ 1 ;
+: restore-input drop >in ! 0 ;
 """)
 
 try:
