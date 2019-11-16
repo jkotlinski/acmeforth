@@ -297,14 +297,6 @@ def SWAP():
 	stack.append(1)
 	ROLL()
 
-def TWOSWAP():
-	t = stack[-1]
-	stack[-1] = stack[-3]
-	stack[-3] = t
-	t = stack[-2]
-	stack[-2] = stack[-4]
-	stack[-4] = t
-
 def BRANCH():
 	global ip
 	ip = heap[ip]
@@ -1141,7 +1133,6 @@ add_word("2dup", TWODUP)
 add_word("over", OVER)
 add_word("rot", ROT)
 add_word("swap", SWAP)
-add_word("2swap", TWOSWAP)
 add_word("drop", DROP)
 add_word("2drop", TWODROP)
 add_word("0<", ZERO_LT)
@@ -1322,6 +1313,7 @@ swap 0 <# #s #> rot over - spaces type space ;
 : pad here $100 + ;
 : erase 0 fill ;
 : 2over 3 pick 3 pick ;
+: 2swap >r rot rot r> rot rot ;
 """)
 
 try:
