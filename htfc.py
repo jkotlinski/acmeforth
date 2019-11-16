@@ -53,6 +53,7 @@ digits = "0123456789abcdefghijklmnopqrstuvwxyz"
 
 def append(val):
 	global here
+	assert type(val) == type(0) or type(val) == type("") or callable(val) or val == None
 	heap[here] = val
 	here += 1
 
@@ -194,7 +195,7 @@ def compile(word):
 		if words[word].immediate:
 			words[word].xt()
 		else:
-			append(words[word])
+			append(words[word].xt)
 	else:
 		if is_number(word):
 			evaluate_number(word)
@@ -235,10 +236,10 @@ def docol(ip_):
 	while ip:
 		code = heap[ip]
 		ip += 1
-		if type(code) == Word:
+		if callable(code):
 			if DEBUG:
-				print("exec", code.name)
-			code.xt()
+				print("exec", code)
+			code()
 			if DEBUG:
 				print(stack)
 		else:
@@ -259,7 +260,7 @@ def COLON():
 
 def SEMICOLON():
 	global compiling_word
-	append(words["exit"])
+	append(words["exit"].xt)
 	set_state(False)
 	if compiling_word:
 		words[latest] = compiling_word
@@ -320,12 +321,12 @@ def ZBRANCH():
 		BRANCH()
 
 def IF():
-	append(words["0branch"])
+	append(words["0branch"].xt)
 	stack.append(here)
 	append(0)
 
 def ELSE():
-	append(words["branch"])
+	append(words["branch"].xt)
 	append(0)
 	heap[stack[-1]] = here
 	stack[-1] = here - 1
@@ -353,7 +354,7 @@ def J():
 	stack.append(return_stack[-4])
 
 def DO():
-	append(words["(do)"])
+	append(words["(do)"].xt)
 	stack.append(here)
 
 def _DO():
@@ -374,7 +375,7 @@ def _QUESTION_DO():
 		ip += 1
 
 def QUESTION_DO():
-	append(words["(?do)"])
+	append(words["(?do)"].xt)
 	leave_stack.append(here)
 	append(None)
 	stack.append(here)
@@ -388,7 +389,7 @@ def resolve_leaves():
 		heap[leave_stack.pop()] = here
 
 def LOOP():
-	append(words["(loop)"])
+	append(words["(loop)"].xt)
 	append(stack[-1])
 	resolve_leaves()
 	stack.pop()
@@ -405,14 +406,14 @@ def _LOOP():
 
 def LEAVE():
 	UNLOOP()
-	append(words["branch"])
+	append(words["branch"].xt)
 	leave_stack.append(here)
 	append(None)
 
 def UNLOOP():
-	append(words["r>"])
-	append(words["r>"])
-	append(words["2drop"])
+	append(words["r>"].xt)
+	append(words["r>"].xt)
+	append(words["2drop"].xt)
 
 # forth-standard.org
 def WITHIN(): # ( test lower upper -- flag )
@@ -424,7 +425,7 @@ def WITHIN(): # ( test lower upper -- flag )
 	U_LESS()
 
 def PLUSLOOP():
-	append(words["(+loop)"])
+	append(words["(+loop)"].xt)
 	append(stack[-1])
 	resolve_leaves()
 	stack.pop()
@@ -478,15 +479,15 @@ def S_QUOTE():
 		if c == ord('"'):
 			break
 		s += chr(c)
-	append(words["sliteral"])
+	append(words["sliteral"].xt)
 	append(len(s))
 	for c in s:
 		append(c)
 
 def C_QUOTE():
 	S_QUOTE()
-	append(words["drop"])
-	append(words["1-"])
+	append(words["drop"].xt)
+	append(words["1-"].xt)
 
 def SOURCE():
 	print("=== SOURCE")
@@ -806,12 +807,12 @@ def POSTPONE():
 	name = read_word().lower()
 	if words[name].immediate:
 		# Compiles the word instead of executing it immediately.
-		append(words[name])
+		append(words[name].xt)
 	else:
 		# Instead of compiling the word, compile code that compiles the word.
-		append(words["lit"])
-		append(words[name])
-		append(words[","])
+		append(words["lit"].xt)
+		append(words[name].xt)
+		append(words[","].xt)
 
 def HERE():
 	stack.append(here)
@@ -824,24 +825,24 @@ def BEGIN():
 	stack.append(dest)
 
 def WHILE():
-	append(words["0branch"])
+	append(words["0branch"].xt)
 	orig = here
 	stack.insert(-1, orig)
 	append(None)
 
 def REPEAT():
-	append(words["branch"])
+	append(words["branch"].xt)
 	dest = stack.pop()
 	append(dest)
 	orig = stack.pop()
 	heap[orig] = here
 
 def UNTIL():
-	append(words["0branch"])
+	append(words["0branch"].xt)
 	append(stack.pop())
 
 def AGAIN():
-	append(words["branch"])
+	append(words["branch"].xt)
 	append(stack.pop())
 
 def BL():
@@ -862,7 +863,7 @@ def TICK():
 
 def COMPILE_TICK():
 	TICK()
-	append(stack.pop())
+	LITERAL()
 
 def IMMEDIATE():
 	words[latest].immediate = True
@@ -894,7 +895,7 @@ def LIT():
 	ip += 1
 
 def RECURSE():
-	append(compiling_word)
+	append(compiling_word.xt)
 
 def DOES_TO():
 	def dodoes(code, data):
@@ -1030,7 +1031,7 @@ def MOVE(): # ( src dst u -- )
 
 def DOT_QUOTE():
 	S_QUOTE()
-	append(words["type"])
+	append(words["type"].xt)
 
 def SPACE():
 	print(" ", end='')
@@ -1104,7 +1105,7 @@ def TO():
 	TO_BODY()
 	if heap[state_addr]:
 		COMMA()
-		stack.append(words["!"])
+		stack.append(words["!"].xt)
 		COMMA()
 	else:
 		STORE()
@@ -1113,7 +1114,7 @@ def CASE():
 	stack.append(0)
 
 def ENDCASE():
-	append(words["drop"])
+	append(words["drop"].xt)
 	while stack[-1]:
 		THEN()
 	stack.pop()
@@ -1129,12 +1130,15 @@ def _OF():
 		BRANCH()
 
 def OF():
-	append(words["(of)"])
+	append(words["(of)"].xt)
 	stack.append(here)
 	append(None)
 
 def ENDOF():
 	ELSE()
+
+def LITERAL():
+	append(lambda xt=stack.pop() : stack.append(xt))
 
 add_word("\\", REFILL, True)
 add_word("variable", VARIABLE)
@@ -1221,7 +1225,7 @@ add_word("/", SLASH)
 add_word("*/", STAR_SLASH)
 add_word("nip", NIP)
 add_word("tuck", TUCK)
-add_word("literal", COMMA, True)
+add_word("literal", LITERAL, True)
 add_word("postpone", POSTPONE, True)
 add_word("*/mod", STAR_SLASH_MOD)
 add_word("/mod", SLASH_MOD)
@@ -1302,6 +1306,12 @@ def compile_forth(s):
 
 compile_forth(
 """
+\ nops
+: cells ;
+: chars ;
+: align ;
+: aligned ;
+
 : value create , does> @ ;
 : 0<> 0= 0= ;
 : 0> dup 0< 0= swap 0<> and ;
@@ -1313,12 +1323,7 @@ compile_forth(
 : false 0 ;
 : . s>d swap over dabs <# #s rot sign #> type space ;
 : ?dup dup if dup then ;
-
-\ nops
-: cells ;
-: chars ;
-: align ;
-: aligned ;
+: compile, , ;
 """)
 
 try:
