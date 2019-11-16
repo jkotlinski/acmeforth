@@ -1109,10 +1109,6 @@ def U_GT():
 	stack[-2] = -1 if lhs.value > rhs.value else 0
 	stack.pop()
 
-def ZERO_LT_GT():
-	ZEQUAL()
-	ZEQUAL()
-
 def UNUSED():
 	stack.append(len(heap) - here)
 
@@ -1285,7 +1281,6 @@ add_word("true", TRUE)
 add_word("false", FALSE)
 add_word("<>", LT_GT)
 add_word("u>", U_GT)
-add_word("0<>", ZERO_LT_GT)
 add_word("roll", ROLL)
 add_word("pick", PICK)
 add_word("2>r", TWO_TO_R)
@@ -1308,6 +1303,7 @@ def compile_forth(s):
 compile_forth(
 """
 : value create , does> @ ;
+: 0<> 0= 0= ;
 : 0> dup 0< 0= swap 0<> and ;
 : buffer: create allot ;
 : hex $10 base ! ;
