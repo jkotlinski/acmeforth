@@ -1040,14 +1040,6 @@ def SPACES():
 	for i in range(stack.pop()):
 		SPACE()
 
-def U_DOT(): # ( u -- )
-	stack.append(0)
-	LT_HASH()
-	HASH_S()
-	RT_HASH()
-	TYPE()
-	SPACE()
-
 def EMIT():
 	print(chr(stack.pop()), end='')
 
@@ -1273,7 +1265,6 @@ add_word("move", MOVE)
 add_word('."', DOT_QUOTE, True)
 add_word("spaces", SPACES)
 add_word("space", SPACE)
-add_word("u.", U_DOT)
 add_word("emit", EMIT)
 add_word("dabs", DABS)
 add_word("accept", ACCEPT)
@@ -1322,10 +1313,17 @@ compile_forth(
 : true -1 ;
 : false 0 ;
 : . s>d swap over dabs <# #s rot sign #> type space ;
+: u. 0 <# #s #> type space ;
 : ?dup dup if dup then ;
 : compile, , ;
 : save-input >in @ 1 ;
 : restore-input drop >in ! 0 ;
+: .s depth 1+ 1 ?do depth i - pick . loop cr ;
+: .r ( n1 n2 -- )
+swap s>d swap over dabs <# #s rot sign #>
+rot over - spaces type space ;
+: u.r ( u n -- )
+swap 0 <# #s #> rot over - spaces type space ;
 """)
 
 try:
