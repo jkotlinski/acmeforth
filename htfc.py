@@ -1304,7 +1304,7 @@ compile_forth(
 : decimal #10 base ! ;
 : true -1 ;
 : false 0 ;
-: . s>d swap over dabs <# rot sign #> type space ;
+: . s>d swap over dabs <# #s rot sign #> type space ;
 : ?dup dup if dup then ;
 
 \ nops
