@@ -727,31 +727,6 @@ def D_ABS():
 	DUP()
 	Q_D_NEGATE()
 
-# from FIG UK : ?negate 0< if negate then ;
-def Q_NEGATE():
-	ZERO_LT()
-	if stack.pop():
-		NEGATE()
-
-# from FIG UK
-def SM_REM():
-	TWODUP()
-	XOR()
-	TO_R()
-	OVER()
-	TO_R()
-	ABS()
-	TO_R()
-	D_ABS()
-	R_TO()
-	UM_MOD()
-	SWAP()
-	R_TO()
-	Q_NEGATE()
-	SWAP()
-	R_TO()
-	Q_NEGATE()
-
 def L_BRACKET():
 	set_state(False)
 
@@ -1145,7 +1120,6 @@ add_word("m*", M_MULTIPLY)
 add_word("um*", UM_MULTIPLY)
 add_word("fm/mod", FM_MOD)
 add_word("um/mod", UM_MOD)
-add_word("sm/rem", SM_REM)
 add_word("[", L_BRACKET, True)
 add_word("]", R_BRACKET)
 add_word("nip", NIP)
@@ -1266,6 +1240,8 @@ swap 0 <# #s #> rot over - spaces type space ;
 : mod /mod drop ;
 : */mod >r m* r> fm/mod ;
 : */ */mod nip ;
+: ?negate 0< if negate then ;
+: sm/rem 2dup xor >r over >r abs >r dabs r> um/mod swap r> ?negate swap r> ?negate ;
 """)
 
 try:
