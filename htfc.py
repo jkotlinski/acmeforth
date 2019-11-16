@@ -1325,6 +1325,7 @@ rot over - spaces type space ;
 : u.r ( u n -- )
 swap 0 <# #s #> rot over - spaces type space ;
 : pad here $100 + ;
+: erase 0 fill ;
 """)
 
 try:
