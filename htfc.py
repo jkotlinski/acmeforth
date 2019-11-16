@@ -1085,12 +1085,6 @@ def TO():
 	else:
 		STORE()
 
-def ENDCASE():
-	append(words["drop"].xt)
-	while stack[-1]:
-		THEN()
-	stack.pop()
-
 def _OF():
 	global ip
 	OVER()
@@ -1257,7 +1251,6 @@ add_word("(?do)", _QUESTION_DO)
 add_word("to", TO, True)
 add_word("(of)", _OF)
 add_word("of", OF, True)
-add_word("endcase", ENDCASE, True)
 
 def compile_forth(s):
 	for l in s.split('\n'):
@@ -1276,7 +1269,9 @@ compile_forth(
 : aligned ;
 
 : if postpone 0branch here 0 , ; immediate
+: ?dup dup if dup then ;
 : case 0 ; immediate
+: endcase postpone drop begin ?dup while postpone then repeat ; immediate
 : endof postpone else ; immediate
 : value create , does> @ ;
 : 0<> 0= 0= ;
@@ -1289,7 +1284,6 @@ compile_forth(
 : false 0 ;
 : . s>d swap over dabs <# #s rot sign #> type space ;
 : u. 0 <# #s #> type space ;
-: ?dup dup if dup then ;
 : compile, , ;
 : save-input >in @ 1 ;
 : restore-input drop >in ! 0 ;
