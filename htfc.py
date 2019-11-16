@@ -1034,19 +1034,6 @@ def DOT_QUOTE():
 	S_QUOTE()
 	append(words["type"])
 
-def DOT(): # ( n -- )
-	S_TO_D()
-	SWAP()
-	OVER()
-	DABS()
-	LT_HASH()
-	HASH_S()
-	ROT()
-	SIGN()
-	RT_HASH()
-	TYPE()
-	SPACE()
-
 def SPACE():
 	print(" ", end='')
 
@@ -1262,7 +1249,6 @@ add_word(">number", TO_NUMBER)
 add_word("fill", FILL)
 add_word("move", MOVE)
 add_word('."', DOT_QUOTE, True)
-add_word(".", DOT)
 add_word("spaces", SPACES)
 add_word("space", SPACE)
 add_word("u.", U_DOT)
@@ -1302,6 +1288,7 @@ compile_forth(
 : decimal #10 base ! ;
 : true -1 ;
 : false 0 ;
+: . s>d swap over dabs <# rot sign #> type space ;
 """)
 
 try:
