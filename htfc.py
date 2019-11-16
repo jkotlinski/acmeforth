@@ -237,7 +237,7 @@ def docol(ip_):
 		ip += 1
 		if type(code) == Word:
 			if DEBUG:
-				print("exec " + code.name)
+				print("exec", code.name)
 			code.xt()
 			if DEBUG:
 				print(stack)
@@ -1065,6 +1065,7 @@ def DOT_LPAREN():
 	print(parse(')'), end='')
 
 def COLON_NONAME():
+	global compiling_word
 	global latest
 	latest = None
 	ip = here
