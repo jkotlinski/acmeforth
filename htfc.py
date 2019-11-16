@@ -308,11 +308,6 @@ def ZBRANCH():
 	else:
 		BRANCH()
 
-def IF():
-	append(words["0branch"].xt)
-	stack.append(here)
-	append(0)
-
 def ELSE():
 	append(words["branch"].xt)
 	append(0)
@@ -1139,7 +1134,6 @@ add_word("0<", ZERO_LT)
 add_word("0branch", ZBRANCH)
 add_word("branch", BRANCH)
 add_word("negate", NEGATE)
-add_word("if", IF, True)
 add_word("else", ELSE, True)
 add_word("then", THEN, True)
 add_word("cr", CR)
@@ -1289,6 +1283,7 @@ compile_forth(
 : align ;
 : aligned ;
 
+: if postpone 0branch here 0 , ; immediate
 : value create , does> @ ;
 : 0<> 0= 0= ;
 : 0> dup 0< 0= swap 0<> and ;
