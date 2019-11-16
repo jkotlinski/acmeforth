@@ -1068,8 +1068,8 @@ def COLON_NONAME():
 	global latest
 	latest = None
 	ip = here
-	stack.append(ip)
 	compiling_word = Word(latest, lambda ip=ip : docol(ip), False)
+	stack.append(compiling_word.xt)
 	compiling_word.ip = ip
 	set_state(True)
 
