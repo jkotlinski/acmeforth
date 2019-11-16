@@ -759,10 +759,6 @@ def SLASH_MOD():
 	R_TO()
 	FM_MOD()
 
-def MOD():
-	SLASH_MOD()
-	DROP()
-
 # from FIG UK
 def STAR_SLASH_MOD():
 	TO_R()
@@ -1178,7 +1174,6 @@ add_word("literal", LITERAL, True)
 add_word("postpone", POSTPONE, True)
 add_word("*/mod", STAR_SLASH_MOD)
 add_word("/mod", SLASH_MOD)
-add_word("mod", MOD)
 add_word("here", HERE)
 add_word(",", COMMA)
 add_word("c,", COMMA)
@@ -1289,6 +1284,7 @@ swap 0 <# #s #> rot over - spaces type space ;
 
 \ from FIG UK
 : / /mod nip ;
+: mod /mod drop ;
 """)
 
 try:
