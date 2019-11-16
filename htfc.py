@@ -308,10 +308,6 @@ def TWOSWAP():
 	stack[-2] = stack[-4]
 	stack[-4] = t
 
-def QDUP():
-	if stack[-1]:
-		DUP()
-
 def BRANCH():
 	global ip
 	ip = heap[ip]
@@ -1122,7 +1118,6 @@ add_word("+!", PLUSSTORE)
 add_word(":", COLON)
 add_word(";", SEMICOLON, True)
 add_word("depth", DEPTH)
-add_word("?dup", QDUP)
 add_word("dup", DUP)
 add_word("2dup", TWODUP)
 add_word("over", OVER)
@@ -1289,6 +1284,7 @@ compile_forth(
 : true -1 ;
 : false 0 ;
 : . s>d swap over dabs <# rot sign #> type space ;
+: ?dup dup if dup then ;
 """)
 
 try:
