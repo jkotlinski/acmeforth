@@ -1109,9 +1109,6 @@ def OF():
 	stack.append(here)
 	append(None)
 
-def ENDOF():
-	ELSE()
-
 def LITERAL():
 	append(lambda xt=stack.pop() : stack.append(xt))
 
@@ -1264,7 +1261,6 @@ add_word("to", TO, True)
 add_word("case", CASE, True)
 add_word("(of)", _OF)
 add_word("of", OF, True)
-add_word("endof", ENDOF, True)
 add_word("endcase", ENDCASE, True)
 
 def compile_forth(s):
@@ -1284,6 +1280,7 @@ compile_forth(
 : aligned ;
 
 : if postpone 0branch here 0 , ; immediate
+: endof postpone else ; immediate
 : value create , does> @ ;
 : 0<> 0= 0= ;
 : 0> dup 0< 0= swap 0<> and ;
