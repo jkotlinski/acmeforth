@@ -1076,10 +1076,6 @@ def COLON_NONAME():
 	compiling_word.ip = ip
 	set_state(True)
 
-def LT_GT(): # <>
-	EQUALS()
-	ZEQUAL()
-
 def U_GT():
 	lhs = ctypes.c_uint(stack[-2])
 	rhs = ctypes.c_uint(stack[-1])
@@ -1252,7 +1248,6 @@ add_word("dabs", DABS)
 add_word("accept", ACCEPT)
 add_word(".(", DOT_LPAREN)
 add_word(":noname", COLON_NONAME)
-add_word("<>", LT_GT)
 add_word("u>", U_GT)
 add_word("roll", ROLL)
 add_word("pick", PICK)
@@ -1278,6 +1273,7 @@ compile_forth(
 : value create , does> @ ;
 : 0<> 0= 0= ;
 : 0> dup 0< 0= swap 0<> and ;
+: <> = 0= ;
 : buffer: create allot ;
 : hex $10 base ! ;
 : decimal #10 base ! ;
