@@ -1093,12 +1093,6 @@ def COLON_NONAME():
 	compiling_word.ip = ip
 	set_state(True)
 
-def TRUE():
-	stack.append(-1)
-
-def FALSE():
-	stack.append(0)
-
 def LT_GT(): # <>
 	EQUALS()
 	ZEQUAL()
@@ -1277,8 +1271,6 @@ add_word("dabs", DABS)
 add_word("accept", ACCEPT)
 add_word(".(", DOT_LPAREN)
 add_word(":noname", COLON_NONAME)
-add_word("true", TRUE)
-add_word("false", FALSE)
 add_word("<>", LT_GT)
 add_word("u>", U_GT)
 add_word("roll", ROLL)
@@ -1308,6 +1300,8 @@ compile_forth(
 : buffer: create allot ;
 : hex $10 base ! ;
 : decimal #10 base ! ;
+: true -1 ;
+: false 0 ;
 """)
 
 try:
