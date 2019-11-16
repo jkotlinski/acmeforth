@@ -17,7 +17,6 @@ class Word:
 
 words = {}
 stack = []
-control_stack = []
 return_stack = []
 leave_stack = []
 tib_count = 0
@@ -332,18 +331,18 @@ def ZBRANCH():
 
 def IF():
 	append(words["0branch"])
-	control_stack.append(here)
+	stack.append(here)
 	append(0)
 
 def ELSE():
 	append(words["branch"])
 	append(0)
-	heap[control_stack[-1]] = here
-	control_stack[-1] = here - 1
+	heap[stack[-1]] = here
+	stack[-1] = here - 1
 
 def THEN():
-	heap[control_stack[-1]] = here
-	control_stack.pop()
+	heap[stack[-1]] = here
+	stack.pop()
 
 def ZERO_LT():
 	stack[-1] = -1 if stack[-1] < 0 else 0
@@ -365,7 +364,7 @@ def J():
 
 def DO():
 	append(words["(do)"])
-	control_stack.append(here)
+	stack.append(here)
 
 def _DO():
 	TO_R() # index
@@ -388,21 +387,21 @@ def QUESTION_DO():
 	append(words["(?do)"])
 	leave_stack.append(here)
 	append(None)
-	control_stack.append(here)
+	stack.append(here)
 
 def resolve_leaves():
 	while leave_stack:
-		assert control_stack
+		assert stack
 		# The additional -1 is for ?DO, which has a cell between (?DO) and the loop body.
-		if leave_stack[-1] < control_stack[-1] - 1:
+		if leave_stack[-1] < stack[-1] - 1:
 			break
 		heap[leave_stack.pop()] = here
 
 def LOOP():
 	append(words["(loop)"])
-	append(control_stack[-1])
+	append(stack[-1])
 	resolve_leaves()
-	control_stack.pop()
+	stack.pop()
 
 def _LOOP():
 	global ip
@@ -436,9 +435,9 @@ def WITHIN(): # ( test lower upper -- flag )
 
 def PLUSLOOP():
 	append(words["(+loop)"])
-	append(control_stack[-1])
+	append(stack[-1])
 	resolve_leaves()
-	control_stack.pop()
+	stack.pop()
 
 def _PLUSLOOP():
 	global ip
@@ -830,28 +829,28 @@ def COMMA():
 
 def BEGIN():
 	dest = here
-	control_stack.append(dest)
+	stack.append(dest)
 
 def WHILE():
 	append(words["0branch"])
 	orig = here
-	control_stack.insert(-1, orig)
+	stack.insert(-1, orig)
 	append(None)
 
 def REPEAT():
 	append(words["branch"])
-	dest = control_stack.pop()
+	dest = stack.pop()
 	append(dest)
-	orig = control_stack.pop()
+	orig = stack.pop()
 	heap[orig] = here
 
 def UNTIL():
 	append(words["0branch"])
-	append(control_stack.pop())
+	append(stack.pop())
 
 def AGAIN():
 	append(words["branch"])
-	append(control_stack.pop())
+	append(stack.pop())
 
 def BL():
 	stack.append(ord(' '))
@@ -1321,13 +1320,17 @@ add_word("buffer:", BUFFER_COLON)
 add_word("to", TO, True)
 
 def compile_forth(s):
-	for i in range(len(s)):
-		heap[tib_addr + i] = s[i]
-	stack.append(tib_addr)
-	stack.append(len(s))
-	EVALUATE()
+	for l in s.split('\n'):
+		for i in range(len(l)):
+			heap[tib_addr + i] = l[i]
+		stack.append(tib_addr)
+		stack.append(len(l))
+		EVALUATE()
 
-compile_forth(": VALUE CREATE , DOES> @ ;")
+compile_forth(
+"""
+: value create , does> @ ;
+""")
 
 try:
 	QUIT()
