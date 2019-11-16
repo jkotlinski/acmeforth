@@ -759,11 +759,6 @@ def STAR_SLASH_MOD():
 	R_TO()
 	FM_MOD()
 
-# from FIG UK
-def STAR_SLASH():
-	STAR_SLASH_MOD()
-	NIP()
-
 def L_BRACKET():
 	set_state(False)
 
@@ -1160,7 +1155,6 @@ add_word("um/mod", UM_MOD)
 add_word("sm/rem", SM_REM)
 add_word("[", L_BRACKET, True)
 add_word("]", R_BRACKET)
-add_word("*/", STAR_SLASH)
 add_word("nip", NIP)
 add_word("tuck", TUCK)
 add_word("literal", LITERAL, True)
@@ -1278,6 +1272,7 @@ swap 0 <# #s #> rot over - spaces type space ;
 : /mod >r s>d r> fm/mod ;
 : / /mod nip ;
 : mod /mod drop ;
+: */ */mod nip ;
 """)
 
 try:
