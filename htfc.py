@@ -764,11 +764,6 @@ def MOD():
 	DROP()
 
 # from FIG UK
-def SLASH():
-	SLASH_MOD()
-	NIP()
-
-# from FIG UK
 def STAR_SLASH_MOD():
 	TO_R()
 	M_MULTIPLY()
@@ -1176,7 +1171,6 @@ add_word("um/mod", UM_MOD)
 add_word("sm/rem", SM_REM)
 add_word("[", L_BRACKET, True)
 add_word("]", R_BRACKET)
-add_word("/", SLASH)
 add_word("*/", STAR_SLASH)
 add_word("nip", NIP)
 add_word("tuck", TUCK)
@@ -1292,6 +1286,9 @@ swap 0 <# #s #> rot over - spaces type space ;
 : erase 0 fill ;
 : 2over 3 pick 3 pick ;
 : 2swap >r rot rot r> rot rot ;
+
+\ from FIG UK
+: / /mod nip ;
 """)
 
 try:
