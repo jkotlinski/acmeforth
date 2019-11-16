@@ -483,6 +483,11 @@ def S_QUOTE():
 	for c in s:
 		append(c)
 
+def C_QUOTE():
+	S_QUOTE()
+	append(words["drop"])
+	append(words["1-"])
+
 def SOURCE():
 	print("=== SOURCE")
 	stack.append(tib_addr)
@@ -1161,6 +1166,7 @@ add_word("j", J)
 add_word("=", EQUALS)
 add_word("0=", ZEQUAL)
 add_word('s"', S_QUOTE, True)
+add_word('c"', C_QUOTE, True)
 add_word("do", DO, True)
 add_word("(do)", _DO)
 add_word("loop", LOOP, True)
