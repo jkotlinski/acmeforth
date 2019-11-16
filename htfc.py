@@ -1095,11 +1095,6 @@ def _OF():
 	else:
 		BRANCH()
 
-def OF():
-	append(words["(of)"].xt)
-	stack.append(here)
-	append(None)
-
 def LITERAL():
 	append(lambda xt=stack.pop() : stack.append(xt))
 
@@ -1250,7 +1245,6 @@ add_word("?do", QUESTION_DO, True)
 add_word("(?do)", _QUESTION_DO)
 add_word("to", TO, True)
 add_word("(of)", _OF)
-add_word("of", OF, True)
 
 def compile_forth(s):
 	for l in s.split('\n'):
@@ -1272,6 +1266,7 @@ compile_forth(
 : ?dup dup if dup then ;
 : case 0 ; immediate
 : endcase postpone drop begin ?dup while postpone then repeat ; immediate
+: of postpone (of) here 0 , ; immediate
 : endof postpone else ; immediate
 : value create , does> @ ;
 : 0<> 0= 0= ;
