@@ -216,12 +216,6 @@ def interpret():
 		if DEBUG:
 			print(stack)
 
-def HEX():
-	heap[base_addr] = 16
-
-def DECIMAL():
-	heap[base_addr] = 10
-
 def STORE():
 	heap[stack[-1]] = stack[-2]
 	TWODROP()
@@ -1144,8 +1138,6 @@ def TO():
 		STORE()
 
 add_word("\\", REFILL, True)
-add_word("hex", HEX)
-add_word("decimal", DECIMAL)
 add_word("variable", VARIABLE)
 add_word("!", STORE)
 add_word("2!", TWOSTORE)
@@ -1318,6 +1310,8 @@ compile_forth(
 : value create , does> @ ;
 : 0> dup 0< 0= swap 0<> and ;
 : buffer: create allot ;
+: hex $10 base ! ;
+: decimal #10 base ! ;
 """)
 
 try:
