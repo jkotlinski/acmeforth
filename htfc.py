@@ -752,13 +752,6 @@ def SM_REM():
 	R_TO()
 	Q_NEGATE()
 
-# from FIG UK
-def STAR_SLASH_MOD():
-	TO_R()
-	M_MULTIPLY()
-	R_TO()
-	FM_MOD()
-
 def L_BRACKET():
 	set_state(False)
 
@@ -1159,7 +1152,6 @@ add_word("nip", NIP)
 add_word("tuck", TUCK)
 add_word("literal", LITERAL, True)
 add_word("postpone", POSTPONE, True)
-add_word("*/mod", STAR_SLASH_MOD)
 add_word("here", HERE)
 add_word(",", COMMA)
 add_word("c,", COMMA)
@@ -1272,6 +1264,7 @@ swap 0 <# #s #> rot over - spaces type space ;
 : /mod >r s>d r> fm/mod ;
 : / /mod nip ;
 : mod /mod drop ;
+: */mod >r m* r> fm/mod ;
 : */ */mod nip ;
 """)
 
