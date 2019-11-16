@@ -1085,9 +1085,6 @@ def TO():
 	else:
 		STORE()
 
-def CASE():
-	stack.append(0)
-
 def ENDCASE():
 	append(words["drop"].xt)
 	while stack[-1]:
@@ -1258,7 +1255,6 @@ add_word("marker", MARKER)
 add_word("?do", QUESTION_DO, True)
 add_word("(?do)", _QUESTION_DO)
 add_word("to", TO, True)
-add_word("case", CASE, True)
 add_word("(of)", _OF)
 add_word("of", OF, True)
 add_word("endcase", ENDCASE, True)
@@ -1280,6 +1276,7 @@ compile_forth(
 : aligned ;
 
 : if postpone 0branch here 0 , ; immediate
+: case 0 ; immediate
 : endof postpone else ; immediate
 : value create , does> @ ;
 : 0<> 0= 0= ;
