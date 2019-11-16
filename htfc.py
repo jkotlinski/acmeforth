@@ -807,12 +807,6 @@ def FIND(): # ( c-addr -- c-addr 0 | xt 1 | xt -1 )
 def EXECUTE():
 	stack.pop()()
 
-def COUNT():
-	DUP()
-	ONEPLUS()
-	SWAP()
-	FETCH()
-
 def LIT():
 	global ip
 	stack.append(heap[ip])
@@ -1138,7 +1132,6 @@ add_word("execute", EXECUTE)
 add_word("[']", COMPILE_TICK, True)
 add_word("immediate", IMMEDIATE)
 add_word("find", FIND)
-add_word("count", COUNT)
 add_word("lit", LIT)
 add_word("state", STATE)
 add_word("recurse", RECURSE, True)
@@ -1227,6 +1220,7 @@ swap 0 <# #s #> rot over - spaces type space ;
 : 2swap >r rot rot r> rot rot ;
 : [ 0 state ! ; immediate
 : ] -1 state ! ;
+: count dup 1+ swap @ ;
 
 \ from FIG UK
 : /mod >r s>d r> fm/mod ;
