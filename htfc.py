@@ -1119,14 +1119,6 @@ def ZERO_LT_GT():
 	ZEQUAL()
 	ZEQUAL()
 
-def ZERO_GT():
-	DUP()
-	ZERO_LT()
-	ZEQUAL()
-	SWAP()
-	ZERO_LT_GT()
-	AND()
-
 def UNUSED():
 	stack.append(len(heap) - here)
 
@@ -1140,10 +1132,6 @@ def MARKER():
 		here = old_here
 		words = old_words
 	words[latest].xt = restore
-
-def BUFFER_COLON():
-	CREATE()
-	ALLOT()
 
 def TO():
 	TICK()
@@ -1306,7 +1294,6 @@ add_word("false", FALSE)
 add_word("<>", LT_GT)
 add_word("u>", U_GT)
 add_word("0<>", ZERO_LT_GT)
-add_word("0>", ZERO_GT)
 add_word("roll", ROLL)
 add_word("pick", PICK)
 add_word("2>r", TWO_TO_R)
@@ -1316,7 +1303,6 @@ add_word("unused", UNUSED)
 add_word("marker", MARKER)
 add_word("?do", QUESTION_DO, True)
 add_word("(?do)", _QUESTION_DO)
-add_word("buffer:", BUFFER_COLON)
 add_word("to", TO, True)
 
 def compile_forth(s):
@@ -1330,6 +1316,8 @@ def compile_forth(s):
 compile_forth(
 """
 : value create , does> @ ;
+: 0> dup 0< 0= swap 0<> and ;
+: buffer: create allot ;
 """)
 
 try:
