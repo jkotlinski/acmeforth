@@ -460,9 +460,6 @@ def _PLUSLOOP():
 def CR():
 	print()
 
-def CELLS():
-	pass
-
 def ALLOT():
 	global here
 	here += stack.pop()
@@ -1152,7 +1149,6 @@ add_word("1-", ONEMINUS)
 add_word("+", PLUS)
 add_word("-", MINUS)
 add_word("abs", ABS)
-add_word("cells", CELLS)
 add_word("quit", QUIT)
 add_word("create", CREATE)
 add_word("allot", ALLOT)
@@ -1197,9 +1193,6 @@ add_word("*/mod", STAR_SLASH_MOD)
 add_word("/mod", SLASH_MOD)
 add_word("mod", MOD)
 add_word("here", HERE)
-add_word("chars", lambda *nop:nop)
-add_word("align", lambda *nop:nop)
-add_word("aligned", lambda *nop:nop)
 add_word(",", COMMA)
 add_word("c,", COMMA)
 add_word("cell+", ONEPLUS)
@@ -1281,6 +1274,12 @@ compile_forth(
 : false 0 ;
 : . s>d swap over dabs <# rot sign #> type space ;
 : ?dup dup if dup then ;
+
+\ nops
+: cells ;
+: chars ;
+: align ;
+: aligned ;
 """)
 
 try:
