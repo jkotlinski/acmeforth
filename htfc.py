@@ -283,10 +283,6 @@ def TWODUP():
 def OVER():
 	stack.append(stack[-2])
 
-def TWOOVER():
-	stack.append(stack[-4])
-	stack.append(stack[-4])
-
 def PICK():
 	stack.append(stack[-stack.pop()-1])
 
@@ -1143,7 +1139,6 @@ add_word("depth", DEPTH)
 add_word("dup", DUP)
 add_word("2dup", TWODUP)
 add_word("over", OVER)
-add_word("2over", TWOOVER)
 add_word("rot", ROT)
 add_word("swap", SWAP)
 add_word("2swap", TWOSWAP)
@@ -1326,6 +1321,7 @@ rot over - spaces type space ;
 swap 0 <# #s #> rot over - spaces type space ;
 : pad here $100 + ;
 : erase 0 fill ;
+: 2over 3 pick 3 pick ;
 """)
 
 try:
