@@ -1103,6 +1103,33 @@ def TO():
 	else:
 		STORE()
 
+def CASE():
+	stack.append(0)
+
+def ENDCASE():
+	append(words["drop"])
+	while stack[-1]:
+		THEN()
+	stack.pop()
+
+def _OF():
+	global ip
+	OVER()
+	EQUALS()
+	if stack.pop():
+		DROP()
+		ip += 1
+	else:
+		BRANCH()
+
+def OF():
+	append(words["(of)"])
+	stack.append(here)
+	append(None)
+
+def ENDOF():
+	ELSE()
+
 add_word("\\", REFILL, True)
 add_word("variable", VARIABLE)
 add_word("!", STORE)
@@ -1252,6 +1279,11 @@ add_word("marker", MARKER)
 add_word("?do", QUESTION_DO, True)
 add_word("(?do)", _QUESTION_DO)
 add_word("to", TO, True)
+add_word("case", CASE, True)
+add_word("(of)", _OF)
+add_word("of", OF, True)
+add_word("endof", ENDOF, True)
+add_word("endcase", ENDCASE, True)
 
 def compile_forth(s):
 	for l in s.split('\n'):
