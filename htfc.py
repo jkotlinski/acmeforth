@@ -1084,7 +1084,11 @@ def PARSE():
 		ONEPLUS()
 
 def WORDS():
-	print(" ".join(words.keys()))
+	l = []
+	for k in words.keys():
+		l.append(str(k))
+	l.sort()
+	print(" ".join(l))
 
 add_word("refill", REFILL)
 add_word("variable", VARIABLE)
