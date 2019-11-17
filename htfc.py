@@ -4,6 +4,7 @@ DEBUG = 0
 
 import ctypes
 import os
+import readline
 import sys
 
 class Word:
@@ -354,7 +355,7 @@ def QUIT():
 		interpret_tib()
 		SOURCE_ID()
 		if not stack.pop():
-			print("OK")
+			print("compiled" if heap[state_addr] else "OK")
 
 def I():
 	stack.append(return_stack[-2])
@@ -1113,6 +1114,9 @@ def PARSE():
 		heap[to_in_addr] += 1
 		ONEPLUS()
 
+def WORDS():
+	print(" ".join(words.keys()))
+
 add_word("refill", REFILL)
 add_word("variable", VARIABLE)
 add_word("!", STORE)
@@ -1254,6 +1258,7 @@ add_word("(of)", _OF)
 add_word("parse", PARSE)
 add_word("source-id", SOURCE_ID)
 add_word("bye", lambda:sys.exit(0))
+add_word("words", WORDS)
 
 def evaluate_file(f):
 	f = open(f, mode='r')
@@ -1272,5 +1277,9 @@ evaluate_file(os.path.join(__location__, "words.fs"))
 if len(sys.argv) > 1:
 	for infile in sys.argv[1:]:
 		evaluate_file(infile)
-
-QUIT()
+else:
+	print("Hack n' Trade Forth Compiler v0.0.1 :: Copyright (C) 2019 Johan Kotlinski")
+	try:
+		QUIT()
+	except EOFError:
+		pass
