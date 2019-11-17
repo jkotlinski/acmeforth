@@ -30,6 +30,7 @@ base_addr = state_addr + 1
 word_addr = base_addr + 1
 pictured_numeric_addr = word_addr + 40
 tib_addr = pictured_numeric_addr + 70
+original_tib_addr = tib_addr
 here = tib_addr + 200
 
 class Heap:
@@ -139,11 +140,17 @@ def evaluate(word):
 
 def REFILL():
 	global tib_count
+
+	if tib_addr != original_tib_addr:
+		stack.append(0)
+		return
+
 	tib_count = 0
 	for c in input():
 		heap[tib_addr + tib_count] = c
 		tib_count += 1
 	heap[to_in_addr] = 0
+	stack.append(-1)
 
 def parse(delimiter):
 	if type(delimiter) == type(' '):
@@ -173,6 +180,7 @@ def read_word():
 		if word:
 			return word
 		REFILL()
+		stack.pop()
 
 def CREATE():
 	global latest
@@ -328,6 +336,7 @@ def NEGATE():
 def QUIT():
 	while True:
 		REFILL()
+		stack.pop()
 		interpret()
 
 def I():
@@ -535,6 +544,7 @@ def LPAREN():
 				return
 			heap[to_in_addr] += 1
 		REFILL()
+		stack.pop()
 
 def EQUALS():
 	stack[-2] = -1 if stack[-1] == stack[-2] else 0
@@ -1050,7 +1060,7 @@ def PARSE():
 		heap[to_in_addr] += 1
 		ONEPLUS()
 
-add_word("\\", REFILL, True)
+add_word("refill", REFILL)
 add_word("variable", VARIABLE)
 add_word("!", STORE)
 add_word("2!", TWOSTORE)
@@ -1239,6 +1249,7 @@ swap 0 <# #s #> rot over - spaces type space ;
 : count dup 1+ swap @ ;
 : /string dup >r - swap r> + swap ;
 : abort depth 0 do drop loop quit ;
+: \ refill drop ; immediate
 
 ( from FIG UK )
 : /mod >r s>d r> fm/mod ;
