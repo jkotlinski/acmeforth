@@ -872,21 +872,26 @@ def WORD():
 		heap[word_addr + i + 1] = w[i]
 	stack.append(word_addr)
 
+def format_append(ch):
+	global format_addr
+	heap[format_addr] = ch
+	format_addr += 1
+
 def LT_HASH():
-	stack.append(0)
-	TO_R()
+	global format_addr
+	format_addr = here
 
 def HOLD(): # ( char -- )
-	TO_R()
+	format_append(stack.pop())
 
 def SIGN(): # ( i -- )
 	if stack.pop() < 0:
-		return_stack.append('-')
+		format_append('-')
 
 def HASH(): # ( ud1 -- ud2 )
 	d = ctypes.c_ulong(stack[-1] << 32)
 	d.value += ctypes.c_uint(stack[-2]).value
-	return_stack.append(digits[d.value % heap[base_addr]].upper())
+	format_append(digits[d.value % heap[base_addr]].upper())
 	d.value //= heap[base_addr]
 	stack[-2] = d.value & 0xffffffff
 	stack[-1] = d.value >> 32
@@ -897,17 +902,16 @@ def HASH_S(): # ( ud1 -- ud2 )
 		HASH()
 
 def RT_HASH(): # ( xd -- c-addr u )
+	global format_addr
 	TWODROP()
 	stack.append(pictured_numeric_addr)
-	strlen = 0
-	while True:
-		R_TO()
-		c = stack.pop()
-		if not c:
-			stack.append(strlen)
-			break
-		heap[pictured_numeric_addr + strlen] = c
-		strlen += 1
+	stack.append(format_addr - here)
+	dst = pictured_numeric_addr
+	format_addr -= 1
+	while format_addr >= here:
+		heap[dst] = heap[format_addr]
+		dst += 1
+		format_addr -= 1
 
 def TO_NUMBER(): # ( ud1 c-addr1 u1 -- ud2 c-addr2 u2 )
 	while stack[-1]:
