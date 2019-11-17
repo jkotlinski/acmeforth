@@ -7,6 +7,8 @@
 : begin here ; immediate
 : nip swap drop ;
 : if postpone 0branch here 0 , ; immediate
+: min 2dup < if drop else nip then ;
+: max 2dup > if drop else nip then ;
 : ?dup dup if dup then ;
 : case 0 ; immediate
 : endcase postpone drop begin ?dup while postpone then repeat ; immediate

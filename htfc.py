@@ -688,14 +688,6 @@ def GREATER_THAN():
 	stack[-2] = -1 if stack[-2] > stack[-1] else 0
 	stack.pop()
 
-def MIN():
-	stack[-2] = min(stack[-2], stack[-1])
-	stack.pop()
-
-def MAX():
-	stack[-2] = max(stack[-2], stack[-1])
-	stack.pop()
-
 def MULTIPLY():
 	v = ctypes.c_int(stack[-2])
 	v.value *= stack[-1]
@@ -1171,8 +1163,6 @@ add_word("constant", CONSTANT)
 add_word("<", LESS_THAN)
 add_word(">", GREATER_THAN)
 add_word("u<", U_LESS)
-add_word("min", MIN)
-add_word("max", MAX)
 add_word("*", MULTIPLY)
 add_word("m*", M_MULTIPLY)
 add_word("um*", UM_MULTIPLY)
