@@ -355,7 +355,7 @@ def QUIT():
 		interpret_tib()
 		SOURCE_ID()
 		if not stack.pop():
-			print("compiled" if heap[state_addr] else "OK")
+			print(" compiled" if heap[state_addr] else " ok")
 
 def I():
 	stack.append(return_stack[-2])
@@ -714,10 +714,6 @@ def UM_MULTIPLY():
 	s = ctypes.c_uint(stack[-2]).value * ctypes.c_uint(stack[-1]).value
 	stack[-1] = ctypes.c_int(s >> 32).value
 	stack[-2] = ctypes.c_int(s).value
-
-def NIP(): # ( a b c -- a c )
-	SWAP()
-	DROP()
 
 def TUCK(): # ( b a -- a b a )
 	SWAP()
@@ -1193,7 +1189,6 @@ add_word("m*", M_MULTIPLY)
 add_word("um*", UM_MULTIPLY)
 add_word("fm/mod", FM_MOD)
 add_word("um/mod", UM_MOD)
-add_word("nip", NIP)
 add_word("tuck", TUCK)
 add_word("literal", LITERAL, True)
 add_word("postpone", POSTPONE, True)
