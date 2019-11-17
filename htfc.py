@@ -1182,7 +1182,6 @@ def compile_forth(s):
 
 compile_forth(
 """
-\ nops
 : cells ;
 : chars ;
 : align ;
@@ -1222,7 +1221,7 @@ swap 0 <# #s #> rot over - spaces type space ;
 : ] -1 state ! ;
 : count dup 1+ swap @ ;
 
-\ from FIG UK
+( from FIG UK )
 : /mod >r s>d r> fm/mod ;
 : / /mod nip ;
 : mod /mod drop ;
