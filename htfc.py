@@ -813,10 +813,6 @@ def CHAR():
 	w = read_word()
 	stack.append(ord(w[0]))
 
-def COMPILE_CHAR():
-	CHAR()
-	COMMA()
-
 def TICK():
 	w = read_word().lower()
 	xt = words[w].xt
@@ -1178,7 +1174,6 @@ add_word("repeat", REPEAT, True)
 add_word("until", UNTIL, True)
 add_word("again", AGAIN, True)
 add_word("char", CHAR)
-add_word("[char]", COMPILE_CHAR, True)
 add_word("'", TICK)
 add_word("execute", EXECUTE)
 add_word("[']", COMPILE_TICK, True)

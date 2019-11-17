@@ -3,6 +3,7 @@
 : align ;
 : aligned ;
 
+: [char] char , ; immediate
 : s>d dup 0< ;
 : begin here ; immediate
 : nip swap drop ;
