@@ -3,6 +3,7 @@
 : align ;
 : aligned ;
 
+: s>d dup 0< ;
 : begin here ; immediate
 : nip swap drop ;
 : if postpone 0branch here 0 , ; immediate

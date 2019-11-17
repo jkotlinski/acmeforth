@@ -696,9 +696,6 @@ def MAX():
 	stack[-2] = max(stack[-2], stack[-1])
 	stack.pop()
 
-def S_TO_D():
-	stack.append(-1 if stack[-1] < 0 else 0)
-
 def MULTIPLY():
 	v = ctypes.c_int(stack[-2])
 	v.value *= stack[-1]
@@ -1176,7 +1173,6 @@ add_word(">", GREATER_THAN)
 add_word("u<", U_LESS)
 add_word("min", MIN)
 add_word("max", MAX)
-add_word("s>d", S_TO_D)
 add_word("*", MULTIPLY)
 add_word("m*", M_MULTIPLY)
 add_word("um*", UM_MULTIPLY)
