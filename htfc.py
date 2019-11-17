@@ -771,11 +771,6 @@ def Q_D_NEGATE():
 	if stack.pop():
 		D_NEGATE()
 
-# from FIG UK
-def D_ABS():
-	DUP()
-	Q_D_NEGATE()
-
 def POSTPONE():
 	name = read_word().lower()
 	if words[name].immediate:
