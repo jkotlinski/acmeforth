@@ -804,10 +804,6 @@ def HERE():
 def COMMA():
 	append(stack.pop())
 
-def BEGIN():
-	dest = here
-	stack.append(dest)
-
 def WHILE():
 	append(words["0branch"].xt)
 	orig = here
@@ -1199,7 +1195,6 @@ add_word("cell+", ONEPLUS)
 add_word("char+", ONEPLUS)
 add_word("c@", FETCH)
 add_word("c!", STORE)
-add_word("begin", BEGIN, True)
 add_word("while", WHILE, True)
 add_word("repeat", REPEAT, True)
 add_word("until", UNTIL, True)
