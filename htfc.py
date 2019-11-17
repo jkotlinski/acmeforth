@@ -138,10 +138,14 @@ def evaluate(word):
 		else:
 			sys.exit("unknown word '" + word + "'")
 
+def SOURCE_ID():
+	stack.append(-1 if tib_addr != original_tib_addr else 0)
+
 def REFILL():
 	global tib_count
 
-	if tib_addr != original_tib_addr:
+	SOURCE_ID()
+	if stack.pop():
 		stack.append(0)
 		return
 
@@ -1198,6 +1202,7 @@ add_word("(?do)", _QUESTION_DO)
 add_word("to", TO, True)
 add_word("(of)", _OF)
 add_word("parse", PARSE)
+add_word("source-id", SOURCE_ID)
 
 def compile_forth(s):
 	for l in s.split('\n'):
