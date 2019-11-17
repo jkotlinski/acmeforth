@@ -137,7 +137,8 @@ def evaluate(word):
 		if is_number(word):
 			evaluate_number(word)
 		else:
-			sys.exit("unknown word '" + word + "'")
+			print(word + "?")
+			QUIT()
 
 def SOURCE_ID():
 	stack.append(-1 if tib_addr != original_tib_addr else 0)
@@ -183,7 +184,7 @@ def parse(delimiter):
 
 def read_word():
 	while True:
-		word = parse(' ')
+		return parse(' ')
 		if word:
 			return word
 		REFILL()
@@ -218,9 +219,11 @@ def compile(word):
 		else:
 			sys.exit("unknown word '" + word + "'")
 
-def interpret():
-	while True:
+def interpret_tib():
+	while heap[to_in_addr] <= tib_count:
 		word = read_word()
+		if not word:
+			return
 		if heap[state_addr]:
 			if DEBUG:
 				print("COMPILE", word)
@@ -344,7 +347,8 @@ def QUIT():
 	while True:
 		REFILL()
 		stack.pop()
-		interpret()
+		interpret_tib()
+		print("OK")
 
 def I():
 	stack.append(return_stack[-2])
