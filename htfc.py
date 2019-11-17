@@ -3,6 +3,7 @@
 DEBUG = 0
 
 import ctypes
+import os
 import sys
 
 class Word:
@@ -172,7 +173,9 @@ def parse(delimiter):
 	while heap[to_in_addr] < tib_count:
 		c = heap[tib_addr + heap[to_in_addr]]
 		heap[to_in_addr] += 1
-		if c == delimiter:
+		if delimiter == ord(' ') and chr(c).isspace():
+			break
+		elif c == delimiter:
 			break
 		word += chr(c)
 
@@ -475,6 +478,47 @@ def S_QUOTE():
 		if c == ord('"'):
 			break
 		s += chr(c)
+	append(words["sliteral"].xt)
+	append(len(s))
+	for c in s:
+		append(c)
+
+def S_BACKSLASH_QUOTE():
+	s = ""
+	while heap[to_in_addr] < tib_count:
+		c = heap[tib_addr + heap[to_in_addr]]
+		heap[to_in_addr] += 1
+		if c == ord('\\'):
+			c = heap[tib_addr + heap[to_in_addr]]
+			heap[to_in_addr] += 1
+			l = []
+			if 	c == ord('a'): l = [7]
+			elif 	c == ord('b'): l = [8]
+			elif 	c == ord('e'): l = [27]
+			elif 	c == ord('f'): l = [12]
+			elif 	c == ord('l'): l = [10]
+			elif 	c == ord('m'): l = [13, 10]
+			elif 	c == ord('n'): s += os.linesep
+			elif 	c == ord('q'): l = [34]
+			elif 	c == ord('r'): l = [13]
+			elif 	c == ord('t'): l = [9]
+			elif 	c == ord('v'): l = [11]
+			elif 	c == ord('z'): l = [0]
+			elif 	c == ord('"'): l = [34]
+			elif 	c == ord('\\'): l = [92]
+			elif 	c == ord('x'):
+				msd = digits.index(chr(heap[tib_addr + heap[to_in_addr]]).lower())
+				heap[to_in_addr] += 1
+				lsd = digits.index(chr(heap[tib_addr + heap[to_in_addr]]).lower())
+				heap[to_in_addr] += 1
+				s += chr(msd * 16 + lsd)
+			for c in l:
+				s += chr(c)
+		elif c == ord('"'):
+			break
+		else:
+			s += chr(c)
+
 	append(words["sliteral"].xt)
 	append(len(s))
 	for c in s:
@@ -1091,6 +1135,7 @@ add_word("j", J)
 add_word("=", EQUALS)
 add_word("0=", ZEQUAL)
 add_word('s"', S_QUOTE, True)
+add_word('s\\"', S_BACKSLASH_QUOTE, True)
 add_word('c"', C_QUOTE, True)
 add_word("do", DO, True)
 add_word("(do)", _DO)
@@ -1206,14 +1251,15 @@ add_word("source-id", SOURCE_ID)
 
 def compile_forth(s):
 	for l in s.split('\n'):
+		addr = here + 100
 		for i in range(len(l)):
-			heap[tib_addr + i] = l[i]
-		stack.append(tib_addr)
+			heap[addr + i] = l[i]
+		stack.append(addr)
 		stack.append(len(l))
 		EVALUATE()
 
 compile_forth(
-"""
+r"""
 : cells ;
 : chars ;
 : align ;
@@ -1254,7 +1300,7 @@ swap 0 <# #s #> rot over - spaces type space ;
 : count dup 1+ swap @ ;
 : /string dup >r - swap r> + swap ;
 : abort depth 0 do drop loop quit ;
-: \ refill drop ; immediate
+: \ refill 0= if source nip >in ! then ; immediate
 
 ( from FIG UK )
 : /mod >r s>d r> fm/mod ;
