@@ -910,7 +910,7 @@ def EVALUATE(): # ( c-addr u -- )
 
 	# Evaluate until tib is consumed
 	while True:
-		word = parse(' ').lower()
+		word = parse(' ')
 		if not word:
 			break
 		if heap[state_addr]:
@@ -1253,10 +1253,12 @@ add_word("to", TO, True)
 add_word("(of)", _OF)
 add_word("parse", PARSE)
 add_word("source-id", SOURCE_ID)
+add_word("bye", lambda:sys.exit(0))
 
 def evaluate_file(f):
 	f = open(f, mode='r')
 	for l in f.readlines():
+		l = l.rstrip()
 		addr = here + 100
 		for i in range(len(l)):
 			heap[addr + i] = l[i]
