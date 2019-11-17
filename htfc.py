@@ -1033,6 +1033,19 @@ def _OF():
 def LITERAL():
 	append(lambda xt=stack.pop() : stack.append(xt))
 
+def PARSE():
+	delim = stack.pop()
+	stack.append(tib_addr + heap[to_in_addr])
+	stack.append(0)
+	while True:
+		if heap[to_in_addr] == tib_count:
+			return
+		if heap[tib_addr + heap[to_in_addr]] == delim:
+			heap[to_in_addr] += 1
+			return
+		heap[to_in_addr] += 1
+		ONEPLUS()
+
 add_word("\\", REFILL, True)
 add_word("variable", VARIABLE)
 add_word("!", STORE)
@@ -1139,7 +1152,6 @@ add_word("within", WITHIN)
 add_word("does>", DOES_TO)
 add_word(">body", TO_BODY)
 add_word("evaluate", EVALUATE)
-add_word("source", SOURCE)
 add_word("word", WORD)
 add_word("<#", LT_HASH)
 add_word("hold", HOLD)
@@ -1171,6 +1183,7 @@ add_word("?do", QUESTION_DO, True)
 add_word("(?do)", _QUESTION_DO)
 add_word("to", TO, True)
 add_word("(of)", _OF)
+add_word("parse", PARSE)
 
 def compile_forth(s):
 	for l in s.split('\n'):
@@ -1229,6 +1242,7 @@ swap 0 <# #s #> rot over - spaces type space ;
 : */ */mod nip ;
 : ?negate 0< if negate then ;
 : sm/rem 2dup xor >r over >r abs >r dabs r> um/mod swap r> ?negate swap r> ?negate ;
+: /string dup >r - swap r> + swap ;
 """)
 
 try:
