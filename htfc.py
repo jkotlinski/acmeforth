@@ -1243,6 +1243,12 @@ swap 0 <# #s #> rot over - spaces type space ;
 : ?negate 0< if negate then ;
 : sm/rem 2dup xor >r over >r abs >r dabs r> um/mod swap r> ?negate swap r> ?negate ;
 : /string dup >r - swap r> + swap ;
+
+( from forth-standard.org )
+: isspace? BL 1+ U< ;
+: isnotspace? isspace? 0= ;
+: xt-skip >R BEGIN DUP WHILE OVER C@ R@ EXECUTE WHILE 1 /STRING REPEAT THEN R> DROP ;
+: parse-name SOURCE >IN @ /STRING ['] isspace? xt-skip OVER >R ['] isnotspace? xt-skip 2DUP 1 MIN + SOURCE DROP - >IN ! DROP R> TUCK - ; 
 """)
 
 try:
