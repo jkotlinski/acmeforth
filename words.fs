@@ -41,6 +41,7 @@ swap 0 <# #s #> rot over - spaces type space ;
 : /string dup >r - swap r> + swap ;
 : abort depth 0 do drop loop quit ;
 : \ refill 0= if source nip >in ! then ; immediate
+: bl $20 ;
 
 ( from FIG UK )
 : /mod >r s>d r> fm/mod ;

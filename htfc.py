@@ -825,9 +825,6 @@ def AGAIN():
 	append(words["branch"].xt)
 	append(stack.pop())
 
-def BL():
-	stack.append(ord(' '))
-
 def CHAR():
 	w = read_word()
 	stack.append(ord(w[0]))
@@ -1199,7 +1196,6 @@ add_word("while", WHILE, True)
 add_word("repeat", REPEAT, True)
 add_word("until", UNTIL, True)
 add_word("again", AGAIN, True)
-add_word("bl", BL)
 add_word("char", CHAR)
 add_word("[char]", COMPILE_CHAR, True)
 add_word("'", TICK)
