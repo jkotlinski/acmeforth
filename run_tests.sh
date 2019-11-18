@@ -1,1 +1,1 @@
-./htfc.py tester.fs testutilities.fs testcore.fs testerrorreport.fs testcoreplus.fs testcoreext.fs
+./htfc.py test/tester.fs test/testutilities.fs test/testcore.fs test/testerrorreport.fs test/testcoreplus.fs test/testcoreext.fs

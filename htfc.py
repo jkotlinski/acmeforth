@@ -6,6 +6,7 @@ import ctypes
 import os
 import readline
 import sys
+import xc
 
 class Word:
 	def __init__(self, name, xt, immediate):
@@ -1097,6 +1098,10 @@ def WORDS():
 	l.sort()
 	print(" ".join(l))
 
+def EXPORT():
+	name = parse(' ')
+	xc.export(words, name)
+
 add_word("refill", REFILL)
 add_word("variable", VARIABLE)
 add_word("!", STORE)
@@ -1232,6 +1237,7 @@ add_word("parse", PARSE)
 add_word("source-id", SOURCE_ID)
 add_word("bye", lambda:sys.exit(0))
 add_word("words", WORDS)
+add_word("export", EXPORT)
 
 def evaluate_file(f):
 	f = open(f, mode='r')
