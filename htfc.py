@@ -23,10 +23,15 @@ class Word:
 	@xt.setter
 	def xt(self, xt):
 		self.__xt = xt
+		if xt in xt_words:
+			sys.exit("xt " + str(xt) + " used by multiple words")
 		xt_words[xt] = self
 
 	def __repr__(self):
 		return self.name
+
+	def hash(self):
+		return hex(abs(hash(self)))[2:]
 
 words = {}
 xt_words = {}
@@ -1113,7 +1118,7 @@ def WORDS():
 
 def COMPILE():
 	name = parse(' ')
-	xc.export(xt_words, heap, words[name])
+	xc.compile(xt_words, heap, words[name])
 
 add_word("refill", REFILL)
 add_word("variable", VARIABLE)
@@ -1193,11 +1198,11 @@ add_word("literal", LITERAL, True)
 add_word("postpone", POSTPONE, True)
 add_word("here", HERE)
 add_word(",", COMMA)
-add_word("c,", COMMA)
-add_word("cell+", ONEPLUS)
-add_word("char+", ONEPLUS)
-add_word("c@", FETCH)
-add_word("c!", STORE)
+add_word("c,", lambda : COMMA)
+add_word("cell+", lambda : ONEPLUS)
+add_word("char+", lambda : ONEPLUS)
+add_word("c@", lambda : FETCH)
+add_word("c!", lambda : STORE)
 add_word("while", WHILE, True)
 add_word("repeat", REPEAT, True)
 add_word("until", UNTIL, True)
