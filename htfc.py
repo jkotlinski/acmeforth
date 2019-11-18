@@ -16,10 +16,20 @@ class Word:
 		self.body_end = None		# points to the cell after the ; exit
 		self.immediate = immediate
 
+	@property
+	def xt(self):
+		return self.__xt
+
+	@xt.setter
+	def xt(self, xt):
+		self.__xt = xt
+		xt_words[xt] = self
+
 	def __repr__(self):
 		return self.name
 
 words = {}
+xt_words = {}
 stack_underflow_area = [-1] * 32
 stack = stack_underflow_area.copy()
 return_stack = []
@@ -1103,7 +1113,7 @@ def WORDS():
 
 def COMPILE():
 	name = parse(' ')
-	xc.export(words, heap, name)
+	xc.export(xt_words, heap, words[name])
 
 add_word("refill", REFILL)
 add_word("variable", VARIABLE)
