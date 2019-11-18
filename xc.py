@@ -22,12 +22,14 @@ def compile(xt_words_, heap_, start_word):
 
 	while words_to_export:
 		word = words_to_export.pop()
-		compile_word(word)
+		export_word(word)
+
+	print_footer()
 
 exported_words = []
 words_to_export = []
 
-def compile_word(w):
+def export_word(w):
 	if w in exported_words:
 		return
 	exported_words.append(w)
@@ -69,22 +71,23 @@ def compile_call(callee, ip):
 		print("\tjmp IP_" + str(heap[ip]))
 	else:
 		words_to_export.append(callee)
-		print("\tjsr " + callee.hash() + " ; " + callee.name)
+		print("\tjsr W" + callee.hash() + " ; " + callee.name)
 	return ip
 
 def include_assembly(w):
-	print(w.hash() + ": ; " + w.name)
+	print("W" + w.hash() + "\t; " + w.name)
 	if w.name in asm.asm:
 		print(asm.asm[w.name])
+		print()
 	else:
 		sys.exit("Missing 6510 assembly definition for '" + w.name + "'")
 	
 def print_header(start_word_name):
-	print("; Compile with ACME assembler")
-	print()
-	print("!cpu 6510")
-	print('!to "' + start_word_name + '.prg", cbm	; set output file and format')
-	print("""
+	print('!to "' + start_word_name + '.prg", cbm   ; set output file and format')
+	print("""; Compile with ACME assembler
+
+!cpu 6510
+
 * = $801
 
 !byte $b, $08, $a, 0, $9E, $32, $30, $36, $31, 0, 0, 0 ; basic header
@@ -116,20 +119,69 @@ K_RETURN = $d
 K_CLRSCR = $93
 K_SPACE = ' '
 
-; PLACEHOLDER_ADDRESS instances are overwritten using self-modifying code.
-PLACEHOLDER_ADDRESS = $1234
-
 !ct pet
 
 ; -------- program start
 
-    lda 1
-    pha
-    lda $318
-    pha
-    lda $319
-    pha
     tsx
     stx INIT_S
     ldx #X_INIT
 """)
+
+def print_footer():
+	print("""
+LITC
+    dex
+
+    ; load IP
+    pla
+    sta W
+    pla
+    sta W + 1
+
+    inc W
+    bne +
+    inc W + 1
++   
+    ; copy literal to stack
+    ldy #0
+    lda (W), y
+    sta LSB, x
+    sty MSB, x
+
+    inc W
+    bne +
+    inc W + 1
++   jmp (W)
+
+BYE
+INIT_S = * + 1
+	ldx	#0
+	txs
+	rts
+
+LIT
+    dex
+
+    ; load IP
+    pla
+    sta W
+    pla
+    sta W + 1
+
+    ; copy literal to stack
+    ldy #1
+    lda (W), y
+    sta LSB, x
+    iny
+    lda (W), y
+    sta MSB, x
+
+    lda W
+    clc
+    adc #3
+    sta + + 1
+    lda W + 1
+    adc #0
+    sta + + 2
++   jmp $1234""")
