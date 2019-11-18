@@ -12,7 +12,8 @@ class Word:
 	def __init__(self, name, xt, immediate):
 		self.name = name
 		self.xt = xt
-		self.body = None
+		self.body = None		# points to the first cell to execute as part of the word
+		self.body_end = None		# points to the cell after the ; exit
 		self.immediate = immediate
 
 	def __repr__(self):
@@ -291,6 +292,7 @@ def SEMICOLON():
 	set_state(False)
 	if compiling_word:
 		words[latest] = compiling_word
+		compiling_word.body_end = here
 		compiling_word = None
 
 def DROP():
@@ -1100,7 +1102,7 @@ def WORDS():
 
 def COMPILE():
 	name = parse(' ')
-	xc.export(words, name)
+	xc.export(words, heap, name)
 
 add_word("refill", REFILL)
 add_word("variable", VARIABLE)
