@@ -18,7 +18,8 @@ class Word:
 		return self.name
 
 words = {}
-stack = []
+stack_underflow_area = [-1] * 32
+stack = stack_underflow_area.copy()
 return_stack = []
 leave_stack = []
 tib_count = 0
@@ -132,8 +133,14 @@ def evaluate_number(word):
 	stack.append(number)
 
 def evaluate(word):
+	global stack
 	if word.lower() in words:
-		words[word.lower()].xt()
+		word = words[word.lower()]
+		word.xt()
+		if len(stack) < len(stack_underflow_area):
+			print("Stack underflow in '" + word.name + "'")
+			stack = stack_underflow_area.copy()
+			QUIT()
 	else:
 		if is_number(word):
 			evaluate_number(word)
