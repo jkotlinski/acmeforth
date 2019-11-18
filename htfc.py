@@ -272,7 +272,7 @@ def docol(ip_):
 			stack.append(code)
 
 def DEPTH():
-	stack.append(len(stack))
+	stack.append(len(stack) - len(stack_underflow_area))
 
 compiling_word = None
 

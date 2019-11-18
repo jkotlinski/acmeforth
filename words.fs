@@ -29,7 +29,8 @@
 : compile, , ;
 : save-input >in @ 1 ;
 : restore-input drop >in ! 0 ;
-: .s depth 1+ 1 ?do depth i - pick . loop cr ;
+: .s ." <" depth s>d swap over dabs <# #s rot sign #> type ." > "
+depth 1+ 1 ?do depth i - pick . loop cr ;
 : .r ( n1 n2 -- )
 swap s>d swap over dabs <# #s rot sign #>
 rot over - spaces type space ;
