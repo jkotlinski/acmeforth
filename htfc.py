@@ -1098,7 +1098,7 @@ def WORDS():
 	l.sort()
 	print(" ".join(l))
 
-def EXPORT():
+def COMPILE():
 	name = parse(' ')
 	xc.export(words, name)
 
@@ -1237,7 +1237,7 @@ add_word("parse", PARSE)
 add_word("source-id", SOURCE_ID)
 add_word("bye", lambda:sys.exit(0))
 add_word("words", WORDS)
-add_word("export", EXPORT)
+add_word("compile", COMPILE)
 
 def evaluate_file(f):
 	f = open(f, mode='r')
