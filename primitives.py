@@ -199,3 +199,17 @@ define("dup",
 	lda LSB + 1, x
 	sta LSB, x
 	rts""")
+
+define("type",
+"""-	lda LSB,x
+	ora MSB,x
+	bne +
+	inx
+	inx
+	rts
++	jsr OVER
+	jsr FETCHBYTE
+	jsr EMIT
+	jsr ONE
+	jsr SLASH_STRING
+	jmp -""")
