@@ -5,6 +5,7 @@ DEBUG = 0
 import ctypes
 import os
 import readline
+import primitives
 import sys
 import xc
 
@@ -1109,8 +1110,16 @@ def PARSE():
 		ONEPLUS()
 
 def WORDS():
+	print("Host:")
 	l = []
 	for k in words.keys():
+		l.append(str(k))
+	l.sort()
+	print(" ".join(l))
+
+	print("\nTarget:", )
+	l = []
+	for k in primitives.asm.keys():
 		l.append(str(k))
 	l.sort()
 	print(" ".join(l))
