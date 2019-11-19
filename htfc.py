@@ -1200,11 +1200,11 @@ add_word("literal", LITERAL, True)
 add_word("postpone", POSTPONE, True)
 add_word("here", HERE)
 add_word(",", COMMA)
-add_word("c,", lambda : COMMA)
-add_word("cell+", lambda : ONEPLUS)
-add_word("char+", lambda : ONEPLUS)
-add_word("c@", lambda : FETCH)
-add_word("c!", lambda : STORE)
+add_word("c,", lambda : COMMA())	# Using lambda to separate xt's for the cross compiler.
+add_word("cell+", lambda : ONEPLUS())	# Using lambda to separate xt's for the cross compiler.
+add_word("char+", lambda : ONEPLUS())	# Using lambda to separate xt's for the cross compiler.
+add_word("c@", lambda : FETCH())	# Using lambda to separate xt's for the cross compiler.
+add_word("c!", lambda : STORE())	# Using lambda to separate xt's for the cross compiler.
 add_word("while", WHILE, True)
 add_word("repeat", REPEAT, True)
 add_word("until", UNTIL, True)
