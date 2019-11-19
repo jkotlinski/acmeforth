@@ -1,6 +1,7 @@
 # C64 Cross Compiler
 
 import primitives
+import re
 import sys
 
 label_counter = 1
@@ -27,11 +28,10 @@ def compile(xt_words_, heap_, start_word, outfile):
 	write_header()
 
 	while words_to_export:
-		word = words_to_export.pop()
-		export_word(word)
+		export_word(words_to_export.pop())
 
-	for primitive in primitives_to_add:
-		add_primitive(primitive)
+	while primitives_to_add:
+		add_primitive(primitives_to_add.pop())
 
 	write_footer()
 
@@ -39,6 +39,7 @@ exported_words = set()
 words_to_export = []
 
 primitives_to_add = []
+added_primitives = set()
 
 def export_word(w):
 	if w in exported_words:
@@ -50,7 +51,7 @@ def export_word(w):
 	if w.body:
 		compile_forth_word(w)
 	else:
-		if w.name not in primitives_to_add:
+		if w.name not in added_primitives:
 			primitives_to_add.append(w.name)
 
 def compile_forth_word(w):
@@ -70,12 +71,12 @@ def compile_forth_word(w):
 
 def compile_number(n):
 	if n and 0xff00:
-		if "lit" not in primitives_to_add:
+		if "lit" not in added_primitives:
 			primitives_to_add.append("lit")
 		OUT.write("\tjsr " + word_name_hash("lit") + "\t; lit\n")
 		OUT.write("\t!word " + str(n) + "\n")
 	else:
-		if "litc" not in primitives_to_add:
+		if "litc" not in added_primitives:
 			primitives_to_add.append("litc")
 		OUT.write("\tjsr " + word_name_hash("litc") + "\t; litc\n")
 		OUT.write("\t!byte " + str(n) + "\n")
@@ -108,10 +109,23 @@ def word_name_hash(word_name):
 	return "W" + hex(abs(hash(word_name)))[2:]
 
 def add_primitive(word_name):
+	if word_name in added_primitives:
+		return
+	added_primitives.add(word_name)
+
 	OUT.write(word_name_hash(word_name) + "\t; " + word_name + "\n")
 	if word_name in primitives.asm:
-		OUT.write(primitives.asm[word_name])
-		OUT.write("\n\n")
+		# Expands %FORTH_WORD% to the corresponding assembly label.
+		pattern = re.compile("(.*)%(.*)%(.*)")
+		for line in primitives.asm[word_name].split('\n'):
+			m = pattern.match(line)
+			if m:
+				pre,word,post = m.groups()
+				line = pre + word_name_hash(word) + post + "\t; " + word
+				if word not in added_primitives:
+					primitives_to_add.append(word)
+			OUT.write(line + "\n")
+		OUT.write("\n")
 	else:
 		sys.exit("Missing 6510 assembly definition for '" + word_name + "'")
 	

@@ -2,7 +2,7 @@ asm = {}
 
 F_NO_TAIL_CALL_ELIMINATION = 1
 
-def define(name, code, deps = [], flags = 0):
+def define(name, code, flags = 0):
 	asm[name] = code
 
 define("c@",
@@ -28,8 +28,7 @@ define("c!",
 	rts""")
 
 define("1+",
-"""ONEPLUS
-	inc LSB, x
+"""	inc LSB, x
 	bne +
 	inc MSB, x
 +	rts""")
@@ -98,7 +97,7 @@ define("(loop)",
 
 .continue_loop
 	ldx	w	; restore x
-	jmp	BRANCH
+	jmp	%branch%
 
 .check_msb
 	lda	$104,x
@@ -121,8 +120,7 @@ define("(loop)",
 	txs
 
 	ldx	w	; restore x
-	jmp	(w2)""",
-	deps = ["branch"])
+	jmp	(w2)""")
 
 define("r>",
 """	pla
@@ -145,7 +143,7 @@ define("0branch",
 """	inx
 	lda LSB-1, x
 	ora MSB-1, x
-	beq BRANCH
+	beq %branch%
 
 	; skip offset
 	pla
@@ -158,8 +156,7 @@ define("0branch",
 	pha
 	tya
 +	pha
-	rts""",
-	deps = ["branch"])
+	rts""")
 
 define("!",
 """	lda LSB, x
@@ -179,9 +176,8 @@ define("!",
 	rts""")
 
 define("negate",
-"""	jsr INVERT
-	jmp ONEPLUS""",
-	deps = ["invert", "1+"])
+"""	jsr %invert%
+	jmp %1+%""")
 
 define("0<",
 """	lda	MSB,x
@@ -207,9 +203,9 @@ define("type",
 	inx
 	inx
 	rts
-+	jsr OVER
-	jsr FETCHBYTE
-	jsr EMIT
-	jsr ONE
-	jsr SLASH_STRING
++	jsr %over%
+	jsr %c@%
+	jsr %emit%
+	jsr %1%
+	jsr %/string%
 	jmp -""")
