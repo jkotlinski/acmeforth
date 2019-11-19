@@ -70,11 +70,11 @@ def compile_forth_word(w):
 def compile_number(n):
 	if n and 0xff00:
 		primitives_to_add.add("lit")
-		OUT.write("\tjsr LIT\n")
+		OUT.write("\tjsr " + word_name_hash("lit") + "\t; lit\n")
 		OUT.write("\t!word " + str(n) + "\n")
 	else:
 		primitives_to_add.add("litc")
-		OUT.write("\tjsr LITC\n")
+		OUT.write("\tjsr " + word_name_hash("litc") + "\t; litc\n")
 		OUT.write("\t!byte " + str(n) + "\n")
 
 def compile_call(callee, ip):
@@ -85,14 +85,14 @@ def compile_call(callee, ip):
 		OUT.write("\tjmp IP_" + str(heap[ip]) + "\n")
 	else:
 		words_to_export.add(callee)
-		OUT.write("\tjsr W" + word_name_hash(callee.name) + " ; " + callee.name + "\n")
+		OUT.write("\tjsr " + word_name_hash(callee.name) + "\t; " + callee.name + "\n")
 	return ip
 
 def word_name_hash(word_name):
-	return hex(abs(hash(word_name)))[2:]
+	return "W" + hex(abs(hash(word_name)))[2:]
 
 def add_primitive(word_name):
-	OUT.write("W" + word_name_hash(word_name) + "\t; " + word_name + "\n")
+	OUT.write(word_name_hash(word_name) + "\t; " + word_name + "\n")
 	if word_name in primitives.asm:
 		OUT.write(primitives.asm[word_name])
 		OUT.write("\n\n")
@@ -139,9 +139,9 @@ K_SPACE = ' '
 
 ; -------- program start
 
-    tsx
-    stx INIT_S
-    ldx #X_INIT
+	tsx
+	stx INIT_S
+	ldx #X_INIT
 
 """)
 
