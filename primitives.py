@@ -191,3 +191,11 @@ define("0<",
 +	sta	LSB,x
 	sta	MSB,x
 	rts""")
+
+define("dup",
+"""	dex
+	lda MSB + 1, x
+	sta MSB, x
+	lda LSB + 1, x
+	sta LSB, x
+	rts""")
