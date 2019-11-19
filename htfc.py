@@ -224,11 +224,13 @@ def CREATE():
 			print("redefined " + previous_word.name)
 	words[latest] = Word(latest, lambda l=here : stack.append(l), False)
 	words[latest].body = here
+	words[latest].body_end = here + 1
 	return previous_word
 
 def VARIABLE():
 	CREATE()
-	append(None)
+	append(-1)
+	words[latest].body_end = here
 
 def compile(word):
 	global stack
