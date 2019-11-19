@@ -13,4 +13,4 @@ T{ -1 BITSSET? -> 0 0 }T
 : run-tests
 test-basic-assumptions ;
 
-compile run-tests
+compile run-tests test-target.asm

@@ -1128,7 +1128,10 @@ def WORDS():
 
 def COMPILE():
 	name = parse(' ')
+	outfile = parse(' ')
+	print("compile", name, "to", outfile, "...")
 	xc.compile(xt_words, heap, words[name], outfile)
+	print("ok")
 
 add_word("refill", REFILL)
 add_word("variable", VARIABLE)
@@ -1283,11 +1286,6 @@ evaluate_file(os.path.join(__location__, "words.fs"))
 
 if len(sys.argv) > 1:
 	args = sys.argv[1:]
-	for i in range(len(args)):
-		if args[i] == "-o":
-			outfile = args[i + 1]
-			args = args[2:]
-			break
 	for infile in args:
 		evaluate_file(infile)
 else:
