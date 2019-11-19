@@ -84,7 +84,13 @@ def compile_call(callee, ip):
 		OUT.write("\trts\n\n")
 	elif callee.name == "branch":
 		ip += 1
-		OUT.write("\tjmp IP_" + str(heap[ip]) + "\n")
+		OUT.write("\tjmp IP_" + str(heap[ip]) + "\t\t; branch\n")
+	elif callee.name == "0branch":
+		ip += 1
+		OUT.write("\tinx\t\t\t; 0branch\n")
+		OUT.write("\tlda LSB-1,x\n")
+		OUT.write("\tora MSB-1,x\n")
+		OUT.write("\tbeq IP_" + str(heap[ip]) + "\n")
 	else:
 		if callee not in words_to_export:
 			words_to_export.append(callee)
