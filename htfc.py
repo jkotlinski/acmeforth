@@ -221,7 +221,9 @@ def CREATE():
 	previous_word = None
 	if latest in words:
 		previous_word = words[latest]
-		print("redefined " + previous_word.name)
+		SOURCE_ID()
+		if not stack.pop():
+			print("redefined " + previous_word.name)
 	words[latest] = Word(latest, lambda l=here : stack.append(l), False)
 	words[latest].body = here
 	return previous_word
