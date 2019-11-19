@@ -28,7 +28,8 @@ define("c!",
 	rts""")
 
 define("1+",
-"""	inc LSB, x
+"""ONEPLUS
+	inc LSB, x
 	bne +
 	inc MSB, x
 +	rts""")
@@ -97,7 +98,7 @@ define("(loop)",
 
 .continue_loop
 	ldx	w	; restore x
-	jmp	branch
+	jmp	BRANCH
 
 .check_msb
 	lda	$104,x
@@ -144,7 +145,7 @@ define("0branch",
 """	inx
 	lda LSB-1, x
 	ora MSB-1, x
-	beq branch
+	beq BRANCH
 
 	; skip offset
 	pla
@@ -176,3 +177,8 @@ define("!",
 	inx
 	inx
 	rts""")
+
+define("negate",
+"""	jsr INVERT
+	jmp ONEPLUS""",
+	deps = ["invert", "1+"])
