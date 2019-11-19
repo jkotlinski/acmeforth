@@ -5,26 +5,32 @@ import sys
 
 label_counter = 1
 
+OUT = None
+
 def add_label(comment):
 	global label_counter
-	print("WORD_" + label_counter + ":\t; " + comment)
+	OUT.write("WORD_" + label_counter + ":\t; " + comment + "\n")
 	label_counter += 1
 
-def compile(xt_words_, heap_, start_word):
+def compile(xt_words_, heap_, start_word, outfile):
 	global xt_words
 	global heap
+	global OUT
+
+	OUT = open(outfile, "w")
+
 	xt_words = xt_words_
 	heap = heap_
 
 	words_to_export.append(start_word)
 
-	print_header(start_word.name)
+	write_header()
 
 	while words_to_export:
 		word = words_to_export.pop()
 		export_word(word)
 
-	print_footer()
+	write_footer()
 
 exported_words = []
 words_to_export = []
@@ -44,7 +50,7 @@ def export_word(w):
 def compile_forth_word(w):
 	ip = w.body
 	while ip < w.body_end:
-		print("IP_" + str(ip) + ":")
+		OUT.write("IP_" + str(ip) + ":\n")
 		cell = heap[ip]
 		if callable(cell):
 			cell_word = xt_words[cell]
@@ -57,34 +63,33 @@ def compile_forth_word(w):
 
 def compile_number(n):
 	if n and 0xff00:
-		print("\tjsr LIT")
-		print("\t!word " + str(n))
+		OUT.write("\tjsr LIT\n")
+		OUT.write("\t!word " + str(n) + "\n")
 	else:
-		print("\tjsr LITC")
-		print("\t!byte " + str(n))
+		OUT.write("\tjsr LITC\n")
+		OUT.write("\t!byte " + str(n) + "\n")
 
 def compile_call(callee, ip):
 	if callee.name == "exit":
-		print("\trts\n")
+		OUT.write("\trts\n\n")
 	elif callee.name == "branch":
 		ip += 1
-		print("\tjmp IP_" + str(heap[ip]))
+		OUT.write("\tjmp IP_" + str(heap[ip]) + "\n")
 	else:
 		words_to_export.append(callee)
-		print("\tjsr W" + callee.hash() + " ; " + callee.name)
+		OUT.write("\tjsr W" + callee.hash() + " ; " + callee.name + "\n")
 	return ip
 
 def include_assembly(w):
-	print("W" + w.hash() + "\t; " + w.name)
+	OUT.write("W" + w.hash() + "\t; " + w.name + "\n")
 	if w.name in asm.asm:
-		print(asm.asm[w.name])
-		print()
+		OUT.write(asm.asm[w.name])
+		OUT.write("\n\n")
 	else:
 		sys.exit("Missing 6510 assembly definition for '" + w.name + "'")
 	
-def print_header(start_word_name):
-	print('!to "' + start_word_name + '.prg", cbm   ; set output file and format')
-	print("""; Compile with ACME assembler
+def write_header():
+	OUT.write("""; Compile with ACME assembler
 
 !cpu 6510
 
@@ -126,10 +131,11 @@ K_SPACE = ' '
     tsx
     stx INIT_S
     ldx #X_INIT
+
 """)
 
-def print_footer():
-	print("""
+def write_footer():
+	OUT.write("""
 LITC
     dex
 

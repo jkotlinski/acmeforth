@@ -1120,7 +1120,7 @@ def WORDS():
 
 def COMPILE():
 	name = parse(' ')
-	xc.compile(xt_words, heap, words[name])
+	xc.compile(xt_words, heap, words[name], outfile)
 
 add_word("refill", REFILL)
 add_word("variable", VARIABLE)
@@ -1274,7 +1274,13 @@ __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file
 evaluate_file(os.path.join(__location__, "words.fs"))
 
 if len(sys.argv) > 1:
-	for infile in sys.argv[1:]:
+	args = sys.argv[1:]
+	for i in range(len(args)):
+		if args[i] == "-o":
+			outfile = args[i + 1]
+			args = args[2:]
+			break
+	for infile in args:
 		evaluate_file(infile)
 else:
 	print("Hack n' Trade Forth Compiler v0.0.1 :: Copyright (C) 2019 Johan Kotlinski")
