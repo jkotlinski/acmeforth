@@ -209,3 +209,14 @@ define("type",
 	jsr %1%
 	jsr %/string%
 	jmp -""")
+
+define("depth",
+"""	txa
+	eor #$ff
+	tay
+	iny
+	dex
+	sty LSB,x
+	lda #0
+	sta MSB,x
+	rts""")
