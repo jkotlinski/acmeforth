@@ -182,3 +182,12 @@ define("negate",
 """	jsr INVERT
 	jmp ONEPLUS""",
 	deps = ["invert", "1+"])
+
+define("0<",
+"""	lda	MSB,x
+	and	#$80
+	beq	+
+	lda	#$ff
++	sta	LSB,x
+	sta	MSB,x
+	rts""")
