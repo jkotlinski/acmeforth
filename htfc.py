@@ -30,9 +30,6 @@ class Word:
 	def __repr__(self):
 		return self.name
 
-	def hash(self):
-		return hex(abs(hash(self)))[2:]
-
 words = {}
 xt_words = {}
 stack_underflow_area = [-1] * 32

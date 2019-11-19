@@ -1,6 +1,6 @@
 # C64 Cross Compiler
 
-import asm
+import primitives
 import sys
 
 label_counter = 1
@@ -45,7 +45,7 @@ def export_word(w):
 	if w.body:
 		compile_forth_word(w)
 	else:
-		include_assembly(w)
+		add_primitive(w.name)
 
 def compile_forth_word(w):
 	ip = w.body
@@ -77,16 +77,19 @@ def compile_call(callee, ip):
 		OUT.write("\tjmp IP_" + str(heap[ip]) + "\n")
 	else:
 		words_to_export.append(callee)
-		OUT.write("\tjsr W" + callee.hash() + " ; " + callee.name + "\n")
+		OUT.write("\tjsr W" + word_name_hash(callee.name) + " ; " + callee.name + "\n")
 	return ip
 
-def include_assembly(w):
-	OUT.write("W" + w.hash() + "\t; " + w.name + "\n")
-	if w.name in asm.asm:
-		OUT.write(asm.asm[w.name])
+def word_name_hash(word_name):
+	return hex(abs(hash(word_name)))[2:]
+
+def add_primitive(word_name):
+	OUT.write("W" + word_name_hash(word_name) + "\t; " + word_name + "\n")
+	if word_name in primitives.asm:
+		OUT.write(primitives.asm[word_name])
 		OUT.write("\n\n")
 	else:
-		sys.exit("Missing 6510 assembly definition for '" + w.name + "'")
+		sys.exit("Missing 6510 assembly definition for '" + word_name + "'")
 	
 def write_header():
 	OUT.write("""; Compile with ACME assembler

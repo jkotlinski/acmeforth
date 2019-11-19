@@ -1,9 +1,9 @@
 asm = {}
 
-def add_word(name, code):
+def define(name, code):
 	asm[name] = code
 
-add_word("c@", 
+define("c@",
 """	lda LSB,x
 	sta + + 1
 	lda MSB,x
@@ -14,7 +14,7 @@ add_word("c@",
 	sta MSB,x
 	rts""")
 
-add_word("c!",
+define("c!",
 """	lda LSB,x
 	sta + + 1
 	lda MSB,x
@@ -25,7 +25,7 @@ add_word("c!",
 	inx
 	rts""")
 
-add_word("1+",
+define("1+",
 """	inc LSB, x
 	bne +
 	inc MSB, x
