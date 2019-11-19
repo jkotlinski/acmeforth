@@ -22,7 +22,7 @@ def compile(xt_words_, heap_, start_word, outfile):
 	xt_words = xt_words_
 	heap = heap_
 
-	words_to_export.append(start_word)
+	words_to_export.add(start_word)
 
 	write_header()
 
@@ -30,22 +30,28 @@ def compile(xt_words_, heap_, start_word, outfile):
 		word = words_to_export.pop()
 		export_word(word)
 
+	for primitive in primitives_to_add:
+		add_primitive(primitive)
+
 	write_footer()
 
-exported_words = []
-words_to_export = []
+exported_words = set()
+words_to_export = set()
+
+primitives_to_add = set()
 
 def export_word(w):
 	if w in exported_words:
 		return
-	exported_words.append(w)
+	exported_words.add(w)
 
 	xt = w.xt
 
 	if w.body:
 		compile_forth_word(w)
 	else:
-		add_primitive(w.name)
+		if w.name not in primitives_to_add:
+			primitives_to_add.add(w.name)
 
 def compile_forth_word(w):
 	ip = w.body
@@ -63,9 +69,11 @@ def compile_forth_word(w):
 
 def compile_number(n):
 	if n and 0xff00:
+		primitives_to_add.add("lit")
 		OUT.write("\tjsr LIT\n")
 		OUT.write("\t!word " + str(n) + "\n")
 	else:
+		primitives_to_add.add("litc")
 		OUT.write("\tjsr LITC\n")
 		OUT.write("\t!byte " + str(n) + "\n")
 
@@ -76,7 +84,7 @@ def compile_call(callee, ip):
 		ip += 1
 		OUT.write("\tjmp IP_" + str(heap[ip]) + "\n")
 	else:
-		words_to_export.append(callee)
+		words_to_export.add(callee)
 		OUT.write("\tjsr W" + word_name_hash(callee.name) + " ; " + callee.name + "\n")
 	return ip
 
@@ -138,59 +146,8 @@ K_SPACE = ' '
 """)
 
 def write_footer():
-	OUT.write("""
-LITC
-    dex
-
-    ; load IP
-    pla
-    sta W
-    pla
-    sta W + 1
-
-    inc W
-    bne +
-    inc W + 1
-+   
-    ; copy literal to stack
-    ldy #0
-    lda (W), y
-    sta LSB, x
-    sty MSB, x
-
-    inc W
-    bne +
-    inc W + 1
-+   jmp (W)
-
-BYE
+	OUT.write("""BYE
 INIT_S = * + 1
 	ldx	#0
 	txs
-	rts
-
-LIT
-    dex
-
-    ; load IP
-    pla
-    sta W
-    pla
-    sta W + 1
-
-    ; copy literal to stack
-    ldy #1
-    lda (W), y
-    sta LSB, x
-    iny
-    lda (W), y
-    sta MSB, x
-
-    lda W
-    clc
-    adc #3
-    sta + + 1
-    lda W + 1
-    adc #0
-    sta + + 2
-+   jmp $1234""")
+	rts""")
