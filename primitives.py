@@ -248,3 +248,28 @@ define("=",
 	sty MSB, x
 	sty LSB, x
 	rts""")
+
+define("(do)",
+"""	pla
+	sta	W
+	pla
+	tay
+
+	lda	MSB+1,x
+	pha
+	lda	LSB+1,x
+	pha
+
+	lda	MSB,x
+	pha
+	lda	LSB,x
+	pha
+
+	inx
+	inx
+
+	tya
+	pha
+	lda	W
+	pha
+	rts""")
