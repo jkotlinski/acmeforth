@@ -1,6 +1,6 @@
 asm = {}
 
-def define(name, code):
+def define(name, code, deps = []):
 	asm[name] = code
 
 define("c@",
@@ -80,3 +80,41 @@ define("lit",
 	adc #0
 	sta + + 2
 +	jmp $1234""")
+
+define("(loop)",
+"""	stx	w	; x = stack pointer
+	tsx
+
+	inc	$103,x	; i++
+	bne	3
+	inc	$104,x
+
+	lda	$103,x	; lsb check
+	cmp	$105,x
+	beq	+
+-			; not done, branch back
+	ldx	w	; restore x
+	jmp	branch
++
+	lda	$104,x	; msb check
+	cmp	$106,x
+	bne	-
+
+	pla		; loop done - skip branch address
+	clc
+	adc	#3
+	sta	w2
+
+	pla
+	adc	#0
+	sta	w2 + 1
+
+	txa		; sp += 6
+	clc
+	adc	#6
+	tax
+	txs
+
+	ldx	w	; restore x
+	jmp	(w2)""",
+	"branch")
