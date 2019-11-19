@@ -1,6 +1,8 @@
 asm = {}
 
-def define(name, code, deps = []):
+F_NO_TAIL_CALL_ELIMINATION = 1
+
+def define(name, code, deps = [], flags = 0):
 	asm[name] = code
 
 define("c@",
@@ -86,19 +88,21 @@ define("(loop)",
 	tsx
 
 	inc	$103,x	; i++
-	bne	3
+	bne	+
 	inc	$104,x
-
++
 	lda	$103,x	; lsb check
 	cmp	$105,x
-	beq	+
--			; not done, branch back
+	beq	.check_msb
+
+.continue_loop
 	ldx	w	; restore x
 	jmp	branch
-+
-	lda	$104,x	; msb check
+
+.check_msb
+	lda	$104,x
 	cmp	$106,x
-	bne	-
+	bne	.continue_loop
 
 	pla		; loop done - skip branch address
 	clc
@@ -117,4 +121,41 @@ define("(loop)",
 
 	ldx	w	; restore x
 	jmp	(w2)""",
-	"branch")
+	deps = ["branch"])
+
+define("r>",
+"""	pla
+	sta W
+	pla
+	sta W+1
+	inc W
+	bne +
+	inc W+1
++
+	dex
+	pla
+	sta LSB,x
+	pla
+	sta MSB,x
+	jmp (W)""",
+	flags = F_NO_TAIL_CALL_ELIMINATION)
+
+define("0branch",
+"""	inx
+	lda LSB-1, x
+	ora MSB-1, x
+	beq branch
+
+	; skip offset
+	pla
+	clc
+	adc #2
+	bcc +
+	tay
+	pla
+	adc #0
+	pha
+	tya
++	pha
+	rts""",
+	deps = ["branch"])

@@ -54,6 +54,7 @@ def export_word(w):
 			primitives_to_add.append(w.name)
 
 def compile_forth_word(w):
+	OUT.write(word_name_hash(w.name) + "\n")
 	ip = w.body
 	while ip < w.body_end:
 		OUT.write("IP_" + str(ip) + ":\n")
@@ -79,6 +80,11 @@ def compile_number(n):
 		OUT.write("\tjsr " + word_name_hash("litc") + "\t; litc\n")
 		OUT.write("\t!byte " + str(n) + "\n")
 
+def compile_jsr(callee):
+	if callee not in words_to_export:
+		words_to_export.append(callee)
+	OUT.write("\tjsr " + word_name_hash(callee.name) + "\t; " + callee.name + "\n")
+
 def compile_call(callee, ip):
 	if callee.name == "exit":
 		OUT.write("\trts\n\n")
@@ -86,15 +92,16 @@ def compile_call(callee, ip):
 		ip += 1
 		OUT.write("\tjmp IP_" + str(heap[ip]) + "\t\t; branch\n")
 	elif callee.name == "0branch":
+		compile_jsr(callee)
 		ip += 1
-		OUT.write("\tinx\t\t\t; 0branch\n")
-		OUT.write("\tlda LSB-1,x\n")
-		OUT.write("\tora MSB-1,x\n")
-		OUT.write("\tbeq IP_" + str(heap[ip]) + "\n")
+		OUT.write("\t!word " + str(heap[ip]) + "\n")
+	elif callee.name == "drop":
+		OUT.write("\tinx\t\t\t; drop\n")
+	elif callee.name == "2drop":
+		OUT.write("\tinx\t\t\t; 2drop\n")
+		OUT.write("\tinx\n")
 	else:
-		if callee not in words_to_export:
-			words_to_export.append(callee)
-		OUT.write("\tjsr " + word_name_hash(callee.name) + "\t; " + callee.name + "\n")
+		compile_jsr(callee)
 	return ip
 
 def word_name_hash(word_name):
