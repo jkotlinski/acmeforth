@@ -22,7 +22,7 @@ def compile(xt_words_, heap_, start_word, outfile):
 	xt_words = xt_words_
 	heap = heap_
 
-	words_to_export.add(start_word)
+	words_to_export.append(start_word)
 
 	write_header()
 
@@ -36,9 +36,9 @@ def compile(xt_words_, heap_, start_word, outfile):
 	write_footer()
 
 exported_words = set()
-words_to_export = set()
+words_to_export = []
 
-primitives_to_add = set()
+primitives_to_add = []
 
 def export_word(w):
 	if w in exported_words:
@@ -51,7 +51,7 @@ def export_word(w):
 		compile_forth_word(w)
 	else:
 		if w.name not in primitives_to_add:
-			primitives_to_add.add(w.name)
+			primitives_to_add.append(w.name)
 
 def compile_forth_word(w):
 	ip = w.body
@@ -69,11 +69,13 @@ def compile_forth_word(w):
 
 def compile_number(n):
 	if n and 0xff00:
-		primitives_to_add.add("lit")
+		if "lit" not in primitives_to_add:
+			primitives_to_add.append("lit")
 		OUT.write("\tjsr " + word_name_hash("lit") + "\t; lit\n")
 		OUT.write("\t!word " + str(n) + "\n")
 	else:
-		primitives_to_add.add("litc")
+		if "litc" not in primitives_to_add:
+			primitives_to_add.append("litc")
 		OUT.write("\tjsr " + word_name_hash("litc") + "\t; litc\n")
 		OUT.write("\t!byte " + str(n) + "\n")
 
@@ -84,7 +86,8 @@ def compile_call(callee, ip):
 		ip += 1
 		OUT.write("\tjmp IP_" + str(heap[ip]) + "\n")
 	else:
-		words_to_export.add(callee)
+		if callee not in words_to_export:
+			words_to_export.append(callee)
 		OUT.write("\tjsr " + word_name_hash(callee.name) + "\t; " + callee.name + "\n")
 	return ip
 
