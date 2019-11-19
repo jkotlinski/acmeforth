@@ -220,3 +220,31 @@ define("depth",
 	lda #0
 	sta MSB,x
 	rts""")
+
+define("@",
+"""	lda LSB,x
+	sta W
+	lda MSB,x
+	sta W+1
+
+	ldy #0
+	lda (W),y
+	sta LSB,x
+	iny
+	lda (W),y
+	sta MSB,x
+	rts""")
+
+define("=",
+"""	ldy #0
+	lda LSB, x
+	cmp LSB + 1, x
+	bne +
+	lda MSB, x
+	cmp MSB + 1, x
+	bne +
+	dey
++	inx
+	sty MSB, x
+	sty LSB, x
+	rts""")
