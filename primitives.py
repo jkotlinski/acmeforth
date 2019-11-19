@@ -159,3 +159,20 @@ define("0branch",
 +	pha
 	rts""",
 	deps = ["branch"])
+
+define("!",
+"""	lda LSB, x
+	sta W
+	lda MSB, x
+	sta W + 1
+
+	ldy #0
+	lda LSB+1, x
+	sta (W), y
+	iny
+	lda MSB+1, x
+	sta (W), y
+
+	inx
+	inx
+	rts""")
