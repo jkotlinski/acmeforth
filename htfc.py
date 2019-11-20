@@ -242,7 +242,7 @@ def CREATE():
 			print("redefined " + previous_word.name)
 	words[latest] = Word(latest, lambda l=here : stack.append(l), False)
 	words[latest].body = here
-	words[latest].body_end = here + 1
+	words[latest].body_end = here
 	return previous_word
 
 def VARIABLE():
@@ -518,8 +518,11 @@ def CR():
 	print()
 
 def ALLOT():
+	# FIXME body_end is in cells, diff_bytes is in bytes <-- mismatch!
 	global here
-	here += stack.pop()
+	diff_bytes = stack.pop()
+	here += diff_bytes
+	words[latest].body_end += diff_bytes
 
 def SLITERAL():
 	global ip
