@@ -372,9 +372,9 @@ swap 0 <# #s #> rot over - spaces type space ;
 	jsr	%r>%
 	jsr	%1+%
 	jsr	%dup%
-	jsr	%2+%
+	jsr	%1+%
 	jsr	%swap%
-	jsr	%@%
+	jsr	%c@%
 	jsr	%2dup%
 	jsr	%+%
 	jsr	%1-%
