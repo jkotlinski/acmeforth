@@ -431,7 +431,7 @@ swap 0 <# #s #> rot over - spaces type space ;
 
 :code emit
 	lda	LSB, x
-	inx 
+	inx
 	jmp	PUTCHR
 ;code
 
@@ -536,6 +536,27 @@ swap 0 <# #s #> rot over - spaces type space ;
 	tya
 	adc MSB+1,x
 	sta MSB+1,x
+	inx
+	rts
+;code
+
+:code	+!
+	lda	LSB,x
+	sta	W
+	lda	MSB,x
+	sta	W+1
+
+	ldy	#0
+	clc
+
+	lda	(W),y
+	adc	LSB+1,x
+	sta	(W),y
+	iny
+	lda	(W),y
+	adc	MSB+1,x
+	sta	(W),y
+	inx
 	inx
 	rts
 ;code
