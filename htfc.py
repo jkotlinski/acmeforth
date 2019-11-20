@@ -1142,7 +1142,7 @@ def WORDS():
 
 	print("\nTarget:", )
 	l = []
-	for k in c64_primitives.keys():
+	for k in xc.code.keys():
 		l.append(str(k))
 	l.sort()
 	print(" ".join(l))
@@ -1151,10 +1151,8 @@ def COMPILE():
 	name = parse(' ')
 	outfile = parse(' ')
 	print("compile", name, "to", outfile, "...")
-	xc.compile(c64_primitives, xt_words, heap, words[name], outfile)
+	xc.compile(xt_words, heap, words[name], outfile)
 	print("ok")
-
-c64_primitives = {}
 
 def COLON_CODE():
 	word_name = parse(' ')
@@ -1164,7 +1162,7 @@ def COLON_CODE():
 		w = parse(' ')
 		if w:
 			if w.lower() == ";code":
-				c64_primitives[word_name] = code
+				xc.code[word_name] = code
 				return
 			code += "".join(heap[tib_addr + prev_to_in : tib_addr + heap[to_in_addr]])
 			prev_to_in = heap[to_in_addr]
