@@ -35,3 +35,20 @@ define("r@",
 	sta LSB,x
 	rts""",
 	flags = F_NO_TAIL_CALL_ELIMINATION)
+
+define(">r",
+"""	pla
+	sta W
+	pla
+	sta W+1
+	inc W
+	bne +
+	inc W+1
++
+	lda MSB,x
+	pha
+	lda LSB,x
+	pha
+	inx
+	jmp (W)""",
+	flags = F_NO_TAIL_CALL_ELIMINATION)
