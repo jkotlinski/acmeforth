@@ -1,20 +1,18 @@
 : BITSSET? IF 0 0 ELSE 0 THEN ;
 
-\ TESTING BASIC ASSUMPTIONS
-
 : test-basic-assumptions
+." testing basic assumptions" cr
 T{ -> }T               \ START WITH CLEAN SLATE
 ( TEST IF ANY BITS ARE SET; ANSWER IN BASE 1 )
 T{  0 BITSSET? -> 0 }T      ( ZERO IS ALL BITS CLEAR )
 T{  1 BITSSET? -> 0 0 }T      ( OTHER NUMBER HAVE AT LEAST ONE BIT )
 T{ -1 BITSSET? -> 0 0 }T ;
 
-\ TESTING BOOLEANS: INVERT AND OR XOR
-
 0    CONSTANT 0S
 0 INVERT CONSTANT 1S
 
 : test-booleans
+." testing booleans invert and or xor" cr
 T{ 0 0 AND -> 0 }T
 T{ 0 1 AND -> 0 }T
 T{ 1 0 AND -> 0 }T

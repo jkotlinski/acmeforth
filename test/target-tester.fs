@@ -50,17 +50,9 @@ CREATE ACTUAL-RESULTS 20 CELLS ALLOT
       DEPTH ?DUP IF         \ IF THERE IS SOMETHING ON THE STACK
          0  DO            \ FOR EACH STACK ITEM
            ACTUAL-RESULTS I CELLS + @   \ COMPARE ACTUAL WITH EXPECTED
-           = 0= IF S" INCORRECT RESULT: " ERROR LEAVE THEN
+           = 0= IF S" incorrect result: " ERROR LEAVE THEN
          LOOP
       THEN
    ELSE               \ DEPTH MISMATCH
-      S" WRONG NUMBER OF RESULTS: " ERROR
+      S" wrong number of results: " ERROR
    THEN ;
-
-: TESTING   \ ( -- ) TALKING COMMENT.
-  SOURCE VERBOSE @
-   IF DUP >R TYPE CR R> >IN !
-   ELSE >IN ! DROP [CHAR] * EMIT
-   THEN ; IMMEDIATE
-
-

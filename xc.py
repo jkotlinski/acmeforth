@@ -32,8 +32,6 @@ def compile(xt_words_, heap_, start_word, outfile):
 	while primitives_to_add:
 		add_primitive(primitives_to_add.pop())
 
-	write_footer()
-
 exported_words = set()
 words_to_export = []
 
@@ -207,19 +205,18 @@ K_RETURN = $d
 K_CLRSCR = $93
 K_SPACE = ' '
 
-!ct scr
+!ct pet
 
 ; -------- program start
 
 	tsx
 	stx INIT_S
 	ldx #X_INIT
-
-""")
-
-def write_footer():
-	OUT.write("""BYE
+	jsr WORD_0
+BYE
 INIT_S = * + 1
 	ldx	#0
 	txs
-	rts""")
+	rts
+
+""")
