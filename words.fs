@@ -155,7 +155,7 @@ swap 0 <# #s #> rot over - spaces type space ;
 ;code
 
 :code (loop)
-	stx	w	; x = stack pointer
+	stx	W	; x = stack pointer
 	tsx
 
 	inc	$103,x	; i++
@@ -167,7 +167,7 @@ swap 0 <# #s #> rot over - spaces type space ;
 	beq	.check_msb
 
 .continue_loop
-	ldx	w	; restore x
+	ldx	W	; restore x
 	jmp	%branch%
 
 .check_msb
@@ -178,11 +178,11 @@ swap 0 <# #s #> rot over - spaces type space ;
 	pla		; loop done - skip branch address
 	clc
 	adc	#3
-	sta	w2
+	sta	W2
 
 	pla
 	adc	#0
-	sta	w2 + 1
+	sta	W2 + 1
 
 	txa		; sp += 6
 	clc
@@ -190,8 +190,8 @@ swap 0 <# #s #> rot over - spaces type space ;
 	tax
 	txs
 
-	ldx	w	; restore x
-	jmp	(w2)
+	ldx	W	; restore x
+	jmp	(W2)
 ;code
 
 :code 0branch
@@ -436,7 +436,7 @@ swap 0 <# #s #> rot over - spaces type space ;
 ;code
 
 :code /string
-	jsr %dup
+	jsr %dup%
 	jsr %>r%
 	jsr %-%
 	jsr %swap%
