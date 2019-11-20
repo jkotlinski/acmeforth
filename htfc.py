@@ -1322,7 +1322,7 @@ def evaluate_file(filename):
 		interpret_tib()
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-evaluate_file(os.path.join(__location__, "words.fs"))
+evaluate_file(os.path.join(__location__, "src/words.fs"))
 
 if len(sys.argv) > 1:
 	args = sys.argv[1:]
