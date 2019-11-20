@@ -368,3 +368,17 @@ swap 0 <# #s #> rot over - spaces type space ;
 	sty LSB, x
 	rts
 ;code
+
+:code sliteral
+	jsr	%r>%
+	jsr	%1+%
+	jsr	%dup%
+	jsr	%2+%
+	jsr	%swap%
+	jsr	%@%
+	jsr	%2dup%
+	jsr	%+%
+	jsr	%1-%
+	jsr	%>r%
+	rts
+;code
