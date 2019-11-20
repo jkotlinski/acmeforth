@@ -5,7 +5,6 @@ DEBUG = 0
 import ctypes
 import os
 import readline
-import primitives
 import sys
 import xc
 
@@ -1143,7 +1142,7 @@ def WORDS():
 
 	print("\nTarget:", )
 	l = []
-	for k in primitives.asm.keys():
+	for k in c64_primitives.keys():
 		l.append(str(k))
 	l.sort()
 	print(" ".join(l))
@@ -1152,8 +1151,10 @@ def COMPILE():
 	name = parse(' ')
 	outfile = parse(' ')
 	print("compile", name, "to", outfile, "...")
-	xc.compile(xt_words, heap, words[name], outfile)
+	xc.compile(c64_primitives, xt_words, heap, words[name], outfile)
 	print("ok")
+
+c64_primitives = {}
 
 def COLON_CODE():
 	word_name = parse(' ')
@@ -1163,7 +1164,7 @@ def COLON_CODE():
 		w = parse(' ')
 		if w:
 			if w.lower() == ";code":
-				primitives.define(word_name, code)
+				c64_primitives[word_name] = code
 				return
 			code += "".join(heap[tib_addr + prev_to_in : tib_addr + heap[to_in_addr]])
 			prev_to_in = heap[to_in_addr]

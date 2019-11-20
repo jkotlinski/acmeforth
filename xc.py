@@ -1,6 +1,5 @@
 # C64 Cross Compiler
 
-import primitives
 import re
 import sys
 
@@ -14,10 +13,13 @@ def word_name_hash(word_name):
 		word_hashes.append(word_name)
 	return "WORD_" + str(word_hashes.index(word_name))
 
-def compile(xt_words_, heap_, start_word, outfile):
+def compile(c64_primitives_, xt_words_, heap_, start_word, outfile):
 	global xt_words
 	global heap
 	global OUT
+	global c64_primitives
+
+	c64_primitives = c64_primitives_
 
 	OUT = open(outfile, "w")
 
@@ -148,10 +150,10 @@ def add_primitive(word_name):
 	added_primitives.add(word_name)
 
 	OUT.write(word_name_hash(word_name) + "\t; " + word_name + "\n")
-	if word_name in primitives.asm:
+	if word_name in c64_primitives:
 		# Expands %FORTH_WORD% to the corresponding assembly label.
 		pattern = re.compile("(.*)%(.*)%(.*)")
-		for line in primitives.asm[word_name].split('\n'):
+		for line in c64_primitives[word_name].split('\n'):
 			m = pattern.match(line)
 			if m:
 				pre,word,post = m.groups()

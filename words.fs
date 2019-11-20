@@ -582,3 +582,51 @@ swap 0 <# #s #> rot over - spaces type space ;
 	inx
 	rts
 ;code
+
+:code	r>	\ must be called using jsr
+	pla
+	sta W
+	pla
+	sta W+1
+	inc W
+	bne +
+	inc W+1
++
+	dex
+	pla
+	sta LSB,x
+	pla
+	sta MSB,x
+	jmp (W)
+;code
+
+:code	r@	\ must be called using jsr
+	txa
+	tsx
+	ldy $103,x
+	sty W
+	ldy $104,x
+	tax
+	dex
+	sty MSB,x
+	lda W
+	sta LSB,x
+	rts
+;code
+
+:code	>r	\ must be called using jsr
+	pla
+	sta W
+	pla
+	sta W+1
+	inc W
+	bne +
+	inc W+1
++
+	lda MSB,x
+	pha
+	lda LSB,x
+	pha
+	inx
+	jmp (W)
+;code
