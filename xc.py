@@ -3,7 +3,7 @@
 import re
 import sys
 
-code = {}
+code_words = {}
 OUT = None
 
 word_hashes = []
@@ -146,10 +146,10 @@ def add_primitive(word_name):
 	added_primitives.add(word_name)
 
 	OUT.write(word_name_hash(word_name) + "\t; " + word_name + "\n")
-	if word_name in code:
+	if word_name in code_words:
 		# Expands %FORTH_WORD% to the corresponding assembly label.
 		pattern = re.compile("(.*)%(.*)%(.*)")
-		for line in code[word_name].split('\n'):
+		for line in code_words[word_name].split('\n'):
 			m = pattern.match(line)
 			if m:
 				pre,word,post = m.groups()

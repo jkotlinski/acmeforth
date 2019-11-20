@@ -1142,7 +1142,7 @@ def WORDS():
 
 	print("\nTarget:", )
 	l = []
-	for k in xc.code.keys():
+	for k in xc.code_words.keys():
 		l.append(str(k))
 	l.sort()
 	print(" ".join(l))
@@ -1162,7 +1162,7 @@ def COLON_CODE():
 		w = parse(' ')
 		if w:
 			if w.lower() == ";code":
-				xc.code[word_name] = code
+				xc.code_words[word_name] = code
 				return
 			code += "".join(heap[tib_addr + prev_to_in : tib_addr + heap[to_in_addr]])
 			prev_to_in = heap[to_in_addr]
