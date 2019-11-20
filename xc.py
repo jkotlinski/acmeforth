@@ -70,10 +70,10 @@ def compile_create_word(w):
 	OUT.write("\tldy\t#>IP_" + str(w.body) + "\n")
 	OUT.write("\tlda\t#<IP_" + str(w.body) + "\n")
 	OUT.write("\tjmp\t" + word_name_hash("pushya") + "\t; pushya\n")
+	OUT.write("IP_" + str(w.body) + '\n')
 	add_primitive_dependency("pushya")
 
 	for i in range(w.body, w.body_end):
-		OUT.write("IP_" + str(i) + '\n')
 		if heap[i] == None:
 			heap[i] = 0
 		OUT.write("!word\t" + str(heap[i]) + '\n')
