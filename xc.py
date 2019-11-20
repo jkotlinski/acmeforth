@@ -136,6 +136,16 @@ def compile_call(callee, ip):
 	elif callee.name == "2drop":
 		OUT.write("\tinx\t\t\t; 2drop\n")
 		OUT.write("\tinx\n")
+	elif callee.name == "sliteral":
+		compile_jsr(callee)
+		ip += 1
+		strlen = heap[ip]
+		OUT.write("\t!byte\t" + str(strlen) + '\n')
+		OUT.write('\t!text\t"')
+		for i in range(strlen):
+			ip += 1
+			OUT.write(chr(heap[ip]))
+		OUT.write('"\n')
 	else:
 		compile_jsr(callee)
 	return ip
@@ -197,7 +207,7 @@ K_RETURN = $d
 K_CLRSCR = $93
 K_SPACE = ' '
 
-!ct pet
+!ct scr
 
 ; -------- program start
 
