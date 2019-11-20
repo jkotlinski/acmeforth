@@ -630,3 +630,15 @@ swap 0 <# #s #> rot over - spaces type space ;
 	inx
 	jmp (W)
 ;code
+
+:code	or
+	lda	MSB,x
+	ora	MSB+1,x
+	sta	MSB+1,x
+	lda	LSB,x
+	ora	LSB+1,x
+	sta	LSB+1,x
+	inx
+	rts
+;code
+
