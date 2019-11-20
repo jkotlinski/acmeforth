@@ -680,3 +680,44 @@ swap 0 <# #s #> rot over - spaces type space ;
 +	inx
 	rts
 ;code
+
+:code	<
+    ldy #0
+    sec
+    lda LSB+1,x
+    sbc LSB,x
+    lda MSB+1,x
+    sbc MSB,x
+    bvc +
+    eor #$80
++   bpl +
+    dey
++   inx
+    sty LSB,x
+    sty MSB,x
+    rts
+;code
+
+:code	>
+	jsr	%swap%
+	jmp	%<%
+;code
+
+:code	u<
+    ldy #0
+    lda MSB, x
+    cmp MSB + 1, x 
+    bcc .false 
+    bne .true
+    ; ok, msb are equal...
+    lda LSB + 1, x
+    cmp LSB, x
+    bcs .false
+.true
+    dey
+.false
+    inx
+    sty MSB, x
+    sty LSB, x
+    rts
+;code
