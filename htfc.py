@@ -518,11 +518,10 @@ def CR():
 	print()
 
 def ALLOT():
-	# FIXME body_end is in cells, diff_bytes is in bytes <-- mismatch!
 	global here
-	diff_bytes = stack.pop()
-	here += diff_bytes
-	words[latest].body_end += diff_bytes
+	diff_in_address_units = stack.pop()
+	here += diff_in_address_units
+	words[latest].body_end += diff_in_address_units
 
 def SLITERAL():
 	global ip
@@ -1255,6 +1254,7 @@ add_word("cell+", lambda : ONEPLUS())	# Using lambda to separate xt's for the cr
 add_word("char+", lambda : ONEPLUS())	# Using lambda to separate xt's for the cross compiler.
 add_word("c@", lambda : FETCH())	# Using lambda to separate xt's for the cross compiler.
 add_word("c!", lambda : STORE())	# Using lambda to separate xt's for the cross compiler.
+add_word("cells", lambda : None)
 add_word("while", WHILE, True)
 add_word("repeat", REPEAT, True)
 add_word("until", UNTIL, True)

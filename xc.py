@@ -99,13 +99,11 @@ def compile_colon_word(w):
 
 def compile_number(n):
 	if n and 0xff00:
-		if "lit" not in added_primitives:
-			primitives_to_add.append("lit")
+		add_primitive_dependency("lit")
 		OUT.write("\tjsr " + word_name_hash("lit") + "\t; lit\n")
 		OUT.write("\t!word " + str(n) + "\n")
 	else:
-		if "litc" not in added_primitives:
-			primitives_to_add.append("litc")
+		add_primitive_dependency("litc")
 		OUT.write("\tjsr " + word_name_hash("litc") + "\t; litc\n")
 		OUT.write("\t!byte " + str(n) + "\n")
 

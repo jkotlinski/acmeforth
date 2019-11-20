@@ -1,4 +1,3 @@
-: cells ;
 : chars ;
 : align ;
 : aligned ;
@@ -558,5 +557,15 @@ swap 0 <# #s #> rot over - spaces type space ;
 	sta	(W),y
 	inx
 	inx
+	rts
+;code
+
+:code	cells
+	jmp	%2*%
+;code
+
+:code	2*
+	asl	LSB, x
+	rol	MSB, x
 	rts
 ;code
