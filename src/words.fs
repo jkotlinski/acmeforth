@@ -721,3 +721,34 @@ swap 0 <# #s #> rot over - spaces type space ;
     sty LSB, x
     rts
 ;code
+
+:code	pick
+    txa
+    sta + + 1
+    clc
+    adc LSB,x
+    tax
+    inx
+    lda LSB,x
+    ldy MSB,x
++   ldx #0
+    sta LSB,x
+    sty MSB,x
+    rts
+;code
+
+:code	rot
+	ldy	MSB+2,x
+	lda	MSB+1,x
+	sta	MSB+2,x
+	lda	MSB,x
+	sta	MSB+1,x
+	sty	MSB,x
+	ldy	LSB+2,x
+	lda	LSB+1,x
+	sta	LSB+2,x
+	lda	LSB,x
+	sta	LSB+1,x
+	sty	LSB,x
+	rts
+;code
