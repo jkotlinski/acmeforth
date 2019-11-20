@@ -814,3 +814,80 @@ rotate_r
 	inx
 	rts
 ;code
+
+:code	fm/mod
+	jsr	%dup%
+	jsr	%>r%
+	lda	MSB,x
+	bpl	+
+	jsr	%negate%
+	jsr	%>r%
+	jsr	%dnegate%
+	jsr	%r>%
++	lda	MSB+1,x
+	bpl	+
+	jsr	%tuck%
+	jsr	%+%
+	jsr	%swap%
++	jsr	%um/mod%
+	jsr	%r>%
+	inx
+	lda	MSB-1,x
+	bpl	+
+	jsr	%swap%
+	jsr	%negate%
+	jsr	%swap%
++	rts
+;code
+
+:code	um/mod
+        N = W
+        SEC
+        LDA     LSB+1,X     ; Subtract hi cell of dividend by
+        SBC     LSB,X     ; divisor to see if there's an overflow condition.
+        LDA     MSB+1,X
+        SBC     MSB,X
+        BCS     oflo    ; Branch if /0 or overflow.
+
+        LDA     #17     ; Loop 17x.
+        STA     N       ; Use N for loop counter.
+loop:   ROL     LSB+2,X     ; Rotate dividend lo cell left one bit.
+        ROL     MSB+2,X
+        DEC     N       ; Decrement loop counter.
+        BEQ     end     ; If we're done, then branch to end.
+        ROL     LSB+1,X     ; Otherwise rotate dividend hi cell left one bit.
+        ROL     MSB+1,X
+        lda     #0
+        sta     N+1
+        ROL     N+1     ; Rotate the bit carried out of above into N+1.
+
+        SEC
+        LDA     LSB+1,X     ; Subtract dividend hi cell minus divisor.
+        SBC     LSB,X
+        STA     N+2     ; Put result temporarily in N+2 (lo byte)
+        LDA     MSB+1,X
+        SBC     MSB,X
+        TAY             ; and Y (hi byte).
+        LDA     N+1     ; Remember now to bring in the bit carried out above.
+        SBC     #0
+        BCC     loop
+
+        LDA     N+2     ; If that didn't cause a borrow,
+        STA     LSB+1,X     ; make the result from above to
+        STY     MSB+1,X     ; be the new dividend hi cell
+        bcs     loop    ; and then branch up.
+
+oflo:   LDA     #$FF    ; If overflow or /0 condition found,
+        STA     LSB+1,X     ; just put FFFF in both the remainder
+        STA     MSB+1,X
+        STA     LSB+2,X     ; and the quotient.
+        STA     MSB+2,X
+
+end:    INX
+        jmp %swap%
+;code
+
+:code	tuck
+	jsr	%swap%
+	jmp	%over%
+;code
