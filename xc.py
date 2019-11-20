@@ -41,6 +41,10 @@ words_to_export = []
 primitives_to_add = []
 added_primitives = set()
 
+def add_primitive_dependency(word_name):
+	if word_name not in added_primitives:
+		primitives_to_add.append(word_name)
+
 def export_word(w):
 	if w in exported_words:
 		return
@@ -51,10 +55,28 @@ def export_word(w):
 	if w.body:
 		compile_forth_word(w)
 	else:
-		if w.name not in added_primitives:
-			primitives_to_add.append(w.name)
+		add_primitive_dependency(w.name)
 
 def compile_forth_word(w):
+	if "COLON" in str(w.xt):
+		compile_colon_word(w)
+	elif "CREATE" in str(w.xt):
+		compile_create_word(w)
+	else:
+		assert False
+
+def compile_create_word(w):
+	OUT.write(word_name_hash(w.name) + "\n")
+	OUT.write("\tldy\t#>IP_" + str(w.body) + "\n")
+	OUT.write("\tlda\t#<IP_" + str(w.body) + "\n")
+	OUT.write("\tjmp\t" + word_name_hash("pushya") + "\t; pushya\n")
+	add_primitive_dependency("pushya")
+
+	for i in range(w.body, w.body_end):
+		OUT.write("IP_" + str(i) + '\n')
+		OUT.write("!word\t" + str(heap[i]) + '\n')
+
+def compile_colon_word(w):
 	OUT.write(word_name_hash(w.name) + "\n")
 	ip = w.body
 	while ip < w.body_end:
