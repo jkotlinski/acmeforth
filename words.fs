@@ -570,6 +570,13 @@ swap 0 <# #s #> rot over - spaces type space ;
 	rts
 ;code
 
+:code	2/
+	lda	MSB,x
+	cmp	#$80
+	ror	MSB,x
+	ror	LSB,x
+;code
+
 :code	and
 	lda	MSB, x
 	and	MSB + 1, x
