@@ -659,3 +659,23 @@ swap 0 <# #s #> rot over - spaces type space ;
 	inx
 	rts
 ;code
+
+:code	lshift
+-	dec	LSB,x
+	bmi	+
+	asl	LSB+1,x
+	rol	MSB+1,x
+	jmp	-
++	inx
+	rts
+;code
+
+:code	rshift
+-	dec	LSB,x
+	bmi	+
+	lsr	LSB+1,x
+	ror	MSB+1,x
+	jmp	-
++	inx
+	rts
+;code

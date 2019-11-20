@@ -68,7 +68,7 @@ def compile_forth_word(w):
 
 def compile_constant_word(w):
 	OUT.write(word_name_hash(w.name) + "\t; " + w.name + "\n")
-	OUT.write("\tldy\t#" + str(w.constant_value >> 8) + "\n")
+	OUT.write("\tldy\t#" + str((w.constant_value >> 8) & 0xff) + "\n")
 	OUT.write("\tlda\t#" + str(w.constant_value & 0xff) + "\n")
 	OUT.write("\tjmp\t" + word_name_hash("pushya") + "\t; pushya\n")
 	add_primitive_dependency("pushya")

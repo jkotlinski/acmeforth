@@ -43,7 +43,8 @@ T{ 1S 1S XOR -> 0S }T ;
 
 \ -----
 
-1S 1 RSHIFT INVERT CONSTANT MSB
+\ 1S 1 RSHIFT INVERT CONSTANT MSB
+8000 CONSTANT MSB
 : test-shift
 ." testing 2* 2/ lshift rshift" cr
 
