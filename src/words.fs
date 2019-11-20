@@ -759,3 +759,58 @@ swap 0 <# #s #> rot over - spaces type space ;
 	jmp	%negate%
 +	rts
 ;code
+
+:code	m*
+	jsr	%2dup%
+	jsr	%xor%
+	jsr	%>r%
+	jsr	%>r%
+	jsr	%abs%
+	jsr	%r>%
+	jsr	%abs%
+	jsr	%um*%
+	jsr	%r>%
+	jmp	%?dnegate%
+;code
+
+:code	um*	; wastes W, W2, y
+product = W
+    lda #$00
+    sta product+2 ; clear upper bits of product
+    sta product+3
+    ldy #$10 ; set binary count to 16
+.shift_r
+    lsr MSB + 1, x ; multiplier+1 ; divide multiplier by 2
+    ror LSB + 1, x ; multiplier
+    bcc rotate_r
+    lda product+2 ; get upper half of product and add multiplicand
+    clc
+    adc LSB, x ; multiplicand
+    sta product+2
+    lda product+3
+    adc MSB, x ; multiplicand+1
+rotate_r
+    ror ; rotate partial product
+    sta product+3
+    ror product+2
+    ror product+1
+    ror product
+    dey
+    bne .shift_r
+
+    lda product
+    sta LSB + 1, x
+    lda product + 1
+    sta MSB + 1, x
+    lda product + 2
+    sta LSB, x
+    lda product + 3
+    sta MSB, x
+    rts
+;code
+
+:code	*
+	jsr	%m*%
+	inx
+	rts
+;code
