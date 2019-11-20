@@ -69,6 +69,8 @@ swap 0 <# #s #> rot over - spaces type space ;
 : IS STATE @ IF POSTPONE ['] POSTPONE DEFER! ELSE ' DEFER! THEN ; IMMEDIATE
 : HOLDS BEGIN DUP WHILE 1- 2DUP + C@ HOLD REPEAT 2DROP ;
 
+\ ----- C64 primitives below
+
 :code c@
 	lda LSB,x
 	sta + + 1
@@ -79,4 +81,115 @@ swap 0 <# #s #> rot over - spaces type space ;
 	lda #0
 	sta MSB,x
 	rts
+;code
+
+:code c!
+	lda LSB,x
+	sta + + 1
+	lda MSB,x
+	sta + + 2
+	lda LSB+1,x
++	sta $1234
+	inx
+	inx
+	rts
+;code
+
+:code 1+
+	inc LSB, x
+	bne +
+	inc MSB, x
++	rts
+;code
+
+:code litc
+	dex
+
+	; load IP
+	pla
+	sta W
+	pla
+	sta W + 1
+
+	inc W
+	bne +
+	inc W + 1
++
+	; copy literal to stack
+	ldy #0
+	lda (W), y
+	sta LSB, x
+	sty MSB, x
+
+	inc W
+	bne +
+	inc W + 1
++	jmp (W)
+;code
+
+:code lit
+	dex
+
+	; load IP
+	pla
+	sta W
+	pla
+	sta W + 1
+
+	; copy literal to stack
+	ldy #1
+	lda (W), y
+	sta LSB, x
+	iny
+	lda (W), y
+	sta MSB, x
+
+	lda W
+	clc
+	adc #3
+	sta + + 1
+	lda W + 1
+	adc #0
+	sta + + 2
++	jmp $1234
+;code
+
+:code (loop)
+	stx	w	; x = stack pointer
+	tsx
+
+	inc	$103,x	; i++
+	bne	+
+	inc	$104,x
++
+	lda	$103,x	; lsb check
+	cmp	$105,x
+	beq	.check_msb
+
+.continue_loop
+	ldx	w	; restore x
+	jmp	%branch%
+
+.check_msb
+	lda	$104,x
+	cmp	$106,x
+	bne	.continue_loop
+
+	pla		; loop done - skip branch address
+	clc
+	adc	#3
+	sta	w2
+
+	pla
+	adc	#0
+	sta	w2 + 1
+
+	txa		; sp += 6
+	clc
+	adc	#6
+	tax
+	txs
+
+	ldx	w	; restore x
+	jmp	(w2)
 ;code
