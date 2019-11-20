@@ -569,3 +569,16 @@ swap 0 <# #s #> rot over - spaces type space ;
 	rol	MSB, x
 	rts
 ;code
+
+:code	and
+	lda	MSB, x
+	and	MSB + 1, x
+	sta	MSB + 1, x
+
+	lda	LSB, x
+	and	LSB + 1, x
+	sta	LSB + 1, x
+
+	inx
+	rts
+;code
