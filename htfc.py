@@ -164,12 +164,12 @@ def evaluate(word):
 			QUIT()
 
 def SOURCE_ID():
-	if INPUT_FILE:
-		stack.append(INPUT_FILE)	# file
-	elif tib_addr == original_tib_addr:
-		stack.append(0)			# console
-	else:
+	if tib_addr != original_tib_addr:
 		stack.append(-1)		# evaluate
+	elif INPUT_FILE:
+		stack.append(INPUT_FILE)	# file
+	else:
+		stack.append(0)			# console
 
 def REFILL():
 	global INPUT_FILE
