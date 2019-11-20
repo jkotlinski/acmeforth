@@ -494,3 +494,48 @@ swap 0 <# #s #> rot over - spaces type space ;
 	sta + + 1
 +	jmp $1234
 ;code
+
+:code	dabs
+	jsr	%dup%
+	jmp	%?dnegate%
+;code
+
+:code	?dnegate
+	jsr	%0<%
+	inx
+	lda	MSB-1,x
+	beq	+
+	jsr	%dnegate%
++	rts
+;code
+
+:code	dnegate
+	jsr	%invert%
+	jsr	%>r%
+	jsr	%invert%
+	jsr	%r>%
+	jsr	%1%
+	jmp	%m+%
+;code
+
+:code	m+
+	ldy #0
+	lda MSB,x
+	bpl +
+	dey
++	clc
+	lda LSB,x
+	adc LSB+2,x
+	sta LSB+2,x
+	lda MSB,x
+	adc MSB+2,x
+	sta MSB+2,x
+	tya
+	adc LSB+1,x
+	sta LSB+1,x
+	tya
+	adc MSB+1,x
+	sta MSB+1,x
+	inx
+	rts
+;code
