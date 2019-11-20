@@ -78,6 +78,8 @@ def compile_create_word(w):
 			heap[i] = 0
 		OUT.write("!word\t" + str(heap[i]) + '\n')
 
+	OUT.write('\n')
+
 def compile_colon_word(w):
 	OUT.write(word_name_hash(w.name) + "\n")
 	ip = w.body
@@ -118,7 +120,7 @@ def compile_call(callee, ip):
 	elif callee.name == "branch":
 		ip += 1
 		OUT.write("\tjmp IP_" + str(heap[ip]) + "\t\t; branch\n")
-	elif callee.name == "0branch":
+	elif callee.name == "0branch" or callee.name == "(loop)":
 		compile_jsr(callee)
 		ip += 1
 		OUT.write("\t!word\tIP_" + str(heap[ip]) + "\n")
