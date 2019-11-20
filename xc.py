@@ -74,6 +74,8 @@ def compile_create_word(w):
 
 	for i in range(w.body, w.body_end):
 		OUT.write("IP_" + str(i) + '\n')
+		if heap[i] == None:
+			heap[i] = 0
 		OUT.write("!word\t" + str(heap[i]) + '\n')
 
 def compile_colon_word(w):
