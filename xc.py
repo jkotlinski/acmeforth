@@ -121,7 +121,7 @@ def compile_call(callee, ip):
 	elif callee.name == "0branch":
 		compile_jsr(callee)
 		ip += 1
-		OUT.write("\t!word " + str(heap[ip]) + "\n")
+		OUT.write("\t!word\tIP_" + str(heap[ip]) + "\n")
 	elif callee.name == "drop":
 		OUT.write("\tinx\t\t\t; drop\n")
 	elif callee.name == "2drop":
