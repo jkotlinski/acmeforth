@@ -434,3 +434,48 @@ swap 0 <# #s #> rot over - spaces type space ;
 	inx 
 	jmp	PUTCHR
 ;code
+
+:code /string
+	jsr %dup
+	jsr %>r%
+	jsr %-%
+	jsr %swap%
+	jsr %r>%
+	jsr %+%
+	jmp %swap%
+;code
+
+:code -
+	lda LSB + 1, x
+	sec
+	sbc LSB, x
+	sta LSB + 1, x
+	lda MSB + 1, x
+	sbc MSB, x
+	sta MSB + 1, x
+	inx
+	rts
+;code
+
+:code 1
+	lda	#1
+	ldy	#0
+	jmp	%pushya%
+;code
+
+:code pushya
+	dex
+	sta	LSB, x
+	sty	MSB, x
+	rts
+;code
+
+:code invert
+	lda MSB, x
+	eor #$ff
+	sta MSB, x
+	lda LSB, x
+	eor #$ff
+	sta LSB,x
+	rts
+;code
