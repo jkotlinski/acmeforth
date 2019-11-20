@@ -65,6 +65,8 @@ def compile_forth_word(w):
 			ip = compile_call(cell_word, ip)
 		elif type(cell) == type(0):
 			compile_number(cell)
+		elif cell == None:
+			compile_number(0)
 		else:
 			sys.exit("Unknown cell type " + str(cell))
 		ip += 1

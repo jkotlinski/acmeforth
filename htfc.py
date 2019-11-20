@@ -279,7 +279,7 @@ def interpret_tib():
 				print("EVALUATE", word)
 			evaluate(word)
 		if DEBUG:
-			print(stack)
+			print(stack[len(stack_underflow_area):])
 
 def STORE():
 	heap[stack[-1]] = stack[-2]
@@ -305,7 +305,7 @@ def docol(ip_):
 				print("exec", code)
 			code()
 			if DEBUG:
-				print(stack)
+				print(stack[len(stack_underflow_area):])
 		else:
 			stack.append(code)
 
