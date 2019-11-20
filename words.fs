@@ -382,3 +382,55 @@ swap 0 <# #s #> rot over - spaces type space ;
 	jsr	%>r%
 	rts
 ;code
+
+:code 1-
+	lda LSB, x
+	bne +
+	dec MSB, x
++	dec LSB, x
+	rts
+;code
+
+:code 2dup
+	jsr %over%
+	jmp %over%
+;code
+
+:code over
+	dex
+	lda MSB + 2, x
+	sta MSB, x
+	lda LSB + 2, x
+	sta LSB, x
+	rts
+;code
+
+:code swap
+	ldy MSB, x
+	lda MSB + 1, x
+	sta MSB, x
+	sty MSB + 1, x
+
+	ldy LSB, x
+	lda LSB + 1, x
+	sta LSB, x
+	sty LSB + 1, x
+	rts
+;code
+
+:code 2+
+	jsr	%1+%
+	jmp	%1+%
+;code
+
+:code cr
+	jsr	%litc%
+	!byte	$d
+	jmp	%emit%
+;code
+
+:code emit
+	lda	LSB, x
+	inx 
+	jmp	PUTCHR
+;code
