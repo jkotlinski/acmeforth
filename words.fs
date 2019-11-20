@@ -583,7 +583,7 @@ swap 0 <# #s #> rot over - spaces type space ;
 	rts
 ;code
 
-:code	r>	\ must be called using jsr
+:code	r>	; must be called using jsr
 	pla
 	sta W
 	pla
@@ -600,7 +600,7 @@ swap 0 <# #s #> rot over - spaces type space ;
 	jmp (W)
 ;code
 
-:code	r@	\ must be called using jsr
+:code	r@	; must be called using jsr
 	txa
 	tsx
 	ldy $103,x
@@ -614,7 +614,7 @@ swap 0 <# #s #> rot over - spaces type space ;
 	rts
 ;code
 
-:code	>r	\ must be called using jsr
+:code	>r	; must be called using jsr
 	pla
 	sta W
 	pla
