@@ -752,3 +752,10 @@ swap 0 <# #s #> rot over - spaces type space ;
 	sty	LSB,x
 	rts
 ;code
+
+:code	abs
+	lda	MSB,x
+	bpl	+
+	jmp	%negate%
++	rts
+;code
