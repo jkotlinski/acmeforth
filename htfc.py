@@ -711,7 +711,9 @@ def INVERT():
 
 def CONSTANT():
 	CREATE()
-	words[latest].xt = lambda v = stack.pop() : stack.append(v)
+	v = stack.pop()
+	words[latest].xt = lambda : stack.append(v)
+	words[latest].constant_value = v
 
 def TWOMUL():
 	stack.append(1)

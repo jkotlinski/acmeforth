@@ -8,10 +8,11 @@ label_counter = 1
 
 OUT = None
 
-def add_label(comment):
-	global label_counter
-	OUT.write("WORD_" + label_counter + ":\t; " + comment + "\n")
-	label_counter += 1
+word_hashes = []
+def word_name_hash(word_name):
+	if word_name not in word_hashes:
+		word_hashes.append(word_name)
+	return "WORD_" + str(word_hashes.index(word_name))
 
 def compile(xt_words_, heap_, start_word, outfile):
 	global xt_words
@@ -52,21 +53,31 @@ def export_word(w):
 
 	xt = w.xt
 
-	if w.body:
+	if w.body != None:
 		compile_forth_word(w)
 	else:
 		add_primitive_dependency(w.name)
 
 def compile_forth_word(w):
-	if "COLON" in str(w.xt):
+	s = str(w.xt)
+	if "COLON" in s:
 		compile_colon_word(w)
-	elif "CREATE" in str(w.xt):
+	elif "CREATE" in s:
 		compile_create_word(w)
+	elif "CONSTANT" in s:
+		compile_constant_word(w)
 	else:
 		sys.exit("Unknown xt " + str(w.xt))
 
+def compile_constant_word(w):
+	OUT.write(word_name_hash(w.name) + "\t; " + w.name + "\n")
+	OUT.write("\tldy\t#" + str(w.constant_value >> 8) + "\n")
+	OUT.write("\tlda\t#" + str(w.constant_value & 0xff) + "\n")
+	OUT.write("\tjmp\t" + word_name_hash("pushya") + "\t; pushya\n")
+	add_primitive_dependency("pushya")
+
 def compile_create_word(w):
-	OUT.write(word_name_hash(w.name) + "\n")
+	OUT.write(word_name_hash(w.name) + "\t; " + w.name + "\n")
 	OUT.write("\tldy\t#>IP_" + str(w.body) + "\n")
 	OUT.write("\tlda\t#<IP_" + str(w.body) + "\n")
 	OUT.write("\tjmp\t" + word_name_hash("pushya") + "\t; pushya\n")
@@ -130,9 +141,6 @@ def compile_call(callee, ip):
 	else:
 		compile_jsr(callee)
 	return ip
-
-def word_name_hash(word_name):
-	return "W" + hex(abs(hash(word_name)))[2:]
 
 def add_primitive(word_name):
 	if word_name in added_primitives:
