@@ -63,7 +63,7 @@ def compile_forth_word(w):
 	elif "CREATE" in str(w.xt):
 		compile_create_word(w)
 	else:
-		assert False
+		sys.exit("Unknown xt " + str(w.xt))
 
 def compile_create_word(w):
 	OUT.write(word_name_hash(w.name) + "\n")
