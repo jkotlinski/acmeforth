@@ -479,3 +479,18 @@ swap 0 <# #s #> rot over - spaces type space ;
 	sta LSB,x
 	rts
 ;code
+
+:code branch
+	pla
+	sta W
+	pla
+	sta W + 1
+
+	ldy #2
+	lda (W), y
+	sta + + 2
+	dey
+	lda (W), y
+	sta + + 1
++	jmp $1234
+;code
