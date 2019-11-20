@@ -642,3 +642,13 @@ swap 0 <# #s #> rot over - spaces type space ;
 	rts
 ;code
 
+:code	xor
+	lda	MSB,x
+	xor	MSB+1,x
+	sta	MSB+1,x
+	lda	LSB,x
+	xor	LSB+1,x
+	sta	LSB+1,x
+	inx
+	rts
+;code
