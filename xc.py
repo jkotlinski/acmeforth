@@ -130,7 +130,7 @@ def add_primitive(word_name):
 		OUT.write("\n")
 	else:
 		sys.exit("Missing 6510 assembly definition for '" + word_name + "'")
-	
+
 def write_header():
 	OUT.write("""; Compile with ACME assembler
 
