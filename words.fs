@@ -338,3 +338,33 @@ swap 0 <# #s #> rot over - spaces type space ;
 	pha
 	rts
 ;code
+
+:code i
+	jmp %r@%
+;code
+
+:code +
+	lda LSB, x
+	clc
+	adc LSB + 1, x
+	sta LSB + 1, x
+
+	lda MSB, x
+	adc MSB + 1, x
+	sta MSB + 1, x
+
+	inx
+	rts
+;code
+
+:code 0=
+	ldy #0
+	lda MSB, x
+	bne +
+	lda LSB, x
+	bne +
+	dey
++	sty MSB, x
+	sty LSB, x
+	rts
+;code

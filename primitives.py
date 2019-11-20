@@ -22,3 +22,16 @@ define("r>",
 	jmp (W)""",
 	flags = F_NO_TAIL_CALL_ELIMINATION)
 
+define("r@",
+"""	txa
+	tsx
+	ldy $103,x
+	sty W
+	ldy $104,x
+	tax
+	dex
+	sty MSB,x
+	lda W
+	sta LSB,x
+	rts""",
+	flags = F_NO_TAIL_CALL_ELIMINATION)
