@@ -67,4 +67,16 @@ swap 0 <# #s #> rot over - spaces type space ;
 : defer@ >body @ ;
 : ACTION-OF STATE @ IF POSTPONE ['] POSTPONE DEFER@ ELSE ' DEFER@ THEN ; IMMEDIATE
 : IS STATE @ IF POSTPONE ['] POSTPONE DEFER! ELSE ' DEFER! THEN ; IMMEDIATE
-: HOLDS BEGIN DUP WHILE 1- 2DUP + C@ HOLD REPEAT 2DROP ; 
+: HOLDS BEGIN DUP WHILE 1- 2DUP + C@ HOLD REPEAT 2DROP ;
+
+:code c@
+	lda LSB,x
+	sta + + 1
+	lda MSB,x
+	sta + + 2
++	lda $cafe
+	sta LSB,x
+	lda #0
+	sta MSB,x
+	rts
+;code

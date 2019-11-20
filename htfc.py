@@ -160,26 +160,44 @@ def evaluate(word):
 		if is_number(word):
 			evaluate_number(word)
 		else:
-			print(word + "?")
+			print("Undefined word", word)
 			QUIT()
 
 def SOURCE_ID():
-	stack.append(-1 if tib_addr != original_tib_addr else 0)
+	if INPUT_FILE:
+		stack.append(INPUT_FILE)	# file
+	elif tib_addr == original_tib_addr:
+		stack.append(0)			# console
+	else:
+		stack.append(-1)		# evaluate
 
 def REFILL():
+	global INPUT_FILE
 	global tib_count
 
 	SOURCE_ID()
-	if stack.pop():
+	source_id = stack.pop()
+	if source_id == -1:	# evaluated string
 		stack.append(0)
-		return
-
-	tib_count = 0
-	for c in input():
-		heap[tib_addr + tib_count] = c
-		tib_count += 1
-	heap[to_in_addr] = 0
-	stack.append(-1)
+	elif source_id == 0:	# reading from console
+		tib_count = 0
+		for c in input():
+			heap[tib_addr + tib_count] = c
+			tib_count += 1
+		heap[to_in_addr] = 0
+		stack.append(-1)
+	else:
+		l = source_id.readline()
+		if l:
+			l = l.rstrip()
+			tib_count = len(l)
+			for i in range(tib_count):
+				heap[tib_addr + i] = l[i]
+			heap[to_in_addr] = 0
+			stack.append(-1)
+		else:	# EOF
+			stack.append(0)
+			INPUT_FILE = None
 
 def parse(delimiter):
 	if type(delimiter) == type(' '):
@@ -220,7 +238,7 @@ def CREATE():
 	if latest in words:
 		previous_word = words[latest]
 		SOURCE_ID()
-		if not stack.pop():
+		if stack.pop() == 0:
 			print("redefined " + previous_word.name)
 	words[latest] = Word(latest, lambda l=here : stack.append(l), False)
 	words[latest].body = here
@@ -382,7 +400,7 @@ def QUIT():
 		stack.pop()
 		interpret_tib()
 		SOURCE_ID()
-		if not stack.pop():
+		if stack.pop() == 0:
 			print(" compiled" if heap[state_addr] else " ok")
 
 def I():
@@ -1133,6 +1151,24 @@ def COMPILE():
 	xc.compile(xt_words, heap, words[name], outfile)
 	print("ok")
 
+def COLON_CODE():
+	word_name = parse(' ')
+	code = ""
+	prev_to_in = heap[to_in_addr]
+	while True:
+		w = parse(' ')
+		if w:
+			if w.lower() == ";code":
+				primitives.define(word_name, code)
+				return
+			code += "".join(heap[tib_addr + prev_to_in : tib_addr + heap[to_in_addr]])
+			prev_to_in = heap[to_in_addr]
+		else:
+			code += "\n"
+			prev_to_in = 0
+			REFILL()
+			assert stack.pop()
+
 add_word("refill", REFILL)
 add_word("variable", VARIABLE)
 add_word("!", STORE)
@@ -1268,18 +1304,18 @@ add_word("parse", PARSE)
 add_word("source-id", SOURCE_ID)
 add_word("bye", lambda:sys.exit(0))
 add_word("words", WORDS)
+add_word(":code", COLON_CODE)
 add_word("compile", COMPILE)
 
-def evaluate_file(f):
-	f = open(f, mode='r')
-	for l in f.readlines():
-		l = l.rstrip()
-		addr = here + 100
-		for i in range(len(l)):
-			heap[addr + i] = l[i]
-		stack.append(addr)
-		stack.append(len(l))
-		EVALUATE()
+def evaluate_file(filename):
+	global INPUT_FILE
+	INPUT_FILE = open(filename, mode='r')
+
+	while True:
+		REFILL()
+		if stack.pop() == 0:
+			return
+		interpret_tib()
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 evaluate_file(os.path.join(__location__, "words.fs"))

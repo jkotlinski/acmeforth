@@ -5,17 +5,6 @@ F_NO_TAIL_CALL_ELIMINATION = 1
 def define(name, code, flags = 0):
 	asm[name] = code
 
-define("c@",
-"""	lda LSB,x
-	sta + + 1
-	lda MSB,x
-	sta + + 2
-+	lda $cafe
-	sta LSB,x
-	lda #0
-	sta MSB,x
-	rts""")
-
 define("c!",
 """	lda LSB,x
 	sta + + 1
