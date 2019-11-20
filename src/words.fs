@@ -575,6 +575,7 @@ swap 0 <# #s #> rot over - spaces type space ;
 	cmp	#$80
 	ror	MSB,x
 	ror	LSB,x
+	rts
 ;code
 
 :code	and
@@ -673,8 +674,8 @@ swap 0 <# #s #> rot over - spaces type space ;
 :code	rshift
 -	dec	LSB,x
 	bmi	+
-	lsr	LSB+1,x
-	ror	MSB+1,x
+	lsr	MSB+1,x
+	ror	LSB+1,x
 	jmp	-
 +	inx
 	rts
