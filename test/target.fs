@@ -45,4 +45,4 @@ T{ 1S 1S XOR -> 0S }T ;
 test-basic-assumptions
 test-booleans ;
 
-compile run-tests test_target.asm
+compile run-tests target-test.asm
