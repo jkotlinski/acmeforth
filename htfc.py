@@ -296,8 +296,14 @@ def C_STORE():
 def STORE():
 	dst = stack[-1]
 	v = stack[-2]
-	heap[dst] = v & 0xff
-	heap[dst + 1] = v >> 8
+	if type(v) == type(0):
+		heap[dst] = v & 0xff
+		heap[dst + 1] = v >> 8
+	elif callable(v) or v == None:
+		heap[dst] = v
+		heap[dst + 1] = None
+	else:
+		assert False
 	TWODROP()
 
 def PLUSSTORE():
@@ -608,7 +614,10 @@ def C_QUOTE():
 	append(words["1-"].xt)
 
 def FETCH():
-	stack[-1] = heap[stack[-1]] + (heap[stack[-1] + 1] << 8)
+	v = heap[stack[-1]]
+	if type(v) == type(0):
+		v += heap[stack[-1] + 1] << 8
+	stack[-1] = v
 
 def C_FETCH():
 	stack[-1] = heap[stack[-1]]
