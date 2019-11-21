@@ -180,7 +180,7 @@ def add_primitive(word_name):
 			OUT.write(line + "\n")
 		OUT.write("\n")
 	else:
-		sys.exit("Missing 6510 assembly definition for '" + word_name + "'")
+		sys.exit("Missing :code definition for >>>" + word_name + "<<<")
 
 def write_header():
 	location = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
