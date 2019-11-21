@@ -3,8 +3,10 @@
 : aligned ;
 
 : 2+ 1+ 1+ ;
-: cells 2* ;
 : cell+ 2+ ;
+: 2@ dup cell+ @ swap @ ;
+: 2! swap over ! cell+ ! ;
+: cells 2* ;
 : s>d dup 0< ;
 : begin here ; immediate
 : nip swap drop ;

@@ -300,11 +300,6 @@ def STORE():
 	heap[dst + 1] = v >> 8
 	TWODROP()
 
-def TWOSTORE():
-	a = stack.pop()
-	heap[a] = stack.pop()
-	heap[a + 1] = stack.pop()
-
 def PLUSSTORE():
 	heap[stack.pop()] += stack.pop()
 
@@ -617,11 +612,6 @@ def FETCH():
 
 def C_FETCH():
 	stack[-1] = heap[stack[-1]]
-
-def TWOFETCH():
-	a = stack[-1]
-	stack[-1] = heap[a + 1]
-	stack.append(heap[a])
 
 def TO_R():
 	return_stack.append(stack.pop())
@@ -1221,7 +1211,6 @@ def COLON_CODE():
 add_word("refill", REFILL)
 add_word("variable", VARIABLE)
 add_word("!", STORE)
-add_word("2!", TWOSTORE)
 add_word("+!", PLUSSTORE)
 add_word(":", COLON)
 add_word(";", SEMICOLON, True)
@@ -1257,7 +1246,6 @@ add_word("exit", EXIT)
 add_word("type", TYPE)
 add_word("source", SOURCE)
 add_word("@", FETCH)
-add_word("2@", TWOFETCH)
 add_word("1+", ONEPLUS)
 add_word("1-", ONEMINUS)
 add_word("+", PLUS)
