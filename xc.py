@@ -137,9 +137,16 @@ def compile_call(callee, ip):
 	elif callee.name == "lit":
 		compile_jsr(callee)
 		ip += 1
-		compile_byte(heap[ip])
-		ip += 1
-		compile_byte(heap[ip])
+		if callable(heap[ip]):
+			word = xt_words[heap[ip]]
+			if word not in words_to_export:
+				words_to_export.append(word)
+			OUT.write("\t!word " + word_name_hash(word.name) + "\t; " + word.name + "\n")
+			ip += 1
+		else:
+			compile_byte(heap[ip])
+			ip += 1
+			compile_byte(heap[ip])
 	elif callee.name == "sliteral":
 		compile_jsr(callee)
 		ip += 1

@@ -909,3 +909,12 @@ end:    INX
 :code	bye
 	jmp	BYE
 ;code
+
+:code	execute
+	lda	LSB, x
+	sta	W
+	lda	MSB, x
+	sta	W + 1
+	inx
+	jmp	(W)
+;code

@@ -610,6 +610,28 @@ T{ GC4 DROP DUP C@ SWAP CHAR+ C@ -> 58 59 }T ;
 
 \ -----
 
+: GT1 123 ;
+: GT2 ['] GT1 ; IMMEDIATE
+create gt1string 3 C, CHAR G C, CHAR T C, CHAR 1 C,
+: GT3 GT2 LITERAL ;
+: GT4 POSTPONE GT1 ; IMMEDIATE
+: GT5 GT4 ;
+: GT6 345 ; IMMEDIATE
+: GT7 POSTPONE GT6 ;
+
+: test-tick
+." testing ' ['] find execute immediate count literal postpone state" cr
+
+T{ ['] gt1 execute -> 123 }T
+T{ postpone GT2 EXECUTE -> 123 }T
+( HOW TO SEARCH FOR NON-EXISTENT WORD? )
+T{ GT1STRING COUNT -> GT1STRING CHAR+ 3 }T
+
+T{ GT5 -> 123 }T
+T{ GT7 -> 345 }T ;
+
+\ -----
+
 : run-tests
 test-basic-assumptions
 test-booleans
@@ -622,6 +644,7 @@ test-multiply
 test-divide
 test-here
 test-char
+test-tick
 ." done" ;
 
 compile run-tests target-test.asm
