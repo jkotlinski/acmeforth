@@ -1149,6 +1149,8 @@ def TO():
 	TICK()
 	TO_BODY()
 	if heap[state_addr]:
+		stack.append(LIT)
+		COMPILE_COMMA()
 		COMMA()
 		stack.append(words["!"].xt)
 		COMPILE_COMMA()
