@@ -89,7 +89,7 @@ def compile_create_word(w):
 	OUT.write('\n')
 
 def compile_colon_word(w):
-	OUT.write(word_name_hash(w.name) + "\n")
+	OUT.write(word_name_hash(w.name) + "\t; " + w.name + "\n")
 	ip = w.body
 	while ip < w.body_end:
 		OUT.write("IP_" + str(ip) + ":\n")
