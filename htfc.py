@@ -74,6 +74,8 @@ def append(val):
 	assert type(val) == type(0) or type(val) == type("") or callable(val) or val == None
 	heap[here] = val
 	here += 1
+	if not compiling_word:
+		words[latest].body_end = here
 
 def set_state(flag):
 	v = 0xff if flag else 0
@@ -251,7 +253,6 @@ def VARIABLE():
 	CREATE()
 	stack.append(0)
 	COMMA()
-	words[latest].body_end = here
 
 def compile(word):
 	global stack
@@ -546,9 +547,9 @@ def CR():
 
 def ALLOT():
 	global here
-	diff_in_address_units = stack.pop()
-	here += diff_in_address_units
-	words[latest].body_end += diff_in_address_units
+	here += stack.pop()
+	if not compiling_word:
+		words[latest].body_end = here
 
 def SLITERAL():
 	global ip
@@ -1188,16 +1189,8 @@ def PARSE():
 		ONEPLUS()
 
 def WORDS():
-	print("Host:")
 	l = []
 	for k in words.keys():
-		l.append(str(k))
-	l.sort()
-	print(" ".join(l))
-
-	print("\nTarget:", )
-	l = []
-	for k in xc.code_words.keys():
 		l.append(str(k))
 	l.sort()
 	print(" ".join(l))

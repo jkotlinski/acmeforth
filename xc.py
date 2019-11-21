@@ -84,7 +84,7 @@ def compile_create_word(w):
 	for i in range(w.body, w.body_end):
 		if heap[i] == None:
 			heap[i] = 0
-		OUT.write("!word\t" + str(heap[i]) + '\n')
+		OUT.write("!byte\t" + str(heap[i]) + '\n')
 
 	OUT.write('\n')
 
