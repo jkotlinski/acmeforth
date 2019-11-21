@@ -544,15 +544,50 @@ HERE
 CONSTANT 2NDA
 CONSTANT 1STA
 
-: test-allot
-T{ 1STA 2NDA U< -> <TRUE> }T      \ HERE MUST GROW WITH ALLOT
-T{ 1STA 1+ -> 2NDA }T         \ ... BY ONE ADDRESS UNIT
-( MISSING TEST: NEGATIVE ALLOT ) ;
+HERE 1 ,
+HERE 2 ,
+CONSTANT 2ND
+CONSTANT 1ST
+
+HERE 1 C,
+HERE 2 C,
+CONSTANT 2NDC
+CONSTANT 1STC
+
+ALIGN 1 ALLOT HERE ALIGN HERE 3 CELLS ALLOT
+CONSTANT A-ADDR  CONSTANT UA-ADDR
+
+: BITS ( X -- U )
+   0 SWAP BEGIN DUP WHILE DUP MSB AND IF >R 1+ R> THEN 2* REPEAT DROP ;
 
 : test-here
 ." testing here , @ ! cell+ cells c, c@ c! chars 2@ 2! align aligned +! allot" cr
+\ skips a lot of tests that won't work due to HERE
+\ not working on target.
 
-test-allot ;
+T{ 1STA 2NDA U< -> <TRUE> }T      \ HERE MUST GROW WITH ALLOT
+T{ 1STA 1+ -> 2NDA }T         \ ... BY ONE ADDRESS UNIT
+( MISSING TEST: NEGATIVE ALLOT )
+
+T{ 1ST 2ND U< -> <TRUE> }T         \ HERE MUST GROW WITH ALLOT
+T{ 1ST CELL+ -> 2ND }T         \ ... BY ONE CELL
+T{ 1ST 1 CELLS + -> 2ND }T
+
+T{ 1STC 2NDC U< -> <TRUE> }T      \ HERE MUST GROW WITH ALLOT
+T{ 1STC CHAR+ -> 2NDC }T         \ ... BY ONE CHAR
+T{ 1STC 1 CHARS + -> 2NDC }T
+
+T{ UA-ADDR ALIGNED -> A-ADDR }T
+
+( CHARACTERS >= 1 AU, <= SIZE OF CELL, >= 8 BITS )
+T{ 1 CHARS 1 < -> <FALSE> }T
+T{ 1 CHARS 1 CELLS > -> <FALSE> }T
+( TBD: HOW TO FIND NUMBER OF BITS? )
+
+( CELLS >= 1 AU, INTEGRAL MULTIPLE OF CHAR SIZE, >= 16 BITS )
+T{ 1 CELLS 1 < -> <FALSE> }T
+T{ 1 CELLS 1 CHARS MOD -> 0 }T
+T{ 1S BITS 10 < -> <FALSE> }T ;
 
 : run-tests
 test-basic-assumptions
