@@ -905,3 +905,7 @@ end:    INX
 	jsr	%2+%
 	jmp	%!%
 ;code
+
+:code	bye
+	jmp	BYE
+;code
