@@ -937,7 +937,10 @@ def EXECUTE():
 
 def LIT():
 	global ip
-	stack.append(heap[ip] + (heap[ip + 1] << 8))
+	if callable(heap[ip]):
+		stack.append(heap[ip])
+	else:
+		stack.append(heap[ip] + (heap[ip + 1] << 8))
 	ip += 2
 
 def LITC():
@@ -1173,7 +1176,15 @@ def _OF():
 		BRANCH()
 
 def LITERAL():
-	append(lambda xt=stack.pop() : stack.append(xt))
+	if callable(stack[-1]):
+		append(LIT)
+		COMMA()
+	elif stack[-1] & 0xff00:
+		append(LIT)
+		COMMA()
+	else:
+		append(LITC)
+		C_COMMA()
 
 def PARSE():
 	delim = stack.pop()

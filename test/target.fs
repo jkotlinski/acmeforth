@@ -589,6 +589,27 @@ T{ 1 CELLS 1 < -> <FALSE> }T
 T{ 1 CELLS 1 CHARS MOD -> 0 }T
 T{ 1S BITS 10 < -> <FALSE> }T ;
 
+\ -----
+
+: GC1 [CHAR] X ;
+: GC2 [CHAR] HELLO ;
+: GC3 [ GC1 ] LITERAL ;
+: GC4 S" xy" ; \ Changed from XY to xy due to PETSCII.
+
+: test-char
+." testing char [char] [ ] bl s" cr
+
+T{ BL -> 20 }T
+T{ [ CHAR X ] LITERAL -> 58 }T
+T{ [ CHAR HELLO ] LITERAL -> 48 }T
+T{ GC1 -> 58 }T
+T{ GC2 -> 48 }T
+T{ GC3 -> 58 }T
+T{ GC4 SWAP DROP -> 2 }T
+T{ GC4 DROP DUP C@ SWAP CHAR+ C@ -> 58 59 }T ;
+
+\ -----
+
 : run-tests
 test-basic-assumptions
 test-booleans
@@ -600,6 +621,7 @@ test-add-subtract
 test-multiply
 test-divide
 test-here
+test-char
 ." done" ;
 
 compile run-tests target-test.asm
