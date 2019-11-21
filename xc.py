@@ -99,6 +99,8 @@ def compile_colon_word(w):
 			ip = compile_call(cell_word, ip)
 		elif type(cell) == type(0):
 			compile_byte(cell)
+		elif cell == None:
+			compile_byte(0)
 		else:
 			sys.exit("Unknown cell type " + str(cell))
 		ip += 1

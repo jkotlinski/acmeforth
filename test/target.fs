@@ -539,6 +539,21 @@ T{ MIN-INT 2 MIN-INT */MOD -> MIN-INT 2 MIN-INT T*/MOD }T ;
 
 \ -----
 
+HERE 1 ALLOT
+HERE
+CONSTANT 2NDA
+CONSTANT 1STA
+
+: test-allot
+T{ 1STA 2NDA U< -> <TRUE> }T      \ HERE MUST GROW WITH ALLOT
+T{ 1STA 1+ -> 2NDA }T         \ ... BY ONE ADDRESS UNIT
+( MISSING TEST: NEGATIVE ALLOT ) ;
+
+: test-here
+." testing here , @ ! cell+ cells c, c@ c! chars 2@ 2! align aligned +! allot" cr
+
+test-allot ;
+
 : run-tests
 test-basic-assumptions
 test-booleans
@@ -549,6 +564,7 @@ test-return-stack-ops
 test-add-subtract
 test-multiply
 test-divide
+test-here
 ." done" ;
 
 compile run-tests target-test.asm
