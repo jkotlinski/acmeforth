@@ -246,7 +246,8 @@ def CREATE():
 
 def VARIABLE():
 	CREATE()
-	append(-1)
+	stack.append(0)
+	COMMA()
 	words[latest].body_end = here
 
 def compile(word):
@@ -260,7 +261,12 @@ def compile(word):
 	else:
 		if is_number(word):
 			evaluate_number(word)
-			COMMA()
+			if stack[-1] & 0xff00:
+				append(words["lit"].xt)
+				COMMA()
+			else:
+				append(words["litc"].xt)
+				C_COMMA()
 		else:
 			sys.exit("unknown word '" + word + "'")
 
@@ -278,10 +284,19 @@ def interpret_tib():
 				print("EVALUATE", word)
 			evaluate(word)
 		if DEBUG:
-			print(stack[len(stack_underflow_area):])
+			print("stack", stack[len(stack_underflow_area):])
+
+def C_STORE():
+	dst = stack[-1]
+	v = stack[-2]
+	heap[dst] = v & 0xff
+	TWODROP()
 
 def STORE():
-	heap[stack[-1]] = stack[-2]
+	dst = stack[-1]
+	v = stack[-2]
+	heap[dst] = v & 0xff
+	heap[dst + 1] = v >> 8
 	TWODROP()
 
 def TWOSTORE():
@@ -363,23 +378,26 @@ def SWAP():
 
 def BRANCH():
 	global ip
-	ip = heap[ip]
+	ip = heap[ip] + (heap[ip + 1] << 8)
 
 def ZBRANCH():
 	global ip
 	if stack.pop():
-		ip += 1
+		ip += 2
 	else:
 		BRANCH()
 
 def ELSE():
 	append(words["branch"].xt)
-	append(0)
-	heap[stack[-1]] = here
-	stack[-1] = here - 1
+	stack.append(0)
+	COMMA()
+	heap[stack[-1]] = here & 0xff
+	heap[stack[-1] + 1] = here >> 8
+	stack[-1] = here - 2
 
 def THEN():
-	heap[stack[-1]] = here
+	heap[stack[-1]] = here & 0xff
+	heap[stack[-1] + 1] = here >> 8
 	stack.pop()
 
 def ZERO_LT():
@@ -432,20 +450,24 @@ def _QUESTION_DO():
 def QUESTION_DO():
 	append(words["(?do)"].xt)
 	leave_stack.append(here)
-	append(None)
+	stack.append(0)
+	COMMA()
 	stack.append(here)
 
 def resolve_leaves():
 	while leave_stack:
 		assert stack
 		# The additional -1 is for ?DO, which has a cell between (?DO) and the loop body.
-		if leave_stack[-1] < stack[-1] - 1:
+		if leave_stack[-1] < stack[-1] - 2:
 			break
-		heap[leave_stack.pop()] = here
+		dst = leave_stack.pop()
+		heap[dst] = here & 0xff
+		heap[dst + 1] = here >> 8
 
 def LOOP():
 	append(words["(loop)"].xt)
-	append(stack[-1])
+	DUP()
+	COMMA()
 	resolve_leaves()
 	stack.pop()
 
@@ -455,15 +477,16 @@ def _LOOP():
 	if return_stack[-2] == return_stack[-1]:
 		return_stack.pop()
 		return_stack.pop()
-		ip += 1
+		ip += 2
 	else:
-		ip = heap[ip]
+		ip = heap[ip] + (heap[ip + 1] << 8)
 
 def LEAVE():
 	UNLOOP()
 	append(words["branch"].xt)
 	leave_stack.append(here)
-	append(None)
+	stack.append(0)
+	COMMA()
 
 def UNLOOP():
 	append(words["r>"].xt)
@@ -481,7 +504,8 @@ def WITHIN(): # ( test lower upper -- flag )
 
 def PLUSLOOP():
 	append(words["(+loop)"].xt)
-	append(stack[-1])
+	DUP()
+	COMMA()
 	resolve_leaves()
 	stack.pop()
 
@@ -588,6 +612,9 @@ def C_QUOTE():
 	append(words["1-"].xt)
 
 def FETCH():
+	stack[-1] = heap[stack[-1]] + (heap[stack[-1] + 1] << 8)
+
+def C_FETCH():
 	stack[-1] = heap[stack[-1]]
 
 def TWOFETCH():
@@ -827,15 +854,21 @@ def POSTPONE():
 		append(words[name].xt)
 	else:
 		# Instead of compiling the word, compile code that compiles the word.
-		append(words["lit"].xt)
+		append(words["litc"].xt)
 		append(words[name].xt)
-		append(words[","].xt)
+		append(words["compile,"].xt)
 
 def HERE():
 	stack.append(here)
 
 def COMMA():
-	append(stack.pop())
+	global ip
+	v = stack.pop()
+	append(v & 0xff)
+	append(v >> 8)
+
+def C_COMMA():
+	append(stack.pop() & 0xff)
 
 def WHILE():
 	append(words["0branch"].xt)
@@ -845,22 +878,26 @@ def WHILE():
 
 def REPEAT():
 	append(words["branch"].xt)
-	dest = stack.pop()
-	append(dest)
+	COMMA()
 	orig = stack.pop()
 	heap[orig] = here
 
 def UNTIL():
 	append(words["0branch"].xt)
-	append(stack.pop())
+	COMMA()
 
 def AGAIN():
 	append(words["branch"].xt)
-	append(stack.pop())
+	COMMA()
 
 def CHAR():
 	w = read_word()
 	stack.append(ord(w[0]))
+
+def COMPILE_CHAR():
+	w = read_word()
+	append(LITC)
+	append(ord(w[0]))
 
 def TICK():
 	w = read_word().lower()
@@ -890,6 +927,11 @@ def EXECUTE():
 	stack.pop()()
 
 def LIT():
+	global ip
+	stack.append(heap[ip] + (heap[ip + 1] << 8))
+	ip += 2
+
+def LITC():
 	global ip
 	stack.append(heap[ip])
 	ip += 1
@@ -1096,13 +1138,16 @@ def MARKER():
 		words = old_words
 	words[latest].xt = restore
 
+def COMPILE_COMMA():
+	append(stack.pop())
+
 def TO():
 	TICK()
 	TO_BODY()
 	if heap[state_addr]:
 		COMMA()
 		stack.append(words["!"].xt)
-		COMMA()
+		COMPILE_COMMA()
 	else:
 		STORE()
 
@@ -1250,23 +1295,23 @@ add_word("literal", LITERAL, True)
 add_word("postpone", POSTPONE, True)
 add_word("here", HERE)
 add_word(",", COMMA)
-add_word("c,", lambda : COMMA())	# Using lambda to separate xt's for the cross compiler.
-add_word("cell+", lambda : ONEPLUS())	# Using lambda to separate xt's for the cross compiler.
+add_word("c,", C_COMMA)
 add_word("char+", lambda : ONEPLUS())	# Using lambda to separate xt's for the cross compiler.
-add_word("c@", lambda : FETCH())	# Using lambda to separate xt's for the cross compiler.
-add_word("c!", lambda : STORE())	# Using lambda to separate xt's for the cross compiler.
-add_word("cells", lambda : None)
+add_word("c@", C_FETCH)
+add_word("c!", C_STORE)
 add_word("while", WHILE, True)
 add_word("repeat", REPEAT, True)
 add_word("until", UNTIL, True)
 add_word("again", AGAIN, True)
 add_word("char", CHAR)
+add_word("[char]", COMPILE_CHAR, True)
 add_word("'", TICK)
 add_word("execute", EXECUTE)
 add_word("[']", COMPILE_TICK, True)
 add_word("immediate", IMMEDIATE)
 add_word("find", FIND)
 add_word("lit", LIT)
+add_word("litc", LITC)
 add_word("state", STATE)
 add_word("recurse", RECURSE, True)
 add_word("within", WITHIN)
@@ -1309,6 +1354,7 @@ add_word("source-id", SOURCE_ID)
 add_word("bye", lambda:sys.exit(0))
 add_word("words", WORDS)
 add_word(":code", COLON_CODE)
+add_word("compile,", COMPILE_COMMA)
 add_word("compile", COMPILE)
 
 def evaluate_file(filename):

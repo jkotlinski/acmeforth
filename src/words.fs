@@ -2,7 +2,9 @@
 : align ;
 : aligned ;
 
-: [char] char , ; immediate
+: 2+ 1+ 1+ ;
+: cells 2* ;
+: cell+ 2+ ;
 : s>d dup 0< ;
 : begin here ; immediate
 : nip swap drop ;
@@ -25,7 +27,6 @@
 : false 0 ;
 : . s>d swap over dabs <# #s rot sign #> type space ;
 : u. 0 <# #s #> type space ;
-: compile, , ;
 : save-input >in @ 1 ;
 : restore-input drop >in ! 0 ;
 : .s ." <" depth s>d swap over dabs <# #s rot sign #> type ." > "
@@ -41,7 +42,7 @@ swap 0 <# #s #> rot over - spaces type space ;
 : 2swap >r rot rot r> rot rot ;
 : [ 0 state ! ; immediate
 : ] -1 state ! ;
-: count dup 1+ swap @ ;
+: count dup 1+ swap c@ ;
 : /string dup >r - swap r> + swap ;
 : abort depth 0 do drop loop quit ;
 : \ refill 0= if source nip >in ! then ; immediate
@@ -417,11 +418,6 @@ swap 0 <# #s #> rot over - spaces type space ;
 	rts
 ;code
 
-:code 2+
-	jsr	%1+%
-	jmp	%1+%
-;code
-
 :code cr
 	jsr	%litc%
 	!byte	$d
@@ -558,10 +554,6 @@ swap 0 <# #s #> rot over - spaces type space ;
 	inx
 	inx
 	rts
-;code
-
-:code	cells
-	jmp	%2*%
 ;code
 
 :code	2*
@@ -890,10 +882,6 @@ end:    INX
 :code	tuck
 	jsr	%swap%
 	jmp	%over%
-;code
-
-:code	cell+
-	jmp	%2+%
 ;code
 
 :code	char+
