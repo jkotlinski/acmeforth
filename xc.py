@@ -98,22 +98,13 @@ def compile_colon_word(w):
 			cell_word = xt_words[cell]
 			ip = compile_call(cell_word, ip)
 		elif type(cell) == type(0):
-			compile_number(cell)
-		elif cell == None:
-			compile_number(0)
+			compile_byte(cell)
 		else:
 			sys.exit("Unknown cell type " + str(cell))
 		ip += 1
 
-def compile_number(n):
-	if n and 0xff00:
-		add_primitive_dependency("lit")
-		OUT.write("\tjsr " + word_name_hash("lit") + "\t; lit\n")
-		OUT.write("\t!word " + str(n) + "\n")
-	else:
-		add_primitive_dependency("litc")
-		OUT.write("\tjsr " + word_name_hash("litc") + "\t; litc\n")
-		OUT.write("\t!byte " + str(n) + "\n")
+def compile_byte(cell):
+	OUT.write("\t!byte " + str(cell) + "\n")
 
 def compile_jsr(callee):
 	if callee not in words_to_export:
@@ -124,17 +115,29 @@ def compile_call(callee, ip):
 	if callee.name == "exit":
 		OUT.write("\trts\n\n")
 	elif callee.name == "branch":
-		ip += 1
-		OUT.write("\tjmp IP_" + str(heap[ip]) + "\t\t; branch\n")
+		addr = heap[ip + 1] + (heap[ip + 2] << 8)
+		ip += 2
+		OUT.write("\tjmp IP_" + str(addr) + "\t\t; branch\n")
 	elif callee.name == "0branch" or callee.name == "(loop)":
+		addr = heap[ip + 1] + (heap[ip + 2] << 8)
 		compile_jsr(callee)
-		ip += 1
-		OUT.write("\t!word\tIP_" + str(heap[ip]) + "\n")
+		ip += 2
+		OUT.write("\t!word\tIP_" + str(addr) + "\n")
 	elif callee.name == "drop":
 		OUT.write("\tinx\t\t\t; drop\n")
 	elif callee.name == "2drop":
 		OUT.write("\tinx\t\t\t; 2drop\n")
 		OUT.write("\tinx\n")
+	elif callee.name == "litc":
+		compile_jsr(callee)
+		ip += 1
+		compile_byte(heap[ip])
+	elif callee.name == "lit":
+		compile_jsr(callee)
+		ip += 1
+		compile_byte(heap[ip])
+		ip += 1
+		compile_byte(heap[ip])
 	elif callee.name == "sliteral":
 		compile_jsr(callee)
 		ip += 1
