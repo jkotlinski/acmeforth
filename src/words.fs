@@ -49,6 +49,7 @@ swap 0 <# #s #> rot over - spaces type space ;
 : abort depth 0 do drop loop quit ;
 : \ refill 0= if source nip >in ! then ; immediate
 : bl $20 ;
+: within over - >r - r> u< ; \ forth-standard.org
 
 ( from FIG UK )
 : /mod >r s>d r> fm/mod ;
@@ -74,24 +75,24 @@ swap 0 <# #s #> rot over - spaces type space ;
 \ ----- C64 primitives below
 
 :code c@
-	lda LSB,x
-	sta + + 1
-	lda MSB,x
-	sta + + 2
-+	lda $cafe
-	sta LSB,x
-	lda #0
-	sta MSB,x
+	lda	LSB,x
+	sta	+ + 1
+	lda	MSB,x
+	sta	+ + 2
++	lda	$cafe
+	sta	LSB,x
+	lda	#0
+	sta	MSB,x
 	rts
 ;code
 
 :code c!
-	lda LSB,x
-	sta + + 1
-	lda MSB,x
-	sta + + 2
-	lda LSB+1,x
-+	sta $1234
+	lda	LSB,x
+	sta	+ + 1
+	lda	MSB,x
+	sta	+ + 2
+	lda	LSB+1,x
++	sta	$1234
 	inx
 	inx
 	rts
@@ -341,8 +342,21 @@ swap 0 <# #s #> rot over - spaces type space ;
 	rts
 ;code
 
-:code i
+:code	i
 	jmp %r@%
+;code
+
+:code	j
+	txa
+	tsx
+	ldy	107,x
+	sty	W
+	ldy	108,x
+	tax
+	dex
+	sty	MSB,x
+	lda	W
+	sta	LSB,x
 ;code
 
 :code +
@@ -700,8 +714,8 @@ swap 0 <# #s #> rot over - spaces type space ;
 :code	u<
     ldy #0
     lda MSB, x
-    cmp MSB + 1, x 
-    bcc .false 
+    cmp MSB + 1, x
+    bcc .false
     bne .true
     ; ok, msb are equal...
     lda LSB + 1, x
@@ -917,4 +931,43 @@ end:    INX
 	sta	W + 1
 	inx
 	jmp	(W)
+;code
+
+:code	(+loop)
+	; r> swap r> 2dup +
+	jsr	%r>%
+	jsr	%swap%
+	jsr	%r>%
+	jsr	%2dup%
+	jsr	%+%
+
+	; rot 0< if tuck swap else tuck then
+	jsr	%rot%
+	lda	MSB,x
+	bpl	+
+	jsr	%tuck%
+	jsr	%swap%
+	jmp	++
++	jsr	%tuck%
+++
+	; r@ 1- -rot within 0= if
+	jsr	%r@%
+	jsr	%1-%
+	jsr	%rot%
+	jsr	%rot%
+	jsr	%within%
+	lda	MSB,x
+	bne	+
+
+	; >r >r [ ' branch jmp, ] then
+	jsr	%>r%
+	jsr	%>r%
+	jmp	%branch%
++
+	; r> 2drop 2+ >r ;
+	jsr	%r>%
+	jsr	%2drop%
+	jsr	%2+%
+	jsr	%>r%
+	rts
 ;code
