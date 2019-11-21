@@ -144,7 +144,7 @@ def evaluate_number(word):
 		number += digits.index(d)
 	if negate:
 		number = -number
-	stack.append(number)
+	stack.append(ctypes.c_short(number).value)
 
 def evaluate(word):
 	global stack
@@ -451,7 +451,7 @@ def LOOP():
 
 def _LOOP():
 	global ip
-	return_stack[-2] = ctypes.c_int(return_stack[-2] + 1).value
+	return_stack[-2] = ctypes.c_short(return_stack[-2] + 1).value
 	if return_stack[-2] == return_stack[-1]:
 		return_stack.pop()
 		return_stack.pop()
@@ -492,7 +492,7 @@ def _PLUSLOOP():
 		ip = heap[ip]
 		return
 	pre_increment = return_stack[-2]
-	return_stack[-2] = ctypes.c_int(return_stack[-2] + increment).value
+	return_stack[-2] = ctypes.c_short(return_stack[-2] + increment).value
 	post_increment = return_stack[-2]
 	test_value = return_stack[-1] - 1
 	stack.append(test_value)
@@ -652,29 +652,29 @@ def EQUALS():
 	stack.pop()
 
 def ONEPLUS():
-	l = ctypes.c_int(stack[-1])
+	l = ctypes.c_short(stack[-1])
 	l.value += 1
 	stack[-1] = l.value
 
 def ONEMINUS():
-	l = ctypes.c_int(stack[-1])
+	l = ctypes.c_short(stack[-1])
 	l.value -= 1
 	stack[-1] = l.value
 
 def PLUS():
-	l = ctypes.c_int(stack[-2])
+	l = ctypes.c_short(stack[-2])
 	l.value += stack[-1]
 	stack.pop()
 	stack[-1] = l.value
 
 def MINUS():
-	l = ctypes.c_int(stack[-2])
+	l = ctypes.c_short(stack[-2])
 	l.value -= stack[-1]
 	stack.pop()
 	stack[-1] = l.value
 
 def ABS():
-	l = ctypes.c_int(stack[-1])
+	l = ctypes.c_short(stack[-1])
 	l.value = abs(l.value)
 	stack[-1] = l.value
 
@@ -694,13 +694,13 @@ def XOR():
 	stack.pop()
 
 def RSHIFT():
-	l = ctypes.c_uint(stack[-2])
+	l = ctypes.c_ushort(stack[-2])
 	l.value >>= stack[-1]
 	stack.pop()
 	stack[-1] = l.value
 
 def LSHIFT():
-	l = ctypes.c_int(stack[-2])
+	l = ctypes.c_short(stack[-2])
 	l.value <<= stack[-1]
 	stack[-2] = l.value
 	stack.pop()
@@ -723,9 +723,9 @@ def TWODIV():
 
 def U_LESS():
 	if stack[-1] < 0:
-		stack[-1] += 2 ** 32
+		stack[-1] += 2 ** 16
 	if stack[-2] < 0:
-		stack[-2] += 2 ** 32
+		stack[-2] += 2 ** 16
 	stack[-2] = -1 if stack[-2] < stack[-1] else 0
 	stack.pop()
 
@@ -738,20 +738,20 @@ def GREATER_THAN():
 	stack.pop()
 
 def MULTIPLY():
-	v = ctypes.c_int(stack[-2])
+	v = ctypes.c_short(stack[-2])
 	v.value *= stack[-1]
 	stack.pop()
 	stack[-1] = v.value
 
 def M_MULTIPLY():
 	s = stack[-2] * stack[-1]
-	stack[-1] = ctypes.c_int(s >> 32).value
-	stack[-2] = ctypes.c_int(s).value
+	stack[-1] = ctypes.c_short(s >> 16).value
+	stack[-2] = ctypes.c_short(s).value
 
 def UM_MULTIPLY():
-	s = ctypes.c_uint(stack[-2]).value * ctypes.c_uint(stack[-1]).value
-	stack[-1] = ctypes.c_int(s >> 32).value
-	stack[-2] = ctypes.c_int(s).value
+	s = ctypes.c_ushort(stack[-2]).value * ctypes.c_ushort(stack[-1]).value
+	stack[-1] = ctypes.c_short(s >> 16).value
+	stack[-2] = ctypes.c_short(s).value
 
 def TUCK(): # ( b a -- a b a )
 	SWAP()
@@ -760,19 +760,19 @@ def TUCK(): # ( b a -- a b a )
 def UM_MOD(): # ( lsw msw divisor -- rem quot )
 	lsw = stack[-3]
 	msw = stack[-2]
-	n = (ctypes.c_uint(msw).value << 32) | ctypes.c_uint(lsw).value
-	d = ctypes.c_uint(stack[-1]).value
-	stack[-3] = ctypes.c_uint(n % stack[-1]).value
-	stack[-2] = ctypes.c_int(n // d).value
+	n = (ctypes.c_ushort(msw).value << 16) | ctypes.c_ushort(lsw).value
+	d = ctypes.c_ushort(stack[-1]).value
+	stack[-3] = ctypes.c_ushort(n % stack[-1]).value
+	stack[-2] = ctypes.c_short(n // d).value
 	stack.pop()
 
 def M_PLUS(): # ( d1 u -- d2 )
 	lsw = stack[-3]
 	msw = stack[-2]
-	n = (msw << 32) | ctypes.c_uint(lsw).value
+	n = (msw << 16) | ctypes.c_ushort(lsw).value
 	n += stack[-1]
-	stack[-3] = ctypes.c_int(n).value
-	stack[-2] = ctypes.c_int(n >> 32).value
+	stack[-3] = ctypes.c_short(n).value
+	stack[-2] = ctypes.c_short(n >> 16).value
 	stack.pop()
 
 # from FIG UK
@@ -971,12 +971,12 @@ def SIGN(): # ( i -- )
 		format_append('-')
 
 def HASH(): # ( ud1 -- ud2 )
-	d = ctypes.c_ulong(stack[-1] << 32)
-	d.value += ctypes.c_uint(stack[-2]).value
+	d = ctypes.c_uint(stack[-1] << 16)
+	d.value += ctypes.c_ushort(stack[-2]).value
 	format_append(digits[d.value % heap[base_addr]].upper())
 	d.value //= heap[base_addr]
-	stack[-2] = d.value & 0xffffffff
-	stack[-1] = d.value >> 32
+	stack[-2] = d.value & 0xffff
+	stack[-1] = d.value >> 16
 
 def HASH_S(): # ( ud1 -- ud2 )
 	HASH()
@@ -1005,13 +1005,13 @@ def TO_NUMBER(): # ( ud1 c-addr1 u1 -- ud2 c-addr2 u2 )
 			break
 
 		# Accumulate i to ud.
-		ud = ctypes.c_ulong(stack[-3])
-		ud.value <<= 32
-		ud.value += ctypes.c_uint(stack[-4]).value
+		ud = ctypes.c_uint(stack[-3])
+		ud.value <<= 16
+		ud.value += ctypes.c_ushort(stack[-4]).value
 		ud.value *= heap[base_addr]
 		ud.value += i
-		stack[-4] = ctypes.c_int(ud.value & 0xffffffff).value
-		stack[-3] = ctypes.c_int(ud.value >> 32).value
+		stack[-4] = ctypes.c_short(ud.value & 0xffff).value
+		stack[-3] = ctypes.c_short(ud.value >> 16).value
 
 		ONEMINUS()
 		SWAP()
@@ -1048,12 +1048,12 @@ def EMIT():
 	print(chr(stack.pop()), end='')
 
 def DABS():
-	d = ctypes.c_long(stack[-1])
-	d.value <<= 32
-	d.value |= ctypes.c_uint(stack[-2]).value
+	d = ctypes.c_int(stack[-1])
+	d.value <<= 16
+	d.value |= ctypes.c_ushort(stack[-2]).value
 	d.value = abs(d.value)
-	stack[-1] = d.value >> 32
-	stack[-2] = d.value & 0xffffffff
+	stack[-1] = d.value >> 16
+	stack[-2] = d.value & 0xffff
 
 def ACCEPT(): # ( c-addr n1 -- n2 )
 	s = input()
@@ -1077,13 +1077,13 @@ def COLON_NONAME():
 	set_state(True)
 
 def U_GT():
-	lhs = ctypes.c_uint(stack[-2])
-	rhs = ctypes.c_uint(stack[-1])
+	lhs = ctypes.c_ushort(stack[-2])
+	rhs = ctypes.c_ushort(stack[-1])
 	stack[-2] = -1 if lhs.value > rhs.value else 0
 	stack.pop()
 
 def UNUSED():
-	stack.append(len(heap) - here)
+	stack.append(ctypes.c_short(len(heap) - here).value)
 
 def MARKER():
 	old_words = words.copy()
