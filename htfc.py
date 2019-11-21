@@ -42,9 +42,9 @@ ip = 0
 
 # Forth variable space.
 to_in_addr = 0
-state_addr = to_in_addr + 1
-base_addr = state_addr + 1
-word_addr = base_addr + 1
+state_addr = to_in_addr + 2
+base_addr = state_addr + 2
+word_addr = base_addr + 2
 pictured_numeric_addr = word_addr + 40
 tib_addr = pictured_numeric_addr + 70
 original_tib_addr = tib_addr
@@ -92,6 +92,7 @@ def add_word(name, xt, immediate = False):
 
 def is_number(word):
 	base = heap[base_addr]
+	assert base
 	if word[0] == "#":
 		base = 10
 		word = word[1:]
