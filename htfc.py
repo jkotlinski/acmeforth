@@ -312,10 +312,10 @@ def docol(ip_):
 		ip += 1
 		if callable(code):
 			if DEBUG:
-				print("exec", code)
+				print("exec", code, ip)
 			code()
 			if DEBUG:
-				print(stack[len(stack_underflow_area):])
+				print(stack[len(stack_underflow_area):], ip)
 		else:
 			stack.append(code)
 
@@ -866,12 +866,14 @@ def WHILE():
 	orig = here
 	stack.insert(-1, orig)
 	append(None)
+	append(None)
 
 def REPEAT():
 	append(words["branch"].xt)
 	COMMA()
 	orig = stack.pop()
-	heap[orig] = here
+	heap[orig] = here & 0xff
+	heap[orig + 1] = here >> 8
 
 def UNTIL():
 	append(words["0branch"].xt)
