@@ -1163,7 +1163,7 @@ def _OF():
 	EQUALS()
 	if stack.pop():
 		DROP()
-		ip += 1
+		ip += 2
 	else:
 		BRANCH()
 
