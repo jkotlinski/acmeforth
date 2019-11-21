@@ -517,7 +517,7 @@ def _PLUSLOOP():
 	global ip
 	increment = stack.pop()
 	if not increment:
-		ip = heap[ip]
+		ip = heap[ip] + (heap[ip + 1] << 8)
 		return
 	pre_increment = return_stack[-2]
 	return_stack[-2] = ctypes.c_short(return_stack[-2] + increment).value
@@ -536,10 +536,10 @@ def _PLUSLOOP():
 		# yes, exit loop
 		return_stack.pop()
 		return_stack.pop()
-		ip += 1
+		ip += 2
 	else:
 		# no, iterate
-		ip = heap[ip]
+		ip = heap[ip] + (heap[ip + 1] << 8)
 
 def CR():
 	print()
