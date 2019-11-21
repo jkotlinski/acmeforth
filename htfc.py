@@ -449,7 +449,7 @@ def _QUESTION_DO():
 	else:
 		# Enter loop.
 		_DO()
-		ip += 1
+		ip += 2
 
 def QUESTION_DO():
 	append(words["(?do)"].xt)
