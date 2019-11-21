@@ -195,18 +195,18 @@ swap 0 <# #s #> rot over - spaces type space ;
 
 :code 0branch
 	inx
-	lda LSB-1, x
-	ora MSB-1, x
-	beq %branch%
-
-	; skip offset
+	lda	LSB-1, x
+	ora	MSB-1, x
+	bne	+
+	jmp	%branch%
++ 	; skip offset
 	pla
 	clc
-	adc #2
-	bcc +
+	adc	#2
+	bcc	+
 	tay
 	pla
-	adc #0
+	adc	#0
 	pha
 	tya
 +	pha
@@ -890,4 +890,28 @@ end:    INX
 :code	tuck
 	jsr	%swap%
 	jmp	%over%
+;code
+
+:code	cell+
+	jmp	%2+%
+;code
+
+:code	char+
+	jmp	%1+%
+;code
+
+:code	2@
+	jsr	%dup%
+	jsr	%2+%
+	jsr	%@%
+	jsr	%swap%
+	jmp	%@%
+;code
+
+:code	2!
+	jsr	%swap%
+	jsr	%over%
+	jsr	%!%
+	jsr	%2+%
+	jmp	%!%
 ;code
