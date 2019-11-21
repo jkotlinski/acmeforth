@@ -866,8 +866,12 @@ def HERE():
 def COMMA():
 	global ip
 	v = stack.pop()
-	append(v & 0xff)
-	append(v >> 8)
+	if type(v) == type(0):
+		append(v & 0xff)
+		append(v >> 8)
+	else:
+		append(v)
+		append(None)
 
 def C_COMMA():
 	append(stack.pop() & 0xff)
