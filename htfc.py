@@ -76,7 +76,9 @@ def append(val):
 	here += 1
 
 def set_state(flag):
-	heap[state_addr] = -1 if flag else 0
+	v = 0xff if flag else 0
+	heap[state_addr] = v
+	heap[state_addr + 1] = v
 
 def BASE():
 	stack.append(base_addr)
