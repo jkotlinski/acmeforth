@@ -1206,3 +1206,50 @@ CMOVE_BACK
     inc	.fdst + 1
     jmp	-
 ;code
+
+:code	key?
+    lda $c6 ; number of characters in keyboard buffer
+    beq +
+    lda #$ff
++   tay
+    jmp %pushya%
+;code
+
+:code	key
+-   lda $c6
+    beq -
+    stx W
+    jsr $e5b4
+    ldx W
+    ldy #0
+    jmp %pushya%
+;code
+
+variable curr
+: (accept)
+$cc >r 0 $cc c! \ enable cursor
+swap dup >r curr !
+begin
+ key
+ dup $d = if \ cr
+  2drop curr @ r> -
+  space r> $cc c! \ reset cursor
+  exit
+ else dup $14 = if \ del
+  curr @ r@ > if
+   emit -1 curr +! 1+
+  else drop then
+ else dup $7f and $20 < if
+  drop \ ignore
+ else
+  \ process character
+  over if dup curr @ c!
+   emit 1- 1 curr +!
+  else drop then
+ then then then
+again ;
+
+\ Using this trampoline to avoid overriding the Python accept.
+:code	accept ; ( addr u -- u )
+	jmp	%(accept)%
+;code

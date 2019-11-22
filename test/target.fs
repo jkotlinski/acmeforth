@@ -908,6 +908,17 @@ T{ SEEBUF -> 12 34 34 }T ;
 
 \ -----
 
+CREATE ABUF 50 CHARS ALLOT
+
+: ACCEPT-TEST
+   CR ." PLEASE TYPE UP TO 80 CHARACTERS:" CR
+   ABUF 50 ACCEPT
+   CR ." RECEIVED: " [CHAR] " EMIT
+   ABUF SWAP TYPE [CHAR] " EMIT CR
+;
+
+\ -----
+
 : run-tests
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -928,6 +939,7 @@ test-defines
 test-format
 test-fill-move
 OUTPUT-TEST
+ACCEPT-TEST
 ." done" ;
 
 compile run-tests target-test.asm
