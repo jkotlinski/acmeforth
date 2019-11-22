@@ -13,13 +13,15 @@ def word_name_hash(word_name):
 		word_hashes.append(word_name)
 	return "WORD_" + str(word_hashes.index(word_name))
 
-def compile(xt_words_, heap_, start_word, outfile):
+def compile(words_, xt_words_, heap_, start_word, outfile):
+	global words
 	global xt_words
 	global heap
 	global OUT
 
 	OUT = open(outfile, "w")
 
+	words = words_
 	xt_words = xt_words_
 	heap = heap_
 
@@ -29,9 +31,8 @@ def compile(xt_words_, heap_, start_word, outfile):
 
 	while words_to_export:
 		export_word(words_to_export.pop())
-
-	while primitives_to_add:
-		add_primitive(primitives_to_add.pop())
+		while primitives_to_add:
+			add_primitive(primitives_to_add.pop())
 
 exported_words = set()
 words_to_export = []
@@ -120,7 +121,7 @@ def compile_call(callee, ip):
 		addr = heap[ip + 1] + (heap[ip + 2] << 8)
 		ip += 2
 		OUT.write("\tjmp IP_" + str(addr) + "\t\t; branch\n")
-	elif callee.name == "0branch" or callee.name == "(loop)":
+	elif callee.name == "0branch" or callee.name == "(loop)" or callee.name == "(+loop)":
 		addr = heap[ip + 1] + (heap[ip + 2] << 8)
 		compile_jsr(callee)
 		ip += 2
@@ -180,7 +181,11 @@ def add_primitive(word_name):
 			OUT.write(line + "\n")
 		OUT.write("\n")
 	else:
-		sys.exit("Missing :code definition for >>>" + word_name + "<<<")
+		for w in words.values():
+			if w.name == word_name and w.body:
+				export_word(w)
+				return
+		sys.exit("Missing >>>" + word_name + "<<<")
 
 def write_header():
 	location = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))

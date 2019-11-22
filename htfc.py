@@ -294,7 +294,7 @@ def C_STORE():
 	dst = stack[-1]
 	v = stack[-2]
 	heap[dst] = v & 0xff
-	TWODROP()
+	words["2drop"].xt()
 
 def STORE():
 	dst = stack[-1]
@@ -307,7 +307,8 @@ def STORE():
 		heap[dst + 1] = None
 	else:
 		assert False
-	TWODROP()
+	DROP()
+	DROP()
 
 def PLUSSTORE():
 	heap[stack.pop()] += stack.pop()
@@ -354,8 +355,8 @@ def DROP():
 	stack.pop()
 
 def TWODROP():
-	stack.pop()
-	stack.pop()
+	DROP()
+	DROP()
 
 def DUP():
 	stack.append(stack[-1])
@@ -445,7 +446,7 @@ def _QUESTION_DO():
 	EQUALS()
 	if stack.pop():
 		# Don't enter loop.
-		TWODROP()
+		words["2drop"].xt()
 		BRANCH()
 	else:
 		# Enter loop.
@@ -658,7 +659,7 @@ def TYPE():
 		if type(l[i]) == int:
 			l[i] = chr(l[i])
 	print("".join(l), end='', flush=True)
-	TWODROP()
+	words["2drop"].xt()
 
 def EXIT():
 	global ip
@@ -1039,7 +1040,7 @@ def HASH_S(): # ( ud1 -- ud2 )
 
 def RT_HASH(): # ( xd -- c-addr u )
 	global format_addr
-	TWODROP()
+	words["2drop"].xt()
 	stack.append(pictured_numeric_addr)
 	stack.append(format_addr - here)
 	dst = pictured_numeric_addr
@@ -1077,14 +1078,14 @@ def FILL(): # ( c-addr u char -- )
 		heap[stack[-3]] = stack[-1]
 		stack[-2] -= 1
 		stack[-3] += 1
-	TWODROP()
+	words["2drop"].xt()
 	DROP()
 
 def MOVE(): # ( src dst u -- )
 	tmp = heap[stack[-3] : stack[-3] + stack[-1]]
 	for i in range(len(tmp)):
 		heap[stack[-2] + i] = tmp[i]
-	TWODROP()
+	words["2drop"].xt()
 	DROP()
 
 def DOT_QUOTE():
@@ -1210,7 +1211,7 @@ def COMPILE():
 	name = parse(' ')
 	outfile = parse(' ')
 	print("compile", name, "to", outfile, "...")
-	xc.compile(xt_words, heap, words[name], outfile)
+	xc.compile(words, xt_words, heap, words[name], outfile)
 	print("ok")
 
 def COLON_CODE():
@@ -1244,7 +1245,6 @@ add_word("over", OVER)
 add_word("rot", ROT)
 add_word("swap", SWAP)
 add_word("drop", DROP)
-add_word("2drop", TWODROP)
 add_word("0<", ZERO_LT)
 add_word("0branch", ZBRANCH)
 add_word("branch", BRANCH)
@@ -1326,7 +1326,6 @@ add_word("lit", LIT)
 add_word("litc", LITC)
 add_word("state", STATE)
 add_word("recurse", RECURSE, True)
-add_word("within", WITHIN)
 add_word("does>", DOES_TO)
 add_word(">body", TO_BODY)
 add_word("evaluate", EVALUATE)
@@ -1365,6 +1364,7 @@ add_word("parse", PARSE)
 add_word("source-id", SOURCE_ID)
 add_word("bye", lambda:sys.exit(0))
 add_word("words", WORDS)
+add_word("2drop", TWODROP)
 add_word(":code", COLON_CODE)
 add_word("compile,", COMPILE_COMMA)
 add_word("compile", COMPILE)

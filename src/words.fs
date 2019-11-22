@@ -943,12 +943,13 @@ end:    INX
 
 	; rot 0< if tuck swap else tuck then
 	jsr	%rot%
-	lda	MSB,x
-	bpl	+
+	inx
+	lda	MSB-1,x
+	bpl	.pl
 	jsr	%tuck%
 	jsr	%swap%
 	jmp	++
-+	jsr	%tuck%
+.pl	jsr	%tuck%
 ++
 	; r@ 1- -rot within 0= if
 	jsr	%r@%
@@ -956,7 +957,9 @@ end:    INX
 	jsr	%rot%
 	jsr	%rot%
 	jsr	%within%
-	lda	MSB,x
+
+	inx
+	lda	MSB-1,x
 	bne	+
 
 	; >r >r [ ' branch jmp, ] then
@@ -966,7 +969,8 @@ end:    INX
 +
 	; r> 2drop 2+ >r ;
 	jsr	%r>%
-	jsr	%2drop%
+	inx
+	inx
 	jsr	%2+%
 	jsr	%>r%
 	rts
