@@ -1171,3 +1171,36 @@ CMOVE_BACK
     bne .initbase
 	jmp cmove_done
 ;code
+
+:code	fill
+    lda	LSB, x
+    tay
+    lda	LSB + 2, x
+    sta	.fdst
+    lda	MSB + 2, x
+    sta	.fdst + 1
+    lda	LSB + 1, x
+    eor	#$ff
+    sta	W
+    lda	MSB + 1, x
+    eor	#$ff
+    sta	W + 1
+    inx
+    inx
+    inx
+-
+    inc	W
+    bne	+
+    inc	W + 1
+    bne	+
+    rts
++
+.fdst = * + 1
+    sty	$ffff ; overwrite
+
+    ; advance
+    inc	.fdst
+    bne	-
+    inc	.fdst + 1
+    jmp	-
+;code
