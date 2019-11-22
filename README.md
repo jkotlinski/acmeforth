@@ -2,8 +2,8 @@
 
 ## What?
 
-HTFC is a cross-compiling 16-bit Forth targeting the Commodore C64, using ACME for assembling.
-All Forth 2012 Core and Core Extension words are supported, although interpreting and compiling only works on the host.
+HTFC is a cross-compiling 16-bit Forth targeting the Commodore 64, using ACME for assembling.
+All Forth 2012 Core and Core Extension words are supported, although interpreting and compiling only works on PC.
 
 ## Example
 
@@ -25,10 +25,10 @@ I want a C64 Forth setup that gives
 
 ### HERE
 
-HERE only works in the target data space. When running the below code on C64, FOO will return the address of the 1 on the host, which is obviously wrong.
+HERE only works on PC. The below code compiles, but when running on C64, FOO could point anywhere.
 
 	HERE 1 , CONSTANT FOO
 
-The below code works better. BAR gives the address of the 1 on both host and target.
+The below code works better. BAR gives the address of the 1 on both PC and C64.
 
 	CREATE BAR 1 ,
