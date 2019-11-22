@@ -349,14 +349,15 @@ swap 0 <# #s #> rot over - spaces type space ;
 :code	j
 	txa
 	tsx
-	ldy	107,x
+	ldy	$107,x
 	sty	W
-	ldy	108,x
+	ldy	$108,x
 	tax
 	dex
 	sty	MSB,x
 	lda	W
 	sta	LSB,x
+	rts
 ;code
 
 :code +
