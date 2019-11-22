@@ -50,7 +50,7 @@ dup $a < if 7 - then $37 + hold ;
 : u. 0 <# #s #> type space ;
 : save-input >in @ 1 ;
 : restore-input drop >in ! 0 ;
-: spaces begin ?dup while space 1- repeat ;
+: spaces begin dup 0> while space 1- repeat drop ;
 : .s ." <" depth s>d swap over dabs <# #s rot sign #> type ." > "
 depth 1+ 1 ?do depth i - pick . loop cr ;
 : .r ( n1 n2 -- )

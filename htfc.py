@@ -329,7 +329,8 @@ def docol(ip_):
 		if callable(code):
 			if DEBUG:
 				print("exec", code, ip)
-			code()
+			if code():
+				return
 			if DEBUG:
 				print(stack[len(stack_underflow_area):], ip)
 		else:
@@ -673,6 +674,7 @@ def EXIT():
 		ip = return_stack.pop()
 	else:
 		ip = None
+	return True
 
 def LPAREN():
 	while True:
