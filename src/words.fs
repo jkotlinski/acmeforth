@@ -4,15 +4,30 @@ variable base 10 base !
 : align ;
 : aligned ;
 
+: if postpone 0branch here 0 , ; immediate
+: begin here ; immediate
+
+variable end
+create #buffer 80 allot
+: <# #buffer end ! ;
+: #> 2drop #buffer end @ over - ;
+: hold
+#buffer dup 1+ end @ #buffer - move
+1 end +!  #buffer c! ;
+: sign 0< if '-' hold then ;
+: ud/mod
+>r 0 r@ um/mod r> swap >r um/mod r> ;
+: # base @ ud/mod rot
+dup $a < if 7 - then $37 + hold ;
+: #s # begin 2dup or while # repeat ;
+
 : 2+ 1+ 1+ ;
 : cell+ 2+ ;
 : 2@ dup cell+ @ swap @ ;
 : 2! swap over ! cell+ ! ;
 : cells 2* ;
 : s>d dup 0< ;
-: begin here ; immediate
 : nip swap drop ;
-: if postpone 0branch here 0 , ; immediate
 : min 2dup < if drop else nip then ;
 : max 2dup > if drop else nip then ;
 : ?dup dup if dup then ;
@@ -74,19 +89,6 @@ swap 0 <# #s #> rot over - spaces type space ;
 : IS STATE @ IF POSTPONE ['] POSTPONE DEFER! ELSE ' DEFER! THEN ; IMMEDIATE
 : HOLDS BEGIN DUP WHILE 1- 2DUP + C@ HOLD REPEAT 2DROP ;
 
-variable end
-create #buffer 80 allot
-: hold
-\ reserve space for char at start
-#buffer dup 1+ end @ #buffer - move
-1 end +!  #buffer c! ;
-: sign 0< if '-' hold then ;
-: ud/mod \ from Gforth
->r 0 r@ um/mod r> swap >r um/mod r> ;
-: # base @ ud/mod rot
-dup $a < if 7 - then $37 + hold ;
-: #s # begin 2dup or while # repeat ;
-
 :code	d+	; ( d1 d2 -- d3 )
 	clc
 	lda	LSB+1,x
@@ -115,7 +117,8 @@ $7f and dup \ lowercase
 : digit? ( char -- flag )
 pet# dup 0< 0= swap base @ < and ;
 : >number ( ud addr u -- ud addr u )
-begin over c@ digit? over and while
+begin dup 0= if exit then
+over c@ digit? while
 >r dup c@ pet# accumulate
 1+ r> 1- repeat ;
 

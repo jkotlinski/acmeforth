@@ -1239,6 +1239,17 @@ def COLON_CODE():
 			REFILL()
 			assert stack.pop()
 
+def D_PLUS():
+	d1 = ctypes.c_ushort(stack[-2]).value
+	d1 += ctypes.c_ushort(stack[-1]).value << 16
+	d2 = ctypes.c_ushort(stack[-4]).value
+	d2 += ctypes.c_ushort(stack[-3]).value << 16
+	s = d1 + d2
+	stack.pop()
+	stack.pop()
+	stack[-1] = ctypes.c_short(s >> 16).value
+	stack[-2] = ctypes.c_short(s & 0xffff).value
+
 add_word("refill", REFILL)
 add_word("variable", VARIABLE)
 add_word("!", STORE)
@@ -1337,13 +1348,6 @@ add_word("does>", DOES_TO)
 add_word(">body", TO_BODY)
 add_word("evaluate", EVALUATE)
 add_word("word", WORD)
-add_word("<#", LT_HASH)
-add_word("hold", HOLD)
-add_word("sign", SIGN)
-add_word("#", HASH)
-add_word("#s", HASH_S)
-add_word("#>", RT_HASH)
-add_word(">number", TO_NUMBER)
 add_word("fill", FILL)
 add_word("move", MOVE)
 add_word('."', DOT_QUOTE, True)
@@ -1374,6 +1378,7 @@ add_word("2drop", TWODROP)
 add_word(":code", COLON_CODE)
 add_word("compile,", COMPILE_COMMA)
 add_word("compile", COMPILE)
+add_word("d+", D_PLUS)
 
 def evaluate_file(filename):
 	global INPUT_FILE
