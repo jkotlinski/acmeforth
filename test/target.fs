@@ -681,7 +681,6 @@ T{ : GD6  ( PAT: T{0 0},{0 0}{1 0}{1 1},{0 0}{1 0}{1 1}{2 0}{2 1}{2 2} )
    0 SWAP 0 DO
       I 1+ 0 DO I J + 3 = IF I UNLOOP I UNLOOP EXIT THEN 1+ LOOP
     LOOP ; -> }T
-T{ : GD7 1 0 DO LEAVE 1 0 DO LOOP 1 LOOP ; -> }T
 : test-loop
 ." testing do loop +loop i j unloop leave exit" cr
 
@@ -707,9 +706,7 @@ T{ 6 GD5 -> 234 }T
 
 T{ 1 GD6 -> 1 }T
 T{ 2 GD6 -> 3 }T
-T{ 3 GD6 -> 4 1 2 }T
-
-T{ GD7 -> }T ;
+T{ 3 GD6 -> 4 1 2 }T ;
 
 T{ 123 CONSTANT X123 -> }T
 T{ : EQU CONSTANT ; -> }T
@@ -919,6 +916,44 @@ CREATE ABUF 50 CHARS ALLOT
 
 \ -----
 
+DECIMAL
+
+VARIABLE ITERATIONS
+VARIABLE INCREMENT
+: GD7 ( LIMIT START INCREMENT -- )
+   INCREMENT !
+   0 ITERATIONS !
+   DO
+      1 ITERATIONS +!
+      I
+      ITERATIONS @  6 = IF LEAVE THEN
+      INCREMENT @
+   +LOOP ITERATIONS @
+;
+
+: test+doloop1
+." TESTING DO +LOOP with run-time increment, negative increment, infinite loop" cr
+T{  4  4 -1 GD7 -> 4 1 }T
+T{  1  4 -1 GD7 -> 4 3 2 1 4 }T
+T{  4  1 -1 GD7 -> 1 0 -1 -2 -3 -4 6 }T
+T{  4  1  0 GD7 -> 1 1 1 1 1 1 6 }T
+T{  0  0  0 GD7 -> 0 0 0 0 0 0 6 }T
+T{  1  4  0 GD7 -> 4 4 4 4 4 4 6 }T
+T{  1  4  1 GD7 -> 4 5 6 7 8 9 6 }T
+T{  4  1  1 GD7 -> 1 2 3 3 }T
+T{  4  4  1 GD7 -> 4 5 6 7 8 9 6 }T
+T{  2 -1 -1 GD7 -> -1 -2 -3 -4 -5 -6 6 }T
+T{ -1  2 -1 GD7 -> 2 1 0 -1 4 }T
+T{  2 -1  0 GD7 -> -1 -1 -1 -1 -1 -1 6 }T
+T{ -1  2  0 GD7 -> 2 2 2 2 2 2 6 }T
+T{ -1  2  1 GD7 -> 2 3 4 5 6 7 6 }T
+T{  2 -1  1 GD7 -> -1 0 1 3 }T
+T{ -20 30 -10 GD7 -> 30 20 10 0 -10 -20 6 }T
+T{ -20 31 -10 GD7 -> 31 21 11 1 -9 -19 6 }T
+T{ -20 29 -10 GD7 -> 29 19 9 -1 -11 5 }T ;
+
+\ -----
+
 : run-tests
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -940,6 +975,8 @@ test-format
 test-fill-move
 OUTPUT-TEST
 ACCEPT-TEST
+
+test+doloop1
 ." done" ;
 
 compile run-tests target-test.asm
