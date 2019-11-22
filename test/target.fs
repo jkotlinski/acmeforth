@@ -1060,6 +1060,15 @@ T{ 2 4 ACK -> 11 }T ;
 
 \ -----
 
+: MELSE IF 1 ELSE 2 ELSE 3 ELSE 4 ELSE 5 THEN ;
+: test+melse
+." TESTING multiple ELSE's in an IF statement" cr
+\ Discussed on comp.lang.forth and accepted as valid ANS Forth
+T{ 0 MELSE -> 2 4 }T
+T{ -1 MELSE -> 1 3 5 }T ;
+
+\ -----
+
 : run-tests
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -1087,6 +1096,7 @@ test+doloop-largesmall
 test+doloop-maxmin
 test+do+loop
 test+multirecurse
+test+melse
 ." done" ;
 
 compile run-tests target-test.asm
