@@ -1045,6 +1045,21 @@ T{ PL8 -> -5 -6 0 -1 -2 -20 }T ;
 
 \ -----
 
+: ACK ( m n -- u )    \ Ackermann function, from Rosetta Code
+   OVER 0= IF  NIP 1+ EXIT  THEN       \ ack(0, n) = n+1
+   SWAP 1- SWAP                        ( -- m-1 n )
+   DUP  0= IF  1+  RECURSE EXIT  THEN  \ ack(m, 0) = ack(m-1, 1)
+   1- OVER 1+ SWAP RECURSE RECURSE     \ ack(m, n) = ack(m-1, ack(m,n-1))
+;
+
+: test+multirecurse
+." TESTING multiple RECURSEs in one colon definition" cr
+T{ 0 0 ACK ->  1 }T
+T{ 3 0 ACK ->  5 }T
+T{ 2 4 ACK -> 11 }T ;
+
+\ -----
+
 : run-tests
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -1071,6 +1086,7 @@ test+doloop1
 test+doloop-largesmall
 test+doloop-maxmin
 test+do+loop
+test+multirecurse
 ." done" ;
 
 compile run-tests target-test.asm
