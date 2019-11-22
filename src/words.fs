@@ -1,3 +1,5 @@
+variable base 10 base !
+
 : chars ;
 : align ;
 : aligned ;
@@ -72,9 +74,54 @@ swap 0 <# #s #> rot over - spaces type space ;
 : IS STATE @ IF POSTPONE ['] POSTPONE DEFER! ELSE ' DEFER! THEN ; IMMEDIATE
 : HOLDS BEGIN DUP WHILE 1- 2DUP + C@ HOLD REPEAT 2DROP ;
 
+variable end
+create #buffer 80 allot
+: hold
+\ reserve space for char at start
+#buffer dup 1+ end @ #buffer - move
+1 end +!  #buffer c! ;
+: sign 0< if '-' hold then ;
+: ud/mod \ from Gforth
+>r 0 r@ um/mod r> swap >r um/mod r> ;
+: # base @ ud/mod rot
+dup $a < if 7 - then $37 + hold ;
+: #s # begin 2dup or while # repeat ;
+
+:code	d+	; ( d1 d2 -- d3 )
+	clc
+	lda	LSB+1,x
+	adc	LSB+3,x
+	sta	LSB+3,x
+	lda	MSB+1,x
+	adc	MSB+3,x
+	sta	MSB+3,x
+	lda	LSB,x
+	adc	LSB+2,x
+	sta	LSB+2,x
+	lda	MSB,x
+	adc	MSB+2,x
+	sta	MSB+2,x
+	inx
+	inx
+	rts
+;code
+
+: accumulate ( +d0 addr digit - +d1 addr )
+swap >r swap base @ um* drop
+rot base @ um* d+ r> ;
+: pet# ( char -- num )
+$7f and dup \ lowercase
+':' < if '0' else '7' then - ;
+: digit? ( char -- flag )
+pet# dup 0< 0= swap base @ < and ;
+: >number ( ud addr u -- ud addr u )
+begin over c@ digit? over and while
+>r dup c@ pet# accumulate
+1+ r> 1- repeat ;
+
 \ ----- C64 primitives below
 
-:code c@
+:code	c@
 	lda	LSB,x
 	sta	+ + 1
 	lda	MSB,x
@@ -1006,4 +1053,113 @@ end:    INX
     lda (W),y
     sta W2 + 1
     jmp (W2)
+;code
+
+:code	move
+    jsr %>r%
+    jsr %2dup%
+    jsr %u<%
+    jsr %r>%
+    jsr %swap%
+    jsr %0branch%
+    !word CMOVE
+    jmp CMOVE_BACK
+CMOVE
+    txa
+    pha
+	jsr cmove_getparams
+	ldy #0
+	ldx	LEN + 1
+	beq	.l2
+.l1
+	lda	(SRC),y ; copy byte
+	sta	(DST),y
+	iny
+	lda	(SRC),y ; copy byte again, to make it faster
+	sta	(DST),y
+	iny
+	bne .l1
+	inc	SRC + 1
+	inc DST + 1
+	dex ; next 256-byte block
+	bne .l1
+.l2
+	ldx	LEN
+	beq cmove_done
+.l3
+	lda (SRC),y
+	sta	(DST),y
+	iny
+	dex
+	bne	.l3
+cmove_done
+	pla
+    clc
+	adc #3
+	tax
+	rts
+
+cmove_getparams:
+	lda	LSB, x
+	sta	LEN
+	lda	MSB, x
+	sta	LEN + 1
+	lda	LSB + 1, x
+	sta	DST
+	lda	MSB + 1, x
+	sta	DST + 1
+	lda	LSB + 2, x
+	sta	SRC
+	lda	MSB + 2, x
+	sta	SRC + 1
+	rts
+
+CMOVE_BACK
+	txa
+	pha
+	jsr cmove_getparams
+    ; copy downwards. adjusts pointers to the end of memory regions.
+    lda SRC + 1
+    clc
+    adc LEN + 1
+    sta SRC + 1
+    lda DST + 1
+    clc
+    adc LEN + 1
+    sta DST + 1
+
+    ldy LEN
+    bne .entry
+    beq .pagesizecopy
+.copybyte
+    lda (SRC),y
+    sta (DST),y
+.entry
+    dey
+    bne .copybyte
+    lda (SRC),y
+    sta (DST),y
+.pagesizecopy
+    ldx LEN + 1
+    beq cmove_done
+.initbase
+    dec SRC + 1
+    dec DST + 1
+    dey
+    lda (SRC),y
+    sta (DST),y
+    dey
+.copybytes
+    lda (SRC),y
+    sta (DST),y
+    dey
+    lda (SRC),y
+    sta (DST),y
+    dey
+    bne .copybytes
+    lda (SRC),y
+    sta (DST),y
+    dex
+    bne .initbase
+	jmp cmove_done
 ;code

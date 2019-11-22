@@ -43,8 +43,7 @@ ip = 0
 # Forth variable space.
 to_in_addr = 0
 state_addr = to_in_addr + 2
-base_addr = state_addr + 2
-word_addr = base_addr + 2
+word_addr = state_addr + 2
 pictured_numeric_addr = word_addr + 40
 tib_addr = pictured_numeric_addr + 70
 original_tib_addr = tib_addr
@@ -65,7 +64,6 @@ class Heap:
 		return len(self.heap)
 
 heap = Heap(65536)
-heap[base_addr] = 10
 
 digits = "0123456789abcdefghijklmnopqrstuvwxyz"
 
@@ -82,9 +80,6 @@ def set_state(flag):
 	heap[state_addr] = v
 	heap[state_addr + 1] = v
 
-def BASE():
-	stack.append(base_addr)
-
 def STATE():
 	stack.append(state_addr)
 
@@ -94,9 +89,17 @@ def TO_IN():
 def add_word(name, xt, immediate = False):
 	words[name] = Word(name, xt, immediate)
 
+def get_base():
+	if "base" in words:
+		words["base"].xt()
+		base_addr = stack.pop()
+		base = heap[base_addr]
+	if not base:
+		base = 10
+	return base
+
 def is_number(word):
-	base = heap[base_addr]
-	assert base
+	base = get_base()	
 	if word[0] == "#":
 		base = 10
 		word = word[1:]
@@ -128,7 +131,7 @@ def is_number(word):
 def evaluate_number(word):
 	global stack
 	number = 0
-	base = heap[base_addr]
+	base = get_base()
 	if word[0] == "#":
 		base = 10
 		word = word[1:]
@@ -271,6 +274,9 @@ def compile(word):
 			else:
 				append(words["litc"].xt)
 				C_COMMA()
+		elif word in xc.code_words:
+			w = Word(word, lambda word=word : sys.exit("code word " + word), False)
+			append(w.xt)
 		else:
 			sys.exit("unknown word '" + word + "'")
 
@@ -1029,8 +1035,8 @@ def SIGN(): # ( i -- )
 def HASH(): # ( ud1 -- ud2 )
 	d = ctypes.c_uint(stack[-1] << 16)
 	d.value += ctypes.c_ushort(stack[-2]).value
-	format_append(digits[d.value % heap[base_addr]].upper())
-	d.value //= heap[base_addr]
+	format_append(digits[d.value % get_base()].upper())
+	d.value //= get_base()
 	stack[-2] = d.value & 0xffff
 	stack[-1] = d.value >> 16
 
@@ -1057,14 +1063,14 @@ def TO_NUMBER(): # ( ud1 c-addr1 u1 -- ud2 c-addr2 u2 )
 		if c not in digits:
 			break
 		i = digits.index(c)
-		if i == -1 or i >= heap[base_addr]:
+		if i == -1 or i >= get_base():
 			break
 
 		# Accumulate i to ud.
 		ud = ctypes.c_uint(stack[-3])
 		ud.value <<= 16
 		ud.value += ctypes.c_ushort(stack[-4]).value
-		ud.value *= heap[base_addr]
+		ud.value *= get_base()
 		ud.value += i
 		stack[-4] = ctypes.c_short(ud.value & 0xffff).value
 		stack[-3] = ctypes.c_short(ud.value >> 16).value
@@ -1337,7 +1343,6 @@ add_word("sign", SIGN)
 add_word("#", HASH)
 add_word("#s", HASH_S)
 add_word("#>", RT_HASH)
-add_word("base", BASE)
 add_word(">number", TO_NUMBER)
 add_word("fill", FILL)
 add_word("move", MOVE)
