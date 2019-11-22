@@ -763,7 +763,7 @@ T{ CR1 -> 3 }T ;
       R> DROP 2DROP <FALSE>      \ LENGTHS MISMATCH
    THEN ;
 
-: GP1  <# 41 HOLD 42 HOLD 0 0 #> S" BA" S= ;
+: GP1  <# 41 HOLD 42 HOLD 0 0 #> S" ba" S= ; \ Changed from BA to ba due to PETSCII.
 : GP2  <# -1 SIGN 0 SIGN -1 SIGN 0 0 #> S" --" S= ;
 : GP3  <# 1 0 # # #> S" 01" S= ;
 : GP4  <# 1 0 #S #> S" 1" S= ;
