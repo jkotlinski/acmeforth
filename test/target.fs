@@ -993,6 +993,27 @@ T{ 0 MAX-INT MIN-INT -STEP -WRAP? 1 GD9 ;
 
 \ -----
 
+: (-MI) MAX-INT DUP NEGATE + 0= IF MAX-INT NEGATE ELSE -32767 THEN ;
+(-MI) CONSTANT -MAX-INT
+
+: test+doloop-maxmin
+." TESTING DO +LOOP with maximum and minimum increments" cr
+
+T{ 0 1 0 MAX-INT GD8  -> 1 }T
+T{ 0 -MAX-INT NEGATE -MAX-INT OVER GD8  -> 2 }T
+
+T{ 0 MAX-INT  0 MAX-INT GD8  -> 1 }T
+T{ 0 MAX-INT  1 MAX-INT GD8  -> 1 }T
+T{ 0 MAX-INT -1 MAX-INT GD8  -> 2 }T
+T{ 0 MAX-INT DUP 1- MAX-INT GD8  -> 1 }T
+
+T{ 0 MIN-INT 1+   0 MIN-INT GD8  -> 1 }T
+T{ 0 MIN-INT 1+  -1 MIN-INT GD8  -> 1 }T
+T{ 0 MIN-INT 1+   1 MIN-INT GD8  -> 2 }T
+T{ 0 MIN-INT 1+ DUP MIN-INT GD8  -> 1 }T ;
+
+\ -----
+
 : run-tests
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -1017,6 +1038,7 @@ ACCEPT-TEST
 
 test+doloop1
 test+doloop-largesmall
+test+doloop-maxmin
 ." done" ;
 
 compile run-tests target-test.asm
