@@ -956,8 +956,8 @@ def DOES_TO():
 	def dodoes(code, data):
 		stack.append(data)
 		docol(code)
-	w = compiling_word if compiling_word else words[latest]
-	words[latest].xt = lambda code=ip, data=w.body : dodoes(code, data)
+	w = words[latest]
+	w.xt = lambda code=ip, data=w.body : dodoes(code, data)
 	EXIT()
 
 def TO_BODY(): # ( xt -- a-addr )
