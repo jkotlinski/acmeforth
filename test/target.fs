@@ -954,6 +954,45 @@ T{ -20 29 -10 GD7 -> 29 19 9 -1 -11 5 }T ;
 
 \ -----
 
+\ Contributed by Andrew Haley
+
+MAX-UINT 8 RSHIFT 1+ CONSTANT USTEP
+USTEP NEGATE CONSTANT -USTEP
+MAX-INT 7 RSHIFT 1+ CONSTANT STEP
+STEP NEGATE CONSTANT -STEP
+
+VARIABLE BUMP
+
+T{ : GD8 BUMP ! DO 1+ BUMP @ +LOOP ; -> }T
+
+\ Two's complement arithmetic, wraps around modulo wordsize
+\ Only tested if the Forth system does wrap around, use of conditional
+\ compilation deliberately avoided
+
+MAX-INT 1+ MIN-INT = CONSTANT +WRAP?
+MIN-INT 1- MAX-INT = CONSTANT -WRAP?
+MAX-UINT 1+ 0=       CONSTANT +UWRAP?
+0 1- MAX-UINT =      CONSTANT -UWRAP?
+
+: GD9  ( n limit start step f result -- )
+   >R IF GD8 ELSE 2DROP 2DROP R@ THEN -> R> }T
+;
+
+: test+doloop-largesmall
+." TESTING DO +LOOP with large and small increments" cr
+
+T{ 0 MAX-UINT 0 USTEP GD8 -> 256 }T
+T{ 0 0 MAX-UINT -USTEP GD8 -> 256 }T
+T{ 0 MAX-INT MIN-INT STEP GD8 -> 256 }T
+T{ 0 MIN-INT MAX-INT -STEP GD8 -> 256 }T
+
+T{ 0 0 0  USTEP +UWRAP? 256 GD9
+T{ 0 0 0 -USTEP -UWRAP?   1 GD9
+T{ 0 MIN-INT MAX-INT  STEP +WRAP? 1 GD9
+T{ 0 MAX-INT MIN-INT -STEP -WRAP? 1 GD9 ;
+
+\ -----
+
 : run-tests
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -977,6 +1016,7 @@ OUTPUT-TEST
 ACCEPT-TEST
 
 test+doloop1
+test+doloop-largesmall
 ." done" ;
 
 compile run-tests target-test.asm
