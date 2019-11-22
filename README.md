@@ -11,19 +11,15 @@ I want a C64 Forth setup that gives
 
  * Fast builds
  * Lean output (no dictionary or unused words)
- * Full macro support with CREATE/DOES>
+ * Macro support with CREATE/DOES>
  * Convenient text editing on PC
 
-## Usage Example
-
-`COMPILE <word> <outfile.asm>` compiles a word and its dependencies to outfile.asm.
+## Example
 
 	./htfc.py examples/colorcycle.fs
 	acme -o colorcycle.prg -f cbm colorcycle.asm
 
-...or, `sh run_tests.sh` to run the unit tests.
-
-Assembly code can be inlined with `:code` `;code`.
+`sh run_tests.sh` will run a test suite.
 
 ## Cross-Compiling Gotchas
 
@@ -33,6 +29,6 @@ HERE only works in the target data space. When running the below code on C64, FO
 
 	HERE 1 , CONSTANT FOO
 
-The below code is fine. BAR will point to 1 on both host and target.
+The below code works better. BAR gives the address of the 1 on both host and target.
 
 	CREATE BAR 1 ,
