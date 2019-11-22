@@ -976,3 +976,34 @@ end:    INX
 	jsr	%>r%
 	rts
 ;code
+
+:code	dodoes
+    ; behavior pointer address => W
+    pla
+    sta W
+    pla
+    sta W + 1
+
+    inc W
+    bne +
+    inc W + 1
++
+
+    ; push data pointer to param stack
+    dex
+    lda W
+    clc
+    adc #2
+    sta LSB,x
+    lda W + 1
+    adc #0
+    sta MSB,x
+
+    ldy #0
+    lda (W),y
+    sta W2
+    iny
+    lda (W),y
+    sta W2 + 1
+    jmp (W2)
+;code

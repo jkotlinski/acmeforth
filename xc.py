@@ -29,13 +29,23 @@ def compile(words_, xt_words_, heap_, start_word, outfile):
 
 	write_header()
 
-	while words_to_export:
-		export_word(words_to_export.pop())
-		while primitives_to_add:
+	while True:
+		if words_to_export:
+			export_word(words_to_export.pop())
+			continue
+		if primitives_to_add:
 			add_primitive(primitives_to_add.pop())
+			continue
+		if doers_to_export:
+			export_doer(doers_to_export.pop())
+			continue
+		break
 
-exported_words = set()
 words_to_export = []
+exported_words = set()
+
+doers_to_export = []
+exported_doers = set()
 
 primitives_to_add = []
 added_primitives = set()
@@ -64,6 +74,8 @@ def compile_forth_word(w):
 		compile_create_word(w)
 	elif "CONSTANT" in s:
 		compile_constant_word(w)
+	elif "DOES_TO" in s:
+		compile_does_word(w)
 	else:
 		sys.exit("Unknown xt " + str(w.xt))
 
@@ -91,7 +103,10 @@ def compile_create_word(w):
 
 def compile_colon_word(w):
 	OUT.write(word_name_hash(w.name) + "\t; " + w.name + "\n")
-	ip = w.body
+	compile_body(w)
+
+def compile_body(w, start_ip = -1):
+	ip = w.body if start_ip == -1 else start_ip
 	while ip < w.body_end:
 		OUT.write("IP_" + str(ip) + ":\n")
 		cell = heap[ip]
@@ -105,6 +120,14 @@ def compile_colon_word(w):
 		else:
 			sys.exit("Unknown cell type " + str(cell))
 		ip += 1
+
+def compile_does_word(w):
+	add_primitive_dependency("dodoes")
+	OUT.write(word_name_hash(w.name) + "\t; " + w.name + "\n")
+	OUT.write("\tjsr " + word_name_hash("dodoes") + "\t; dodoes\n")
+	OUT.write("\t!word IP_" + str(w.xt_ip) + "\n")
+	compile_body(w)
+	doers_to_export.append(w.xt_ip)
 
 def compile_byte(cell):
 	OUT.write("\t!byte " + str(cell) + "\n")
@@ -167,8 +190,8 @@ def add_primitive(word_name):
 		return
 	added_primitives.add(word_name)
 
-	OUT.write(word_name_hash(word_name) + "\t; " + word_name + "\n")
 	if word_name in code_words:
+		OUT.write(word_name_hash(word_name) + "\t; " + word_name + "\n")
 		# Expands %FORTH_WORD% to the corresponding assembly label.
 		pattern = re.compile("(.*)%(.*)%(.*)")
 		for line in code_words[word_name].split('\n'):
@@ -191,3 +214,11 @@ def write_header():
 	location = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 	asm_header_path = os.path.join(location, "src/header.asm")
 	OUT.write(open(asm_header_path, "r").read())
+
+def export_doer(ip):
+	for w in words.values():
+		if w.body_end and w.body <= ip and ip < w.body_end:
+			OUT.write("\t;doer " + w.name + "\n")
+			compile_body(w, ip)
+			return
+	assert False

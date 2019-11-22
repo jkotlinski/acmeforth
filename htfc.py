@@ -958,6 +958,7 @@ def DOES_TO():
 		docol(code)
 	w = words[latest]
 	w.xt = lambda code=ip, data=w.body : dodoes(code, data)
+	w.xt_ip = ip
 	EXIT()
 
 def TO_BODY(): # ( xt -- a-addr )

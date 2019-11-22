@@ -711,6 +711,43 @@ T{ 3 GD6 -> 4 1 2 }T
 
 T{ GD7 -> }T ;
 
+T{ 123 CONSTANT X123 -> }T
+T{ : EQU CONSTANT ; -> }T
+T{ X123 EQU Y123 -> }T
+T{ VARIABLE V1 -> }T
+T{ : NOP : POSTPONE ; ; -> }T
+T{ NOP NOP1 NOP NOP2 -> }T
+T{ : DOES1 DOES> @ 1 + ; -> }T
+T{ : DOES2 DOES> @ 2 + ; -> }T
+T{ CREATE CR1 -> }T
+T{ CR1 -> HERE }T
+T{ ' CR1 >BODY -> HERE }T
+T{ 1 , -> }T
+T{ CR1 @ -> 1 }T
+T{ DOES1 -> }T
+T{ CR1 -> 2 }T
+T{ DOES2 -> }T
+T{ CR1 -> 3 }T ;
+T{ : WEIRD: CREATE DOES> 1 + DOES> 2 + ; -> }T
+T{ WEIRD: W1 -> }T
+T{ ' W1 >BODY -> HERE }T
+T{ W1 -> HERE 1 + }T
+T{ W1 -> HERE 2 + }T
+
+: test-defines
+." testing defining words: : ; constant variable create does> >body" cr
+
+T{ X123 -> 123 }T
+T{ Y123 -> 123 }T
+
+T{ 123 V1 ! -> }T
+T{ V1 @ -> 123 }T
+
+T{ NOP1 -> }T
+T{ NOP2 -> }T
+
+T{ CR1 -> 3 }T ;
+
 : run-tests
 test-basic-assumptions
 test-booleans
@@ -726,6 +763,7 @@ test-char
 test-tick
 test-control
 test-loop
+test-defines
 ." done" ;
 
 compile run-tests target-test.asm
