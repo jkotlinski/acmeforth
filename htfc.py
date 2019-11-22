@@ -1102,10 +1102,6 @@ def DOT_QUOTE():
 def SPACE():
 	print(" ", end='')
 
-def SPACES():
-	for i in range(stack.pop()):
-		SPACE()
-
 def EMIT():
 	print(chr(stack.pop()), end='')
 
@@ -1351,8 +1347,6 @@ add_word("word", WORD)
 add_word("fill", FILL)
 add_word("move", MOVE)
 add_word('."', DOT_QUOTE, True)
-add_word("spaces", SPACES)
-add_word("space", SPACE)
 add_word("emit", EMIT)
 add_word("dabs", DABS)
 add_word("accept", ACCEPT)

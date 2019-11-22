@@ -44,10 +44,13 @@ dup $a < if 7 - then $37 + hold ;
 : decimal #10 base ! ;
 : true -1 ;
 : false 0 ;
+: bl $20 ;
+: space bl emit ;
 : . s>d swap over dabs <# #s rot sign #> type space ;
 : u. 0 <# #s #> type space ;
 : save-input >in @ 1 ;
 : restore-input drop >in ! 0 ;
+: spaces begin ?dup while space 1- repeat ;
 : .s ." <" depth s>d swap over dabs <# #s rot sign #> type ." > "
 depth 1+ 1 ?do depth i - pick . loop cr ;
 : .r ( n1 n2 -- )
@@ -65,7 +68,6 @@ swap 0 <# #s #> rot over - spaces type space ;
 : /string dup >r - swap r> + swap ;
 : abort depth 0 do drop loop quit ;
 : \ refill 0= if source nip >in ! then ; immediate
-: bl $20 ;
 : within over - >r - r> u< ; \ forth-standard.org
 
 ( from FIG UK )
