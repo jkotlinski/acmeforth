@@ -3,7 +3,7 @@
 ## What?
 
 HTFC is a cross-compiling 16-bit Forth targeting the Commodore C64, using ACME for assembling.
-All Forth 2012 Core and Core Extension words are supported.
+All Forth 2012 Core and Core Extension words are supported, although interpreting and compiling only works on the host.
 
 ## Example
 
