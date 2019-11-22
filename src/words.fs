@@ -1059,6 +1059,11 @@ end:    INX
 ;code
 
 :code	move
+; routines adapted from cc65
+; original by Ullrich von Bassewitz, Christian Krueger, Greg King
+SRC = W
+DST = W2
+LEN = W3
     jsr %>r%
     jsr %2dup%
     jsr %u<%
