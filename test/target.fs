@@ -1014,6 +1014,37 @@ T{ 0 MIN-INT 1+ DUP MIN-INT GD8  -> 1 }T ;
 
 \ -----
 
+: SET-I  ( n1 n2 n3 -- n1-n2 | 1 )
+   OVER = IF - ELSE 2DROP 1 THEN
+;
+
+: -SET-I ( n1 n2 n3 -- n1-n2 | -1 )
+   SET-I DUP 1 = IF NEGATE THEN
+;
+
+: PL1 20 1 DO I 18 I 3 SET-I +LOOP ;
+: PL2 20 1 DO I 20 I 2 SET-I +LOOP ;
+: PL3 20 5 DO I 19 I 2 SET-I DUP 1 = IF DROP 0 I 6 SET-I THEN +LOOP ;
+: PL4 20 1 DO I MAX-INT I 4 SET-I +LOOP ;
+: PL5 -20 -1 DO I -19 I -3 -SET-I +LOOP ;
+: PL6 -20 -1 DO I -21 I -4 -SET-I +LOOP ;
+: PL7 -20 -1 DO I MIN-INT I -5 -SET-I +LOOP ;
+: PL8 -20 -5 DO I -20 I -2 -SET-I DUP -1 = IF DROP 0 I -6 -SET-I THEN +LOOP ;
+
+: test+do+loop
+." TESTING +LOOP setting I to an arbitrary value" cr
+
+T{ PL1 -> 1 2 3 18 19 }T
+T{ PL2 -> 1 2 }T
+T{ PL3 -> 5 6 0 1 2 19 }T
+T{ PL4 -> 1 2 3 4 }T
+T{ PL5 -> -1 -2 -3 -19 -20 }T
+T{ PL6 -> -1 -2 -3 -4 }T
+T{ PL7 -> -1 -2 -3 -4 -5 }T
+T{ PL8 -> -5 -6 0 -1 -2 -20 }T ;
+
+\ -----
+
 : run-tests
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -1039,6 +1070,7 @@ ACCEPT-TEST
 test+doloop1
 test+doloop-largesmall
 test+doloop-maxmin
+test+do+loop
 ." done" ;
 
 compile run-tests target-test.asm
