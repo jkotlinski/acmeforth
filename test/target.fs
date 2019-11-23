@@ -1156,6 +1156,22 @@ T{ nmp -> 8327 -11454 215 39 }T
 
 \ -----
 
+: !"#$%&'()*+,-./0123456789:;<=>? 1 ;
+: @ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^ 2 ;
+: _`abcdefghijklmnopqrstuvwxyz{|} 3 ;
+: _`abcdefghijklmnopqrstuvwxyz{|~ 4 ;     \ Last character different
+
+: test+definition-names
+." TESTING definition names" cr
+\ should support {1..31} graphical characters
+T{ !"#$%&'()*+,-./0123456789:;<=>? -> 1 }T
+T{ @ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^ -> 2 }T
+T{ _`abcdefghijklmnopqrstuvwxyz{|} -> 3 }T
+T{ _`abcdefghijklmnopqrstuvwxyz{|~ -> 4 }T
+T{ _`abcdefghijklmnopqrstuvwxyz{|} -> 3 }T ;
+
+\ -----
+
 : run-tests
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -1188,6 +1204,7 @@ test+immediate
 test+immediate-toggle
 test+parse
 test+number-prefixes
+test+definition-names
 ." done" ;
 
 compile run-tests target-test.asm
