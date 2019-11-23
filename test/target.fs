@@ -1172,6 +1172,15 @@ T{ _`abcdefghijklmnopqrstuvwxyz{|} -> 3 }T ;
 
 \ -----
 
+T{ : UNS1 DUP 0 > IF 9 SWAP BEGIN 1+ DUP 3 > IF EXIT THEN REPEAT ; -> }T
+
+: test+if-begin-repeat
+." TESTING IF ... BEGIN ... REPEAT (unstructured)" cr
+T{ -6 UNS1 -> -6 }T
+T{  1 UNS1 -> 9 4 }T ;
+
+\ -----
+
 : run-tests
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -1205,6 +1214,7 @@ test+immediate-toggle
 test+parse
 test+number-prefixes
 test+definition-names
+test+if-begin-repeat
 ." done" ;
 
 compile run-tests target-test.asm
