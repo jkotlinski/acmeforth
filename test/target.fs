@@ -1108,12 +1108,51 @@ T{ IT1 @ -> 1234 }T ;
 
 T{ : GC5 S" A string"2DROP ; GC5 -> }T
 T{ ( A comment)1234 -> 1234 }T
-T{ : PB1 CR ." You should see 2345: "." 2345"( A comment) CR ; PB1 -> }T
+: PB1 CR ." You should see 2345: "." 2345"( A comment) CR ;
 
 : test+parse
 ." TESTING parsing behaviour"
 T{ GC5 -> }T
 T{ PB1 -> }T ;
+
+\ -----
+
+VARIABLE OLD-BASE
+
+\ Check number prefixes in compile mode
+T{ : nmp  #8327 $-2cbe %011010111 ''' ; nmp -> 8327 -11454 215 39 }T
+
+: test+number-prefixes
+." TESTING number prefixes # $ % and 'c' character input" cr
+\ Adapted from the Forth 200X Draft 14.5 document
+
+DECIMAL BASE @ OLD-BASE !
+T{ #1289 -> 1289 }T
+T{ #-1289 -> -1289 }T
+T{ $12eF -> 4847 }T
+T{ $-12eF -> -4847 }T
+T{ %10010110 -> 150 }T
+T{ %-10010110 -> -150 }T
+T{ 'z' -> 122 }T
+T{ 'Z' -> 90 }T
+\ Check BASE is unchanged
+T{ BASE @ OLD-BASE @ = -> <TRUE> }T
+
+\ Repeat in Hex mode
+16 OLD-BASE ! 16 BASE ! [ 16 base ! ]
+T{ #1289 -> 509 }T
+T{ #-1289 -> -509 }T
+T{ $12eF -> 12EF }T
+T{ $-12eF -> -12EF }T
+T{ %10010110 -> 96 }T
+T{ %-10010110 -> -96 }T
+T{ 'z' -> 7a }T
+T{ 'Z' -> 5a }T
+\ Check BASE is unchanged
+T{ BASE @ OLD-BASE @ = -> <TRUE> }T   \ 2
+DECIMAL [ DECIMAL ]
+T{ nmp -> 8327 -11454 215 39 }T
+;
 
 \ -----
 
@@ -1148,6 +1187,7 @@ test+melse
 test+immediate
 test+immediate-toggle
 test+parse
+test+number-prefixes
 ." done" ;
 
 compile run-tests target-test.asm
