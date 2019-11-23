@@ -1191,7 +1191,7 @@ T{ 2K -> ['] 2K >BODY 3 }T
 
 \ -----
 
-: run-tests
+: target-test
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
 test-booleans
@@ -1228,4 +1228,4 @@ test+if-begin-repeat
 test+does>
 ." done" ;
 
-compile run-tests target-test.asm
+compile target-test

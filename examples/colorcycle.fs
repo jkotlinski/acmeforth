@@ -15,4 +15,4 @@ hex
 cr ." space=toggle asm/forth"
 begin asm cr ." forth" forth cr ." asm" again ;
 
-compile colorcycle colorcycle.asm
+compile colorcycle

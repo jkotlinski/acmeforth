@@ -1221,7 +1221,7 @@ def WORDS():
 
 def COMPILE():
 	name = parse(' ')
-	outfile = parse(' ')
+	outfile = name + ".asm"
 	print("compile", name, "to", outfile, "...")
 	xc.compile(words, xt_words, heap, words[name], outfile)
 	print("ok")
