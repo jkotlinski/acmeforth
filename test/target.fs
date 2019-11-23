@@ -1069,6 +1069,31 @@ T{ -1 MELSE -> 1 3 5 }T ;
 
 \ -----
 
+123 CONSTANT IW1 IMMEDIATE
+: IW2 IW1 LITERAL ;
+VARIABLE IW3 IMMEDIATE 234 IW3 !
+: IW4 IW3 [ @ ] LITERAL ;
+variable IW3-noname immediate
+:NONAME [ 345 ] IW3-noname [ ! ] ; DROP
+CREATE IW5 456 , IMMEDIATE
+variable IW35
+:NONAME IW5 [ @ IW35 ! ] ; DROP
+: IW6 CREATE , IMMEDIATE DOES> @ 1+ ;
+111 IW6 IW7
+: IW8 IW7 LITERAL 1+ ;
+
+: test+immediate
+." TESTING IMMEDIATE with CONSTANT  VARIABLE and CREATE [ ... DOES> ]" cr
+
+T{ postpone IW1 -> 123 }T
+T{ IW2 -> 123 }T
+T{ postpone IW3 @ -> 234 }T
+T{ IW4 -> 234 }T
+T{ postpone IW3-noname @ -> 345 }T
+T{ IW35 @ -> 456 }T
+T{ postpone IW7 -> 112 }T
+T{ IW8 -> 113 }T ;
+
 : run-tests
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -1097,6 +1122,7 @@ test+doloop-maxmin
 test+do+loop
 test+multirecurse
 test+melse
+test+immediate
 ." done" ;
 
 compile run-tests target-test.asm

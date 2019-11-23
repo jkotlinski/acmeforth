@@ -217,7 +217,7 @@ def write_header():
 
 def export_doer(ip):
 	for w in words.values():
-		if w.body_end and w.body <= ip and ip < w.body_end:
+		if w.body and w.body_end and w.body <= ip and ip < w.body_end:
 			OUT.write("\t;doer " + w.name + "\n")
 			compile_body(w, ip)
 			return
