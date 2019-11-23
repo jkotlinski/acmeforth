@@ -69,7 +69,7 @@ digits = "0123456789abcdefghijklmnopqrstuvwxyz"
 
 def append(val):
 	global here
-	assert type(val) == type(0) or type(val) == type("") or callable(val) or val == None
+	assert type(val) == type(0) or type(val) == type("") or callable(val) or val == None or type(val) == xc.Ref
 	heap[here] = val
 	here += 1
 	if not compiling_word:
@@ -247,7 +247,7 @@ def CREATE():
 		SOURCE_ID()
 		if stack.pop() == 0:
 			print("redefined " + previous_word.name)
-	words[latest] = Word(latest, lambda l=here : stack.append(l), False)
+	words[latest] = Word(latest, lambda l=here : stack.append(xc.Ref(l)), False)
 	words[latest].body = here
 	words[latest].body_end = here
 	return previous_word
@@ -304,7 +304,11 @@ def C_STORE():
 
 def STORE():
 	dst = stack[-1]
+	if type(dst) == xc.Ref:
+		dst = dst.addr
 	v = stack[-2]
+	if type(v) == xc.Ref:
+		v = v.addr
 	if type(v) == type(0):
 		heap[dst] = v & 0xff
 		heap[dst + 1] = v >> 8
@@ -625,9 +629,12 @@ def C_QUOTE():
 	append(words["1-"].xt)
 
 def FETCH():
-	v = heap[stack[-1]]
+	src = stack[-1]
+	if type(src) == xc.Ref:
+		src = src.addr
+	v = heap[src]
 	if type(v) == type(0):
-		v += heap[stack[-1] + 1] << 8
+		v += heap[src + 1] << 8
 	stack[-1] = v
 
 def C_FETCH():

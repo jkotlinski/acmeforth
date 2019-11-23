@@ -1181,6 +1181,16 @@ T{  1 UNS1 -> 9 4 }T ;
 
 \ -----
 
+: MAKE-2CONST DOES> 2@ ;
+CREATE 2K 3 , 2K , MAKE-2CONST
+
+: test+does>
+." TESTING DOES> doesn't cause a problem with a CREATEd address" cr
+T{ 2K -> ['] 2K >BODY 3 }T
+;
+
+\ -----
+
 : run-tests
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -1215,6 +1225,7 @@ test+parse
 test+number-prefixes
 test+definition-names
 test+if-begin-repeat
+test+does>
 ." done" ;
 
 compile run-tests target-test.asm

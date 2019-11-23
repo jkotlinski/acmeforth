@@ -7,6 +7,30 @@ import sys
 code_words = {}
 OUT = None
 
+class Ref:
+	def __init__(self, addr):
+		self.addr = addr
+
+	def __index__(self):
+		return self.addr
+
+	def __int__(self):
+		return self.addr
+
+	# ?
+	def __sub__(self, other):
+		return self.addr - other
+	def __rsub__(self, other):
+		return other - self.addr
+	def __add__(self, other):
+		return other + self.addr
+	def __radd__(self, other):
+		return other + self.addr
+	def __lt__(self, other):
+		return self.addr < other
+	def __eq__(self, other):
+		return self.addr == other
+
 word_hashes = []
 def word_name_hash(word_name):
 	if word_name not in word_hashes:
@@ -113,6 +137,9 @@ def compile_body(w, start_ip = -1):
 		if callable(cell):
 			cell_word = xt_words[cell]
 			ip = compile_call(cell_word, ip)
+		elif type(cell) == Ref:
+			OUT.write("\t!word IP_" + str(cell.addr) + "\n")
+			ip += 1
 		elif type(cell) == type(0):
 			compile_byte(cell)
 		elif cell == None:
