@@ -1253,3 +1253,9 @@ again ;
 :code	accept ; ( addr u -- u )
 	jmp	%(accept)%
 ;code
+
+:code	>body
+	jsr	%litc%
+	!byte	5	; skips jsr dodoes and code pointer
+	jmp	%+%
+;code
