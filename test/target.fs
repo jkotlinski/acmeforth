@@ -1106,6 +1106,17 @@ T{ IT1 @ -> 1234 }T ;
 
 \ -----
 
+T{ : GC5 S" A string"2DROP ; GC5 -> }T
+T{ ( A comment)1234 -> 1234 }T
+T{ : PB1 CR ." You should see 2345: "." 2345"( A comment) CR ; PB1 -> }T
+
+: test+parse
+." TESTING parsing behaviour"
+T{ GC5 -> }T
+T{ PB1 -> }T ;
+
+\ -----
+
 : run-tests
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -1136,6 +1147,7 @@ test+multirecurse
 test+melse
 test+immediate
 test+immediate-toggle
+test+parse
 ." done" ;
 
 compile run-tests target-test.asm
