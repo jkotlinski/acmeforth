@@ -1094,6 +1094,18 @@ T{ IW35 @ -> 456 }T
 T{ postpone IW7 -> 112 }T
 T{ IW8 -> 113 }T ;
 
+\ -----
+
+VARIABLE IT1 0 IT1 !
+: IT2 1234 IT1 ! ; IMMEDIATE IMMEDIATE
+: IT3 IT2 ;
+
+: test+immediate-toggle
+." TESTING that IMMEDIATE doesn't toggle a flag" cr
+T{ IT1 @ -> 1234 }T ;
+
+\ -----
+
 : run-tests
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -1123,6 +1135,7 @@ test+do+loop
 test+multirecurse
 test+melse
 test+immediate
+test+immediate-toggle
 ." done" ;
 
 compile run-tests target-test.asm
