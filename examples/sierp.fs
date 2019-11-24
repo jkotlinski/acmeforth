@@ -21,11 +21,10 @@ decimal
 : sierp
 p1 y ! x ! init clear
 begin
-rnd 3 and case
-0 of p1 x @ y @ avg y ! x ! of
-1 of p2 x @ y @ avg y ! x ! of
-2 of p3 x @ y @ avg y ! x ! of
-endcase
+rnd 3 and dup
+0 = if p1 x @ y @ avg y ! x ! then dup
+1 = if p2 x @ y @ avg y ! x ! then
+2 = if p3 x @ y @ avg y ! x ! then
 x @ y @ plot again ;
 
 compile sierp
