@@ -1,3 +1,5 @@
+\ ----- testcore.fs
+
 : BITSSET? IF 0 0 ELSE 0 THEN ;
 
 : test-basic-assumptions
@@ -938,7 +940,7 @@ CREATE ABUF 50 CHARS ALLOT
    ABUF SWAP TYPE [CHAR] " EMIT CR
 ;
 
-\ -----
+\ ----- testcoreplus.fs
 
 DECIMAL
 
@@ -1213,6 +1215,15 @@ CREATE 2K 3 , 2K , MAKE-2CONST
 T{ 2K -> ['] 2K >BODY 3 }T
 ;
 
+\ ----- testcoreext.fs
+
+DECIMAL
+
+: test.true-false
+." TESTING TRUE FALSE" cr
+T{ TRUE  -> 0 INVERT }T
+T{ FALSE -> 0 }T ;
+
 \ -----
 
 : target-test
@@ -1250,6 +1261,8 @@ test+number-prefixes
 test+definition-names
 test+if-begin-repeat
 test+does>
+
+test.true-false
 ." done" ;
 
 compile target-test
