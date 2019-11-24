@@ -72,8 +72,8 @@ def append(val):
 	assert type(val) == type(0) or type(val) == type("") or callable(val) or val == None or type(val) == xc.Ref
 	heap[here] = val
 	here += 1
-	if not compiling_word:
-		words[latest].body_end = here
+	if raw_data_word:
+		raw_data_word.body_end = here
 
 def set_state(flag):
 	v = 0xff if flag else 0
@@ -240,6 +240,7 @@ def read_word():
 
 def CREATE():
 	global latest
+	global raw_data_word
 	latest = read_word().lower()
 	previous_word = None
 	if latest in words:
@@ -250,6 +251,7 @@ def CREATE():
 	words[latest] = Word(latest, lambda l=here : stack.append(xc.Ref(l)), False)
 	words[latest].body = here
 	words[latest].body_end = here
+	raw_data_word = words[latest]
 	return previous_word
 
 def VARIABLE():
@@ -347,8 +349,10 @@ compiling_word = None
 
 def COLON():
 	global compiling_word
+	global raw_data_word
 	old_word = CREATE()
 	compiling_word = words[latest]
+	raw_data_word = None
 	words[latest] = old_word
 	compiling_word.xt = lambda ip = compiling_word.body : docol(ip)
 	set_state(True)
@@ -395,7 +399,10 @@ def SWAP():
 
 def BRANCH():
 	global ip
-	ip = heap[ip] + (heap[ip + 1] << 8)
+	if type(heap[ip]) == xc.Ref:
+		ip = heap[ip].addr
+	else:
+		ip = heap[ip] + (heap[ip + 1] << 8)
 
 def ZBRANCH():
 	global ip
@@ -560,8 +567,8 @@ def CR():
 def ALLOT():
 	global here
 	here += stack.pop()
-	if not compiling_word:
-		words[latest].body_end = here
+	if raw_data_word:
+		raw_data_word.body_end = here
 
 def SLITERAL():
 	global ip
@@ -755,10 +762,12 @@ def INVERT():
 	stack[-1] = ~stack[-1]
 
 def CONSTANT():
+	global raw_data_word
 	CREATE()
 	v = stack.pop()
 	words[latest].xt = lambda : stack.append(v)
 	words[latest].constant_value = v
+	raw_data_word = None
 
 def TWOMUL():
 	stack.append(1)
@@ -877,8 +886,22 @@ def POSTPONE():
 		append(words[name].xt)
 		append(words["compile,"].xt)
 
+raw_data_word = None
+
 def HERE():
-	stack.append(here)
+	global raw_data_word
+	word = None
+	if raw_data_word:
+		word = raw_data_word
+	elif words[latest] and not "CREATE" in str(words[latest].xt):
+		label = "here_" + str(here)
+		if label not in words:
+			raw_data_word = Word(latest, lambda : None, False)
+			raw_data_word.body = here
+			raw_data_word.body_end = here
+			words[label] = raw_data_word
+			word = raw_data_word
+	stack.append(xc.Ref(here, word))
 
 def COMMA():
 	global ip
@@ -1136,11 +1159,13 @@ def DOT_LPAREN():
 def COLON_NONAME():
 	global compiling_word
 	global latest
+	global raw_data_word
 	latest = None
 	ip = here
 	compiling_word = Word(latest, lambda ip=ip : docol(ip), False)
 	stack.append(compiling_word.xt)
 	compiling_word.ip = ip
+	raw_data_word = None
 	set_state(True)
 
 def U_GT():

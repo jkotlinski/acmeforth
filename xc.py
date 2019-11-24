@@ -8,8 +8,9 @@ code_words = {}
 OUT = None
 
 class Ref:
-	def __init__(self, addr):
+	def __init__(self, addr, word = None):
 		self.addr = addr
+		self.word = word
 
 	def __index__(self):
 		return self.addr
@@ -27,7 +28,10 @@ class Ref:
 	def __radd__(self, other):
 		return other + self.addr
 	def __lt__(self, other):
-		return self.addr < other
+		if type(other) == Ref:
+			return self.addr < other.addr
+		else:
+			return self.addr < other
 	def __eq__(self, other):
 		return self.addr == other
 
@@ -100,14 +104,24 @@ def compile_forth_word(w):
 		compile_constant_word(w)
 	elif "DOES_TO" in s:
 		compile_does_word(w)
+	elif "HERE" in s:
+		OUT.write("; raw data area\n")
+		compile_body(w)
 	else:
 		sys.exit("Unknown xt " + str(w.xt))
 
 def compile_constant_word(w):
 	OUT.write(word_name_hash(w.name) + "\t; " + w.name + "\n")
-	OUT.write("\tldy\t#" + str((w.constant_value >> 8) & 0xff) + "\n")
-	OUT.write("\tlda\t#" + str(w.constant_value & 0xff) + "\n")
-	OUT.write("\tjmp\t" + word_name_hash("pushya") + "\t; pushya\n")
+	if type(w.constant_value) == Ref:
+		OUT.write("\tldy\t#>IP_" + str(w.constant_value.addr) + "\n")
+		OUT.write("\tlda\t#<IP_" + str(w.constant_value.addr) + "\n")
+		if w.constant_value.word:
+			if w.constant_value.word not in words_to_export:
+				words_to_export.append(w.constant_value.word)
+	else:
+		OUT.write("\tldy\t#" + str((w.constant_value >> 8) & 0xff) + "\n")
+		OUT.write("\tlda\t#" + str(w.constant_value & 0xff) + "\n")
+	OUT.write("\tjmp\t" + word_name_hash("pushya") + "\t; pushya\n\n")
 	add_primitive_dependency("pushya")
 
 def compile_create_word(w):
@@ -132,7 +146,7 @@ def compile_colon_word(w):
 def compile_body(w, start_ip = -1):
 	ip = w.body if start_ip == -1 else start_ip
 	while ip < w.body_end:
-		OUT.write("IP_" + str(ip) + ":\n")
+		OUT.write("IP_" + str(ip) + "\n")
 		cell = heap[ip]
 		if callable(cell):
 			cell_word = xt_words[cell]
@@ -147,6 +161,7 @@ def compile_body(w, start_ip = -1):
 		else:
 			sys.exit("Unknown cell type " + str(cell))
 		ip += 1
+	OUT.write("\n")
 
 def compile_does_word(w):
 	add_primitive_dependency("dodoes")
@@ -168,11 +183,17 @@ def compile_call(callee, ip):
 	if callee.name == "exit":
 		OUT.write("\trts\n\n")
 	elif callee.name == "branch":
-		addr = heap[ip + 1] + (heap[ip + 2] << 8)
+		if type(heap[ip + 1]) == Ref:
+			addr = heap[ip + 1].addr
+		else:
+			addr = heap[ip + 1] + (heap[ip + 2] << 8)
 		ip += 2
 		OUT.write("\tjmp IP_" + str(addr) + "\t\t; branch\n")
 	elif callee.name == "0branch" or callee.name == "(loop)" or callee.name == "(+loop)":
-		addr = heap[ip + 1] + (heap[ip + 2] << 8)
+		if type(heap[ip + 1]) == Ref:
+			addr = heap[ip + 1].addr
+		else:
+			addr = heap[ip + 1] + (heap[ip + 2] << 8)
 		compile_jsr(callee)
 		ip += 2
 		OUT.write("\t!word\tIP_" + str(addr) + "\n")
