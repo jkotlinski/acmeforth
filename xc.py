@@ -216,6 +216,7 @@ def compile_jsr(callee):
 
 def compile_call(callee, ip):
 	if callee.name == "exit":
+		# TODO tail-call optimization
 		OUT.write("\trts\n\n")
 	elif callee.name == "branch":
 		if type(heap[ip + 1]) == Ref:
