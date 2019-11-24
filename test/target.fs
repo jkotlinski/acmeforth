@@ -628,9 +628,9 @@ T{ -1 1ST +! 1ST @ -> 0 }T ;
 T{ BL -> 20 }T
 T{ [ CHAR X ] LITERAL -> 58 }T
 T{ [ CHAR HELLO ] LITERAL -> 48 }T
-T{ GC1 -> 58 }T
-T{ GC2 -> 48 }T
-T{ GC3 -> 58 }T
+T{ GC1 -> 'X' }T \ PETSCII
+T{ GC2 -> 'H' }T \ PETSCII
+T{ GC3 -> 'X' }T \ PETSCII
 T{ GC4 SWAP DROP -> 2 }T
 T{ GC4 DROP DUP C@ SWAP CHAR+ C@ -> 58 59 }T ;
 
@@ -1159,8 +1159,8 @@ T{ $12eF -> 4847 }T
 T{ $-12eF -> -4847 }T
 T{ %10010110 -> 150 }T
 T{ %-10010110 -> -150 }T
-T{ 'z' -> 122 }T
-T{ 'Z' -> 90 }T
+T{ 'z' -> [char] z }T \ PETSCII special
+T{ 'Z' -> [char] Z }T \ PETSCII special
 \ Check BASE is unchanged
 T{ BASE @ OLD-BASE @ = -> <TRUE> }T
 
@@ -1172,8 +1172,8 @@ T{ $12eF -> 12EF }T
 T{ $-12eF -> -12EF }T
 T{ %10010110 -> 96 }T
 T{ %-10010110 -> -96 }T
-T{ 'z' -> 7a }T
-T{ 'Z' -> 5a }T
+T{ 'z' -> [char] z }T \ PETSCII special
+T{ 'Z' -> [char] Z }T \ PETSCII special
 \ Check BASE is unchanged
 T{ BASE @ OLD-BASE @ = -> <TRUE> }T   \ 2
 DECIMAL [ DECIMAL ]
@@ -1816,9 +1816,9 @@ T{ SSQ3 DROP 10 CHARS + C@ ->  11 }T    \ \v   VT   Vertical Tab
 T{ SSQ3 DROP 11 CHARS + C@ ->  15 }T    \ \x0F      Given Char
 T{ SSQ3 DROP 12 CHARS + C@ ->  48 }T    \ 0    0    Digit follow on
 T{ SSQ3 DROP 13 CHARS + C@ ->  31 }T    \ \x1F      Given Char
-T{ SSQ3 DROP 14 CHARS + C@ -> 'A' }T    \ a    a    Hex follow on	\ FIXME this should be 97 / 'a', not 'A'!
+T{ SSQ3 DROP 14 CHARS + C@ -> 'a' }T    \ a    a    Hex follow on
 T{ SSQ3 DROP 15 CHARS + C@ -> 171 }T    \ \xaB      Insensitive Given Char
-T{ SSQ3 DROP 16 CHARS + C@ -> 'X' }T    \ x    x    Non hex follow on	\ FIXME this should be 120 / 'x', not 'X'!
+T{ SSQ3 DROP 16 CHARS + C@ -> 'x' }T    \ x    x    Non hex follow on
 T{ SSQ3 DROP 17 CHARS + C@ ->   0 }T    \ \z   NUL  No Character
 T{ SSQ3 DROP 18 CHARS + C@ ->  34 }T    \ \"   "    Double Quote
 T{ SSQ3 DROP 19 CHARS + C@ ->  92 }T    \ \\   \    Back Slash

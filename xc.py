@@ -201,7 +201,13 @@ def compile_does_word(w):
 	doers_to_export.append(w.xt_ip)
 
 def compile_byte(cell):
-	OUT.write("\t!byte " + str(cell) + "\n")
+	if type(cell) == str:
+		if cell == "'":
+			OUT.write('\t!text "' + "'" + '"\n')
+		else:
+			OUT.write("\t!text '" + cell + "'\n")
+	else:
+		OUT.write("\t!byte " + str(cell) + "\n")
 
 def compile_jsr(callee):
 	if callee not in words_to_export:
@@ -234,7 +240,7 @@ def compile_call(callee, ip):
 	elif callee.name == "litc":
 		compile_jsr(callee)
 		ip += 1
-		compile_byte(heap[ip])
+		compile_byte(heap.heap[ip])
 	elif callee.name == "lit":
 		compile_jsr(callee)
 		ip += 1
