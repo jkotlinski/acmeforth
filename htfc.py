@@ -896,7 +896,7 @@ def HERE():
 	elif words[latest] and not "CREATE" in str(words[latest].xt):
 		label = "here_" + str(here)
 		if label not in words:
-			raw_data_word = Word(latest, lambda : None, False)
+			raw_data_word = Word(label, lambda : None, False)
 			raw_data_word.body = here
 			raw_data_word.body_end = here
 			words[label] = raw_data_word
