@@ -1310,6 +1310,12 @@ T{ 300 400 RR2 -> 100 300 400 }T
 T{ 200 300 400 RR2 -> 200 100 300 400 }T ;
 
 \ -----
+: test.hex
+." TESTING HEX   (contributed by James Bowman)"
+
+T{ BASE @ HEX BASE @ DECIMAL BASE @ - SWAP BASE ! -> 6 }T ;
+
+\ -----
 
 : target-test
 #23 #53272 c! \ switch to upper/lower case mode
@@ -1352,6 +1358,7 @@ test.<>u>
 test.0<>0>
 test.niptuckrollpick
 test.2>r2r@2r>
+test.hex
 ." done" ;
 
 compile target-test
