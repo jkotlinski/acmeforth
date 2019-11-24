@@ -276,6 +276,9 @@ def write_header():
 	OUT.write(open(asm_header_path, "r").read())
 
 def export_doer(ip):
+	if ip in exported_doers:
+		return
+	exported_doers.add(ip)
 	for w in words.values():
 		if w.body and w.body_end and w.body <= ip and ip < w.body_end:
 			OUT.write("\t;doer " + w.name + "\n")
