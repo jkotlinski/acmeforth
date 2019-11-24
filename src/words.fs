@@ -1264,3 +1264,50 @@ again ;
 	!byte	5	; skips jsr dodoes and code pointer
 	jmp	%+%
 ;code
+
+:code	(?do)
+	lda	LSB,x
+	cmp	LSB+1,x
+	bne	.enter_loop
+	lda	MSB,x
+	cmp	MSB+1,x
+	bne	.enter_loop
+
+	; skip loop
+	inx
+	inx
+	jmp	%branch%
+
+.enter_loop
+	pla
+	tay
+	pla
+	sta	W
+
+	lda	MSB+1,x
+	pha
+	lda	LSB+1,x
+	pha
+
+	lda	MSB,x
+	pha
+	lda	LSB,x
+	pha
+
+	inx
+	inx
+
+	; ip += 2
+	iny
+	bne	+
+	inc	W
++	iny
+	bne	+
+	inc	W
++
+	lda	W
+	pha
+	tya
+	pha
+	rts
+;code

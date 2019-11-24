@@ -480,8 +480,7 @@ def resolve_leaves():
 		if leave_stack[-1] < stack[-1] - 2:
 			break
 		dst = leave_stack.pop()
-		heap[dst] = here & 0xff
-		heap[dst + 1] = here >> 8
+		heap[dst] = xc.Ref(here)
 
 def LOOP():
 	append(words["(loop)"].xt)
