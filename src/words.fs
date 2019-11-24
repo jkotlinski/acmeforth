@@ -21,6 +21,8 @@ create #buffer 80 allot
 dup $a < if 7 - then $37 + hold ;
 : #s # begin 2dup or while # repeat ;
 
+: nip swap drop ;
+: \ refill 0= if source nip >in ! then ; immediate
 : 2r@ r> r> r> 2dup >r >r rot rot swap >r ;
 : 2>r r> rot rot swap >r >r >r ;
 : 2r> r> r> r> swap rot >r ;
@@ -31,7 +33,6 @@ dup $a < if 7 - then $37 + hold ;
 : 2! swap over ! cell+ ! ;
 : cells 2* ;
 : s>d dup 0< ;
-: nip swap drop ;
 : min 2dup < if drop else nip then ;
 : max 2dup > if drop else nip then ;
 : ?dup dup if dup then ;
@@ -71,7 +72,6 @@ swap 0 <# #s #> rot over - spaces type space ;
 : count dup 1+ swap c@ ;
 : /string dup >r - swap r> + swap ;
 : abort depth 0 do drop loop quit ;
-: \ refill 0= if source nip >in ! then ; immediate
 : within over - >r - r> u< ; \ forth-standard.org
 : roll ?dup if swap >r 1- recurse r> swap then ;
 
@@ -1310,4 +1310,22 @@ again ;
 	tya
 	pha
 	rts
+;code
+
+:code	(of)
+	lda	LSB,x
+	cmp	LSB+1,x
+	bne	.endof
+	lda	MSB,x
+	cmp	MSB+1,x
+	bne	.endof
+	; enter
+	inx
+	inx
+	jsr	%r>%
+	jsr	%2+%
+	jsr	%>r%
+	rts
+.endof	inx
+	jmp	%branch%
 ;code

@@ -1556,6 +1556,69 @@ T{ VD3 -> 123 }T ;
 
 \ -----
 
+: CS1 CASE 1 OF 111 ENDOF
+           2 OF 222 ENDOF
+           3 OF 333 ENDOF
+           >R 999 R>
+      ENDCASE ;
+
+: CS2 >R CASE -1 OF CASE R@ 1 OF 100 ENDOF
+                            2 OF 200 ENDOF
+                           >R -300 R>
+                    ENDCASE
+                 ENDOF
+              -2 OF CASE R@ 1 OF -99  ENDOF
+                            >R -199 R>
+                    ENDCASE
+                 ENDOF
+                 >R 299 R>
+         ENDCASE R> DROP ;
+
+: CS3  ( N1 -- N2 )
+   CASE 1- FALSE OF 11 ENDOF
+        1- FALSE OF 22 ENDOF
+        1- FALSE OF 33 ENDOF
+        44 SWAP
+   ENDCASE ;
+
+T{ : CS4 CASE ENDCASE ; -> }T
+T{ : CS5 CASE 2 SWAP ENDCASE ; -> }T
+T{ : CS6 CASE 1 OF ENDOF 2 ENDCASE ; -> }T
+T{ : CS7 CASE 3 OF ENDOF 2 ENDCASE ; -> }T
+
+: test.caseof
+." TESTING CASE OF ENDOF ENDCASE" cr
+
+T{ 1 CS1 -> 111 }T
+T{ 2 CS1 -> 222 }T
+T{ 3 CS1 -> 333 }T
+T{ 4 CS1 -> 999 }T
+
+\ Nested CASE's
+
+T{ -1 1 CS2 ->  100 }T
+T{ -1 2 CS2 ->  200 }T
+T{ -1 3 CS2 -> -300 }T
+T{ -2 1 CS2 -> -99  }T
+T{ -2 2 CS2 -> -199 }T
+T{  0 2 CS2 ->  299 }T
+
+\ Boolean short circuiting using CASE
+
+T{ 1 CS3 -> 11 }T
+T{ 2 CS3 -> 22 }T
+T{ 3 CS3 -> 33 }T
+T{ 9 CS3 -> 44 }T
+
+\ Empty CASE statements with/without default
+
+T{ 1 CS4 -> }T
+T{ 1 CS5 -> 2 }T
+T{ 1 CS6 -> }T
+T{ 1 CS7 -> 1 }T ;
+
+\ -----
+
 : target-test
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -1603,6 +1666,7 @@ test.again
 test.?do
 test.buffer:
 test.value-to
+test.caseof
 ." done" ;
 
 compile target-test

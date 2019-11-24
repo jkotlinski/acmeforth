@@ -197,6 +197,8 @@ def REFILL():
 		l = source_id.readline()
 		if l:
 			l = l.rstrip()
+			if DEBUG:
+				print(l)
 			tib_count = len(l)
 			for i in range(tib_count):
 				heap[tib_addr + i] = l[i]
@@ -410,8 +412,7 @@ def ELSE():
 	append(words["branch"].xt)
 	stack.append(0)
 	COMMA()
-	heap[stack[-1]] = here & 0xff
-	heap[stack[-1] + 1] = here >> 8
+	heap[stack[-1]] = xc.Ref(here)
 	stack[-1] = here - 2
 
 def THEN():
