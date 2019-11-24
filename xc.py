@@ -124,9 +124,11 @@ def compile_constant_word(w):
 		if w.constant_value.word:
 			if w.constant_value.word not in words_to_export:
 				words_to_export.append(w.constant_value.word)
-	else:
+	elif type(w.constant_value) == type(0):
 		OUT.write("\tldy\t#" + str((w.constant_value >> 8) & 0xff) + "\n")
 		OUT.write("\tlda\t#" + str(w.constant_value & 0xff) + "\n")
+	else:
+		assert False
 	OUT.write("\tjmp\t" + word_name_hash("pushya") + "\t; pushya\n\n")
 	add_primitive_dependency("pushya")
 
@@ -141,7 +143,16 @@ def compile_create_word(w):
 	for i in range(w.body, w.body_end):
 		if heap[i] == None:
 			heap[i] = 0
-		OUT.write("!byte\t" + str(heap[i]) + '\n')
+		if type(heap[i]) == type(0):
+			OUT.write("!byte\t" + str(heap[i]) + '\n')
+		elif callable(heap[i]):
+			word = xt_words[heap[i]]
+			if word not in words_to_export:
+				words_to_export.append(word)
+			OUT.write("\t!word " + word_name_hash(word.name) + "\t; " + word.name + "\n")
+		else:
+			print(heap[i])
+			assert False
 
 	OUT.write('\n')
 

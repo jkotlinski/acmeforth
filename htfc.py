@@ -1133,13 +1133,18 @@ def ACCEPT(): # ( c-addr n1 -- n2 )
 def DOT_LPAREN():
 	print(parse(')'), end='')
 
+noname_counter = 0
 def COLON_NONAME():
 	global compiling_word
 	global latest
+	global noname_counter
 	global raw_data_word
-	latest = None
+	latest = "_:NONAME" + str(noname_counter)
+	noname_counter += 1
 	ip = here
 	compiling_word = Word(latest, lambda ip=ip : docol(ip), False)
+	words[latest] = compiling_word
+	words[latest].body = ip
 	stack.append(compiling_word.xt)
 	compiling_word.ip = ip
 	raw_data_word = None
