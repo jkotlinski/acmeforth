@@ -599,7 +599,7 @@ def S_BACKSLASH_QUOTE():
 			elif 	c == ord('f'): l = [12]
 			elif 	c == ord('l'): l = [10]
 			elif 	c == ord('m'): l = [13, 10]
-			elif 	c == ord('n'): s += os.linesep
+			elif 	c == ord('n'): l = [13] # This value is correct for C64, wrong for PC :(
 			elif 	c == ord('q'): l = [34]
 			elif 	c == ord('r'): l = [13]
 			elif 	c == ord('t'): l = [9]
