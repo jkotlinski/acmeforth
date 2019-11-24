@@ -248,7 +248,7 @@ def CREATE():
 		SOURCE_ID()
 		if stack.pop() == 0:
 			print("redefined " + previous_word.name)
-	words[latest] = Word(latest, lambda l=here : stack.append(l), False)
+	words[latest] = Word(latest, lambda l=here : stack.append(xc.Ref(l)), False)
 	words[latest].body = here
 	words[latest].body_end = here
 	raw_data_word = words[latest]
