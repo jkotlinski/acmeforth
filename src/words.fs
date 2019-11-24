@@ -39,7 +39,7 @@ dup $a < if 7 - then $37 + hold ;
 : endcase postpone drop begin ?dup while postpone then repeat ; immediate
 : of postpone (of) here 0 , ; immediate
 : endof postpone else ; immediate
-: value create , does> @ ;
+: value create , does> @ ; \ TODO Optimized VALUE/TO, like DurexForth.
 : 0<> 0= 0= ;
 : 0> dup 0< 0= swap 0<> and ;
 : <> = 0= ;

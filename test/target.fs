@@ -1538,21 +1538,20 @@ T{ BUF:TEST @ BUF:TEST CELL+ @ -> 111 222 }T ;
 T{ 111 VALUE VAL1 -999 VALUE VAL2 -> }T
 T{ : VD1 VAL1 ; -> }T
 T{ : VD2 TO VAL2 ; -> }T
-T{ 123 VALUE VAL3 IMMEDIATE -> }T
+T{ 123 VALUE VAL3 IMMEDIATE VAL3 -> 123 }T
 T{ : VD3 VAL3 LITERAL ; -> }T
 
 : test.value-to
 ." TESTING VALUE TO" cr
-T{ VAL1 -> 111 }T ." a"
-T{ VAL2 -> -999 }T ." b"
-T{ 222 TO VAL1 -> }T ." c"
-T{ VAL1 -> 222 }T bye
-T{ VD1 -> 222 }T ." e"
-T{ VAL2 -> -999 }T ." f"
-T{ -333 VD2 -> }T ." g"
-T{ VAL2 -> -333 }T ." h"
-T{ VAL1 -> 222 }T ." i"
-T{ VAL3 -> 123 }T ." j"
+T{ VAL1 -> 111 }T
+T{ VAL2 -> -999 }T
+T{ 222 TO VAL1 -> }T
+T{ VAL1 -> 222 }T
+T{ VD1 -> 222 }T
+T{ VAL2 -> -999 }T
+T{ -333 VD2 -> }T
+T{ VAL2 -> -333 }T
+T{ VAL1 -> 222 }T
 T{ VD3 -> 123 }T ;
 
 \ -----

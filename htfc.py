@@ -952,7 +952,7 @@ def EXECUTE():
 
 def LIT():
 	global ip
-	if callable(heap[ip]):
+	if callable(heap[ip]) or type(heap[ip]) == xc.Ref:
 		stack.append(heap[ip])
 	else:
 		stack.append(heap[ip] + (heap[ip + 1] << 8))
@@ -979,7 +979,7 @@ def TO_BODY(): # ( xt -- a-addr )
 	for word in words.values():
 		assert word
 		if word.xt == stack[-1]:
-			stack[-1] = word.body
+			stack[-1] = xc.Ref(word.body)
 			return
 	assert False
 

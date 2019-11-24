@@ -227,6 +227,10 @@ def compile_call(callee, ip):
 				words_to_export.append(word)
 			OUT.write("\t!word " + word_name_hash(word.name) + "\t; " + word.name + "\n")
 			ip += 1
+		elif type(heap[ip]) == Ref:
+			ref = heap[ip]
+			OUT.write("\t!word IP_" + str(ref.addr) + "\t; " + str(ref.word) + "\n")
+			ip += 1
 		else:
 			compile_byte(heap[ip])
 			ip += 1
