@@ -423,8 +423,6 @@ def THEN():
 	stack.pop()
 
 def ZERO_LT():
-	if type(stack[-1]) == str:
-		stack[-1] = ord(stack[-1])
 	stack[-1] = -1 if stack[-1] < 0 else 0
 
 def NEGATE():
@@ -1148,13 +1146,9 @@ def EMIT():
 	print(c, end='')
 
 def DABS():
-	lsc = stack[-2]
-	if type(lsc) == str:
-		lsc = ord(lsc)
-
 	d = ctypes.c_int(stack[-1])
 	d.value <<= 16
-	d.value |= ctypes.c_ushort(lsc).value
+	d.value |= ctypes.c_ushort(stack[-2]).value
 	d.value = abs(d.value)
 	stack[-1] = d.value >> 16
 	stack[-2] = d.value & 0xffff
