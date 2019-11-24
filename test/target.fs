@@ -1661,6 +1661,16 @@ T{ CQ3 COUNT S" 2345" S= -> TRUE }T ;
 
 \ -----
 
+:NONAME DUP + ; CONSTANT DUP+
+T{ : Q DUP+ COMPILE, ; -> }T
+T{ : AS1 [ Q ] ; -> }T
+
+: test.compile,
+." TESTING COMPILE," cr
+T{ 123 AS1 -> 246 }T ;
+
+\ -----
+
 : target-test
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -1711,6 +1721,7 @@ test.value-to
 test.caseof
 test.noname-recurse
 test.cquote
+test.compile,
 ." done" ;
 
 compile target-test
