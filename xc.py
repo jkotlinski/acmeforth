@@ -7,10 +7,16 @@ import sys
 code_words = {}
 OUT = None
 
+refs = {}
+
 class Ref:
 	def __init__(self, addr, word = None):
 		self.addr = addr
 		self.word = word
+		if word:
+			if not addr in refs:
+				refs[addr] = []
+			refs[addr].append(word)
 
 	def __index__(self):
 		return self.addr
@@ -113,8 +119,8 @@ def compile_forth_word(w):
 def compile_constant_word(w):
 	OUT.write(word_name_hash(w.name) + "\t; " + w.name + "\n")
 	if type(w.constant_value) == Ref:
-		OUT.write("\tldy\t#>IP_" + str(w.constant_value.addr) + "\n")
-		OUT.write("\tlda\t#<IP_" + str(w.constant_value.addr) + "\n")
+		OUT.write("\tldy\t#>REF_" + str(w.constant_value.addr) + "_W_" + str(w.constant_value.word.body) + "\n")
+		OUT.write("\tlda\t#<REF_" + str(w.constant_value.addr) + "_W_" + str(w.constant_value.word.body) + "\n")
 		if w.constant_value.word:
 			if w.constant_value.word not in words_to_export:
 				words_to_export.append(w.constant_value.word)
@@ -146,6 +152,9 @@ def compile_colon_word(w):
 def compile_body(w, start_ip = -1):
 	ip = w.body if start_ip == -1 else start_ip
 	while ip < w.body_end:
+		if ip in refs:
+			if w in refs[ip]:
+				OUT.write("REF_" + str(ip) + "_W_" + str(w.body) + "\n")
 		OUT.write("IP_" + str(ip) + "\n")
 		cell = heap[ip]
 		if callable(cell):
@@ -161,6 +170,9 @@ def compile_body(w, start_ip = -1):
 		else:
 			sys.exit("Unknown cell type " + str(cell))
 		ip += 1
+	if ip in refs:
+		if w in refs[ip]:
+			OUT.write("REF_" + str(ip) + "_W_" + str(w.body) + "\n")
 	OUT.write("\n")
 
 def compile_does_word(w):

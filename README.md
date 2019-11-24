@@ -20,15 +20,3 @@ I want a C64 Forth setup that gives
  * Lean output (no dictionary or unused words)
  * Macro support with CREATE/DOES>
  * Convenient text editing on PC
-
-## Cross-Compiling Gotchas
-
-### HERE
-
-HERE only works on PC. The below code compiles, but when running on C64, FOO could point anywhere.
-
-	HERE 1 , CONSTANT FOO
-
-The below code works better. BAR gives the address of the 1 on both PC and C64.
-
-	CREATE BAR 1 ,
