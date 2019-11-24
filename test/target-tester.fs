@@ -29,7 +29,7 @@ VARIABLE #ERRORS 0 #ERRORS !
    CR TYPE \ SOURCE TYPE       \ DISPLAY LINE CORRESPONDING TO ERROR
    EMPTY-STACK               \ THROW AWAY EVERY THING ELSE
    #ERRORS @ 1 + #ERRORS !
-   \ QUIT  \ *** Uncomment this line to QUIT on an error
+   bye  \ *** Uncomment this line to QUIT on an error
 ;
 
 VARIABLE ACTUAL-DEPTH         \ STACK RECORD
