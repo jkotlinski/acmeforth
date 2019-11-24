@@ -1671,6 +1671,31 @@ T{ 123 AS1 -> 246 }T ;
 
 \ -----
 
+\ Create some large integers just below/above MAX and Min INTs
+MAX-INT 73 79 */ CONSTANT LI1
+MIN-INT 71 73 */ CONSTANT LI2
+LI1 0 <# #S #> NIP CONSTANT LENLI1
+: (.R&U.R)  ( u1 u2 -- )  \ u1 <= string length, u2 is required indentation
+   TUCK + >R
+   LI1 OVER SPACES  . CR R@    LI1 SWAP  .R CR
+   LI2 OVER SPACES  . CR R@ 1+ LI2 SWAP  .R CR
+   LI1 OVER SPACES U. CR R@    LI1 SWAP U.R CR
+   LI2 SWAP SPACES U. CR R>    LI2 SWAP U.R CR
+;
+: .R&U.R  ( -- )
+   CR ." You should see lines duplicated:" CR
+   ." indented by 0 spaces" CR 0      0 (.R&U.R) CR
+   ." indented by 0 spaces" CR LENLI1 0 (.R&U.R) CR \ Just fits required width
+   ." indented by 5 spaces" CR LENLI1 5 (.R&U.R) CR
+;
+
+: test.ru.r
+." TESTING .R and U.R - has to handle different cell sizes" cr
+CR CR ." Output from .R and U.R"
+T{ .R&U.R -> }T ;
+
+\ -----
+
 : target-test
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -1722,6 +1747,7 @@ test.caseof
 test.noname-recurse
 test.cquote
 test.compile,
+test.ru.r
 ." done" ;
 
 compile target-test
