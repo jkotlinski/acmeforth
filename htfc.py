@@ -142,7 +142,7 @@ def evaluate_number(word):
 		base = 2
 		word = word[1:]
 	elif word[0] == "'":
-		stack.append(word[1])
+		stack.append(ord(word[1]))
 		return
 	negate = word[0] == '-'
 	if negate:
@@ -272,7 +272,7 @@ def compile(word):
 	else:
 		if is_number(word):
 			evaluate_number(word)
-			if type(stack[-1]) == int and stack[-1] & 0xff00:
+			if stack[-1] & 0xff00:
 				append(words["lit"].xt)
 				COMMA()
 			else:
@@ -303,9 +303,7 @@ def interpret_tib():
 def C_STORE():
 	dst = stack[-1]
 	v = stack[-2]
-	if type(v) == int:
-		v &= 0xff
-	heap[dst] = v
+	heap[dst] = v & 0xff
 	words["2drop"].xt()
 
 def STORE():
@@ -318,7 +316,7 @@ def STORE():
 	if type(v) == type(0):
 		heap[dst] = v & 0xff
 		heap[dst + 1] = v >> 8
-	elif callable(v) or v == None or type(v) == str:
+	elif callable(v) or v == None:
 		heap[dst] = v
 		heap[dst + 1] = None
 	else:
@@ -494,8 +492,6 @@ def LOOP():
 
 def _LOOP():
 	global ip
-	if type(return_stack[-2]) == str:
-		return_stack[-2] = ord(return_stack[-2])
 	return_stack[-2] = ctypes.c_short(return_stack[-2] + 1).value
 	if return_stack[-2] == return_stack[-1]:
 		return_stack.pop()
@@ -639,7 +635,7 @@ def FETCH():
 	if type(src) == xc.Ref:
 		src = src.addr
 	v = heap[src]
-	if type(v) == type(0) and heap[src + 1]:
+	if type(v) == type(0):
 		v += heap[src + 1] << 8
 	stack[-1] = v
 
@@ -682,18 +678,11 @@ def LPAREN():
 		stack.pop()
 
 def EQUALS():
-	lhs = stack[-1]
-	rhs = stack[-2]
-	if type(lhs) == str: lhs = ord(lhs)
-	if type(rhs) == str: rhs = ord(rhs)
-	stack[-2] = -1 if lhs == rhs else 0
+	stack[-2] = -1 if stack[-1] == stack[-2] else 0
 	stack.pop()
 
 def ONEPLUS():
-	v = stack[-1]
-	if type(v) == str:
-		v = ord(v)
-	l = ctypes.c_short(v)
+	l = ctypes.c_short(stack[-1])
 	l.value += 1
 	stack[-1] = l.value
 
@@ -703,23 +692,14 @@ def ONEMINUS():
 	stack[-1] = l.value
 
 def PLUS():
-	lhs = stack[-2]
-	rhs = stack[-1]
-	if type(lhs) == str: lhs = ord(lhs)
-	if type(rhs) == str: rhs = ord(rhs)
-	l = ctypes.c_short(lhs)
-	l.value += rhs
+	l = ctypes.c_short(stack[-2])
+	l.value += stack[-1]
 	stack.pop()
 	stack[-1] = l.value
 
 def MINUS():
-	lhs = stack[-2]
-	rhs = stack[-1]
-	if type(lhs) == str: lhs = ord(lhs)
-	if type(rhs) == str: rhs = ord(rhs)
-
-	l = ctypes.c_short(lhs)
-	l.value -= rhs
+	l = ctypes.c_short(stack[-2])
+	l.value -= stack[-1]
 	stack.pop()
 	stack[-1] = l.value
 
@@ -782,19 +762,11 @@ def U_LESS():
 	stack.pop()
 
 def LESS_THAN():
-	lhs = stack[-2]
-	rhs = stack[-1]
-	if type(lhs) == str: lhs = ord(lhs)
-	if type(rhs) == str: rhs = ord(rhs)
-	stack[-2] = -1 if lhs < rhs else 0
+	stack[-2] = -1 if stack[-2] < stack[-1] else 0
 	stack.pop()
 
 def GREATER_THAN():
-	lhs = stack[-2]
-	rhs = stack[-1]
-	if type(lhs) == str: lhs = ord(lhs)
-	if type(rhs) == str: rhs = ord(rhs)
-	stack[-2] = -1 if lhs > rhs else 0
+	stack[-2] = -1 if stack[-2] > stack[-1] else 0
 	stack.pop()
 
 def MULTIPLY():
@@ -919,7 +891,7 @@ def COMMA():
 		append(None)
 
 def C_COMMA():
-	append(stack.pop())
+	append(stack.pop() & 0xff)
 
 def WHILE():
 	append(words["0branch"].xt)
@@ -950,7 +922,7 @@ def CHAR():
 def COMPILE_CHAR():
 	w = read_word()
 	append(LITC)
-	append(w[0])
+	append(ord(w[0]))
 
 def TICK():
 	w = read_word().lower()
@@ -989,7 +961,7 @@ def LIT():
 
 def LITC():
 	global ip
-	stack.append(heap.heap[ip])
+	stack.append(heap[ip])
 	ip += 1
 
 def RECURSE():
@@ -1140,10 +1112,7 @@ def SPACE():
 	print(" ", end='')
 
 def EMIT():
-	c = stack.pop()
-	if type(c) == int:
-		c = chr(c)
-	print(c, end='')
+	print(chr(stack.pop()), end='')
 
 def DABS():
 	d = ctypes.c_int(stack[-1])
@@ -1230,9 +1199,6 @@ def LITERAL():
 	if callable(stack[-1]):
 		append(LIT)
 		COMMA()
-	elif type(stack[-1]) == str:
-		append(LITC)
-		C_COMMA()
 	elif stack[-1] & 0xff00:
 		append(LIT)
 		COMMA()
@@ -1242,8 +1208,6 @@ def LITERAL():
 
 def PARSE():
 	delim = stack.pop()
-	if type(delim) == str:
-		delim = ord(delim)
 	stack.append(tib_addr + heap[to_in_addr])
 	stack.append(0)
 	while True:
