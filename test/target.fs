@@ -1525,6 +1525,16 @@ T{  2 -1  1 QD6 -> -1 0 1 3 }T ;
 
 \ -----
 
+T{ 8 BUFFER: BUF:TEST -> }T
+
+: test.buffer:
+." TESTING BUFFER:" cr
+T{ BUF:TEST DUP ALIGNED = -> TRUE }T
+T{ 111 BUF:TEST ! 222 BUF:TEST CELL+ ! -> }T
+T{ BUF:TEST @ BUF:TEST CELL+ @ -> 111 222 }T ;
+
+\ -----
+
 : target-test
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -1570,6 +1580,7 @@ test.hex
 test.within
 test.again
 test.?do
+test.buffer:
 ." done" ;
 
 compile target-test
