@@ -21,6 +21,7 @@ create #buffer 80 allot
 dup $a < if 7 - then $37 + hold ;
 : #s # begin 2dup or while # repeat ;
 
+: u> swap u< ;
 : 2+ 1+ 1+ ;
 : cell+ 2+ ;
 : 2@ dup cell+ @ swap @ ;
