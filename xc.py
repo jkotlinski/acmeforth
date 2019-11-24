@@ -257,14 +257,20 @@ def compile_call(callee, ip):
 		ip += 1
 		strlen = heap[ip]
 		OUT.write("\t!byte\t" + str(strlen) + '\n')
-		OUT.write('\t!text\t"')
 		for i in range(strlen):
 			ip += 1
-			OUT.write(chr(heap[ip]))
-		OUT.write('"\n')
+			write_char(heap[ip])
 	else:
 		compile_jsr(callee)
 	return ip
+
+def write_char(n):
+	if n < 0x20 or (n >= 0x80 and n < 0xa0):
+		OUT.write("\t!byte\t" + str(n) + "\n")
+	elif n == ord('"'):
+		OUT.write("\t!text\t'" + chr(n) + "'\n")
+	else:
+		OUT.write('\t!text\t"' + chr(n) + '"\n')
 
 def add_primitive(word_name):
 	if word_name in added_primitives:

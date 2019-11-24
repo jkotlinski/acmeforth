@@ -1703,14 +1703,14 @@ CHARS/PAD CHARS CONSTANT AUS/PAD
    ?DO
       OVER I CHARS + C@ OVER <>
       IF 2DROP UNLOOP FALSE EXIT THEN
-   LOOP  
+   LOOP
    2DROP TRUE ;
 T{ 0 INVERT PAD C! -> }T
 T{ PAD C@ CONSTANT MAXCHAR -> }T
 
 : test.pad-erase
 ." TESTING PAD ERASE" cr
-\ Must handle different size characters i.e. 1 CHARS >= 1 
+\ Must handle different size characters i.e. 1 CHARS >= 1
 
 T{ PAD DROP -> }T
 T{ PAD CHARS/PAD 2DUP MAXCHAR FILL MAXCHAR CHECKPAD -> TRUE }T
@@ -1791,8 +1791,8 @@ T{ : SSQ4 S\" \nOne line...\nanotherLine\n" type ; -> }T
 T{ : SSQ5 S\" abeflmnqrtvxz" S" abeflmnqrtvxz" S= ; -> }T
 T{ : SSQ6 S\" a\""2DROP 1111 ; -> }T \ Parsing behaviour
 
-: test.s\" ." TESTING S\" 
-'"' emit ." (Forth 2012 compilation mode)" cr
+: test.s\"
+." TESTING S\" '"' emit ." (Forth 2012 compilation mode)" cr
 \ Extended the Forth 200X RfD tests
 \ Note this tests the Core Ext definition of S\" which has unedfined
 \ interpretation semantics. S\" in interpretation mode is tested in the tests on
