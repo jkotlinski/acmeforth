@@ -1864,6 +1864,7 @@ test-format
 test-fill-move
 OUTPUT-TEST
 ACCEPT-TEST
+CR ." End of Core word set tests" CR
 
 test+doloop1
 test+doloop-largesmall
@@ -1878,6 +1879,7 @@ test+number-prefixes
 test+definition-names
 test+if-begin-repeat
 test+does>
+CR ." End of additional Core tests" CR
 
 test.true-false
 test.<>u>
@@ -1899,6 +1901,6 @@ test.pad-erase
 test.defer
 test.holds
 test.s\"
-." done" ;
+CR ." End of Core Extension word tests" CR ;
 
 compile target-test
