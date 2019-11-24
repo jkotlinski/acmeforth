@@ -1271,6 +1271,28 @@ T{ MAX-INT 0> -> TRUE }T ;
 
 \ -----
 
+T{ : RO5 100 200 300 400 500 ; -> }T
+
+: test.niptuckrollpick
+." TESTING NIP TUCK ROLL PICK   (contributed by James Bowman)" cr
+
+T{ 1 2 NIP -> 2 }T
+T{ 1 2 3 NIP -> 1 3 }T
+
+T{ 1 2 TUCK -> 2 1 2 }T
+T{ 1 2 3 TUCK -> 1 3 2 3 }T
+
+T{ RO5 3 ROLL -> 100 300 400 500 200 }T
+T{ RO5 2 ROLL -> RO5 ROT }T
+T{ RO5 1 ROLL -> RO5 SWAP }T
+T{ RO5 0 ROLL -> RO5 }T
+
+T{ RO5 2 PICK -> 100 200 300 400 500 300 }T
+T{ RO5 1 PICK -> RO5 OVER }T
+T{ RO5 0 PICK -> RO5 DUP }T ;
+
+\ -----
+
 : target-test
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -1310,6 +1332,7 @@ test+does>
 test.true-false
 test.<>u>
 test.0<>0>
+test.niptuckrollpick
 ." done" ;
 
 compile target-test

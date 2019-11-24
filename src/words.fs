@@ -70,6 +70,7 @@ swap 0 <# #s #> rot over - spaces type space ;
 : abort depth 0 do drop loop quit ;
 : \ refill 0= if source nip >in ! then ; immediate
 : within over - >r - r> u< ; \ forth-standard.org
+: roll ?dup if swap >r 1- recurse r> swap then ;
 
 ( from FIG UK )
 : /mod >r s>d r> fm/mod ;

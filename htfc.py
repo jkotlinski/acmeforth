@@ -386,16 +386,11 @@ def OVER():
 def PICK():
 	stack.append(stack[-stack.pop()-1])
 
-def ROLL():
-	stack.append(stack.pop(-stack.pop()-1))
-
 def ROT():
-	stack.append(2)
-	ROLL()
+	stack[-1], stack[-2], stack[-3] = stack[-3], stack[-1], stack[-2]
 
 def SWAP():
-	stack.append(1)
-	ROLL()
+	stack[-1], stack[-2] = stack[-2], stack[-1]
 
 def BRANCH():
 	global ip
@@ -1387,7 +1382,6 @@ add_word("accept", ACCEPT)
 add_word(".(", DOT_LPAREN, True)
 add_word(":noname", COLON_NONAME)
 add_word("u>", U_GT)
-add_word("roll", ROLL)
 add_word("pick", PICK)
 add_word("2>r", TWO_TO_R)
 add_word("2r>", TWO_R_TO)
