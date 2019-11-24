@@ -651,24 +651,6 @@ def R_TO():
 def R_FETCH():
 	stack.append(return_stack[-1])
 
-def TWO_R_FETCH():
-	R_TO()
-	R_TO()
-	TWODUP()
-	TO_R()
-	TO_R()
-	SWAP()
-
-def TWO_TO_R():
-	SWAP()
-	TO_R()
-	TO_R()
-
-def TWO_R_TO():
-	R_TO()
-	R_TO()
-	SWAP()
-
 def TYPE():
 	l = heap[stack[-2] : stack[-2] + stack[-1]]
 	for i in range(len(l)):
@@ -1383,9 +1365,6 @@ add_word(".(", DOT_LPAREN, True)
 add_word(":noname", COLON_NONAME)
 add_word("u>", U_GT)
 add_word("pick", PICK)
-add_word("2>r", TWO_TO_R)
-add_word("2r>", TWO_R_TO)
-add_word("2r@", TWO_R_FETCH)
 add_word("unused", UNUSED)
 add_word("marker", MARKER)
 add_word("?do", QUESTION_DO, True)

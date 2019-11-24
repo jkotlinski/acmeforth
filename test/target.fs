@@ -1293,6 +1293,24 @@ T{ RO5 0 PICK -> RO5 DUP }T ;
 
 \ -----
 
+T{ : RR0 2>R 100 R> R> ; -> }T
+T{ : RR1 2>R 100 2R@ R> R> ; -> }T
+T{ : RR2 2>R 100 2R> ; -> }T
+
+: test.2>r2r@2r>
+." TESTING 2>R 2R@ 2R>   (contributed by James Bowman)" cr
+
+T{ 300 400 RR0 -> 100 400 300 }T
+T{ 200 300 400 RR0 -> 200 100 400 300 }T
+
+T{ 300 400 RR1 -> 100 300 400 400 300 }T
+T{ 200 300 400 RR1 -> 200 100 300 400 400 300 }T
+
+T{ 300 400 RR2 -> 100 300 400 }T
+T{ 200 300 400 RR2 -> 200 100 300 400 }T ;
+
+\ -----
+
 : target-test
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -1333,6 +1351,7 @@ test.true-false
 test.<>u>
 test.0<>0>
 test.niptuckrollpick
+test.2>r2r@2r>
 ." done" ;
 
 compile target-test
