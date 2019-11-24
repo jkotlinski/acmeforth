@@ -1770,6 +1770,20 @@ T{ 1 DEFER2 -> 1 1 }T ;
 
 \ ----
 
+: HTEST S" Testing HOLDS" ;
+: HTEST2 S" works" ;
+: HTEST3 S" Testing HOLDS works 123" ;
+T{ : HLD HOLDS ; -> }T
+
+: test.holds
+." TESTING HOLDS  (Forth 2012)" cr
+T{ 0 0 <#  HTEST HOLDS #> HTEST S= -> TRUE }T
+T{ 123 0 <# #S BL HOLD HTEST2 HOLDS BL HOLD HTEST HOLDS #>
+   HTEST3 S= -> TRUE }T
+T{ 0 0 <#  HTEST HLD #> HTEST S= -> TRUE }T ;
+
+\ -----
+
 : target-test
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -1824,6 +1838,7 @@ test.compile,
 test.ru.r
 test.pad-erase
 test.defer
+test.holds
 ." done" ;
 
 compile target-test
