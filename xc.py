@@ -265,7 +265,7 @@ def compile_call(callee, ip):
 	return ip
 
 def write_char(n):
-	if n < 0x20 or (n >= 0x80 and n < 0xa0):
+	if n < 0x20 or n >= 0x80:
 		OUT.write("\t!byte\t" + str(n) + "\n")
 	elif n == ord('"'):
 		OUT.write("\t!text\t'" + chr(n) + "'\n")
