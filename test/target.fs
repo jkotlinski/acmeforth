@@ -1619,6 +1619,38 @@ T{ 1 CS7 -> 1 }T ;
 
 \ -----
 
+VARIABLE NN1
+VARIABLE NN2
+:NONAME 1234 ; NN1 !
+:NONAME 9876 ; NN2 !
+
+T{ :NONAME ( n -- 0,1,..n ) DUP IF DUP >R 1- RECURSE R> THEN ;
+   CONSTANT RN1 -> }T
+
+:NONAME  ( n -- n1 )    \ Multiple RECURSEs in one definition
+   1- DUP
+   CASE 0 OF EXIT ENDOF
+        1 OF 11 SWAP RECURSE ENDOF
+        2 OF 22 SWAP RECURSE ENDOF
+        3 OF 33 SWAP RECURSE ENDOF
+        DROP ABS RECURSE EXIT
+   ENDCASE
+; CONSTANT RN2
+
+: test.noname-recurse
+." TESTING :NONAME RECURSE" cr
+T{ NN1 @ EXECUTE -> 1234 }T
+\ T{ NN2 @ EXECUTE -> 9876 }T
+\ T{ 0 RN1 EXECUTE -> 0 }T
+\ T{ 4 RN1 EXECUTE -> 0 1 2 3 4 }T
+\ T{  1 RN2 EXECUTE -> 0 }T
+\ T{  2 RN2 EXECUTE -> 11 0 }T
+\ T{  4 RN2 EXECUTE -> 33 22 11 0 }T
+\ T{ 25 RN2 EXECUTE -> 33 22 11 0 }T
+;
+
+\ -----
+
 : target-test
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -1667,6 +1699,7 @@ test.?do
 test.buffer:
 test.value-to
 test.caseof
+test.noname-recurse
 ." done" ;
 
 compile target-test
