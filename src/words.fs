@@ -63,7 +63,7 @@ swap s>d swap over dabs <# #s rot sign #>
 rot over - spaces type space ;
 : u.r ( u n -- )
 swap 0 <# #s #> rot over - spaces type space ;
-: pad here $100 + ;
+create pad 84 allot
 : erase 0 fill ;
 : 2over 3 pick 3 pick ;
 : 2swap >r rot rot r> rot rot ;

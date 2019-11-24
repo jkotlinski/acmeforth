@@ -1696,6 +1696,44 @@ T{ .R&U.R -> }T ;
 
 \ -----
 
+84 CONSTANT CHARS/PAD      \ Minimum size of PAD in chars
+CHARS/PAD CHARS CONSTANT AUS/PAD
+: CHECKPAD  ( caddr u ch -- f )  \ f = TRUE if u chars = ch
+   SWAP 0
+   ?DO
+      OVER I CHARS + C@ OVER <>
+      IF 2DROP UNLOOP FALSE EXIT THEN
+   LOOP  
+   2DROP TRUE ;
+T{ 0 INVERT PAD C! -> }T
+T{ PAD C@ CONSTANT MAXCHAR -> }T
+
+: test.pad-erase
+." TESTING PAD ERASE" cr
+\ Must handle different size characters i.e. 1 CHARS >= 1 
+
+T{ PAD DROP -> }T
+T{ PAD CHARS/PAD 2DUP MAXCHAR FILL MAXCHAR CHECKPAD -> TRUE }T
+T{ PAD CHARS/PAD 2DUP CHARS ERASE 0 CHECKPAD -> TRUE }T
+T{ PAD CHARS/PAD 2DUP MAXCHAR FILL PAD 0 ERASE MAXCHAR CHECKPAD -> TRUE }T
+T{ PAD 43 CHARS + 9 CHARS ERASE -> }T
+T{ PAD 43 MAXCHAR CHECKPAD -> TRUE }T
+T{ PAD 43 CHARS + 9 0 CHECKPAD -> TRUE }T
+T{ PAD 52 CHARS + CHARS/PAD 52 - MAXCHAR CHECKPAD -> TRUE }T
+
+\ Check that use of WORD and pictured numeric output do not corrupt PAD
+\ Minimum size of buffers for these are 33 chars and (2*n)+2 chars respectively
+\ where n is number of bits per cell
+
+PAD CHARS/PAD ERASE
+2 BASE !
+MAX-UINT MAX-UINT <# #S [CHAR] 1 DUP HOLD HOLD #> 2DROP
+DECIMAL
+\ BL WORD 12345678123456781234567812345678 DROP  <-- no WORD on target!
+T{ PAD CHARS/PAD 0 CHECKPAD -> TRUE }T ;
+
+\ -----
+
 : target-test
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -1748,6 +1786,7 @@ test.noname-recurse
 test.cquote
 test.compile,
 test.ru.r
+test.pad-erase
 ." done" ;
 
 compile target-test

@@ -134,6 +134,7 @@ def compile_constant_word(w):
 		OUT.write("\tldy\t#>" + word_name_hash(word.name) + "\t; " + word.name + "\n")
 		OUT.write("\tlda\t#<" + word_name_hash(word.name) + "\t; " + word.name + "\n")
 	else:
+		print(w.constant_value)
 		assert False
 	OUT.write("\tjmp\t" + word_name_hash("pushya") + "\t; pushya\n\n")
 	add_primitive_dependency("pushya")
