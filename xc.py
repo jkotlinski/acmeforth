@@ -127,6 +127,12 @@ def compile_constant_word(w):
 	elif type(w.constant_value) == type(0):
 		OUT.write("\tldy\t#" + str((w.constant_value >> 8) & 0xff) + "\n")
 		OUT.write("\tlda\t#" + str(w.constant_value & 0xff) + "\n")
+	elif callable(w.constant_value):
+		word = xt_words[w.constant_value]
+		if word not in words_to_export:
+			words_to_export.append(word)
+		OUT.write("\tldy\t#>" + word_name_hash(word.name) + "\t; " + word.name + "\n")
+		OUT.write("\tlda\t#<" + word_name_hash(word.name) + "\t; " + word.name + "\n")
 	else:
 		assert False
 	OUT.write("\tjmp\t" + word_name_hash("pushya") + "\t; pushya\n\n")
@@ -151,7 +157,6 @@ def compile_create_word(w):
 				words_to_export.append(word)
 			OUT.write("\t!word " + word_name_hash(word.name) + "\t; " + word.name + "\n")
 		else:
-			print(heap[i])
 			assert False
 
 	OUT.write('\n')

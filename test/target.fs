@@ -1640,14 +1640,24 @@ T{ :NONAME ( n -- 0,1,..n ) DUP IF DUP >R 1- RECURSE R> THEN ;
 : test.noname-recurse
 ." TESTING :NONAME RECURSE" cr
 T{ NN1 @ EXECUTE -> 1234 }T
-\ T{ NN2 @ EXECUTE -> 9876 }T
-\ T{ 0 RN1 EXECUTE -> 0 }T
-\ T{ 4 RN1 EXECUTE -> 0 1 2 3 4 }T
-\ T{  1 RN2 EXECUTE -> 0 }T
-\ T{  2 RN2 EXECUTE -> 11 0 }T
-\ T{  4 RN2 EXECUTE -> 33 22 11 0 }T
-\ T{ 25 RN2 EXECUTE -> 33 22 11 0 }T
-;
+T{ NN2 @ EXECUTE -> 9876 }T
+T{ 0 RN1 EXECUTE -> 0 }T
+T{ 4 RN1 EXECUTE -> 0 1 2 3 4 }T
+T{  1 RN2 EXECUTE -> 0 }T
+T{  2 RN2 EXECUTE -> 11 0 }T
+T{  4 RN2 EXECUTE -> 33 22 11 0 }T
+T{ 25 RN2 EXECUTE -> 33 22 11 0 }T ;
+
+\ -----
+
+T{ : CQ1 C" 123" ; -> }T
+T{ : CQ2 C" " ; -> }T
+T{ : CQ3 C" 2345"; -> }T
+
+: test.cquote ." TESTING C" '"' emit cr
+T{ CQ1 COUNT S" 123" S= -> TRUE }T
+T{ CQ2 COUNT S" " S= -> TRUE }T
+T{ CQ3 COUNT S" 2345" S= -> TRUE }T ;
 
 \ -----
 
@@ -1700,6 +1710,7 @@ test.buffer:
 test.value-to
 test.caseof
 test.noname-recurse
+test.cquote
 ." done" ;
 
 compile target-test
