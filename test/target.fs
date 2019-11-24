@@ -1453,6 +1453,17 @@ T{ MAX-INT MAX-INT MAX-INT WITHIN -> FALSE }T ;
 
 \ -----
 
+\ unused not tested, since HERE does not exist
+
+\ -----
+
+T{ : AG0 701 BEGIN DUP 7 MOD 0= IF EXIT THEN 1+ AGAIN ; -> }T
+: test.again
+." TESTING AGAIN   (contributed by James Bowman)" cr
+T{ AG0 -> 707 }T ;
+
+\ -----
+
 : target-test
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -1496,6 +1507,7 @@ test.niptuckrollpick
 test.2>r2r@2r>
 test.hex
 test.within
+test.again
 ." done" ;
 
 compile target-test
