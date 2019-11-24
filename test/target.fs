@@ -1734,6 +1734,42 @@ T{ PAD CHARS/PAD 0 CHECKPAD -> TRUE }T ;
 
 \ -----
 
+T{ DEFER DEFER1 -> }T
+T{ : MY-DEFER DEFER ; -> }T
+T{ : IS-DEFER1 IS DEFER1 ; -> }T
+T{ : ACTION-DEFER1 ACTION-OF DEFER1 ; -> }T
+T{ : DEF! DEFER! ; -> }T
+T{ : DEF@ DEFER@ ; -> }T
+T{ MY-DEFER DEFER2 -> }T
+
+: test.defer
+." TESTING DEFER DEFER@ DEFER! IS ACTION-OF (Forth 2012)" cr
+\ Adapted from the Forth 200X RfD tests
+
+T{ ['] * ['] DEFER1 DEFER! -> }T
+T{ 2 3 DEFER1 -> 6 }T
+T{ ['] DEFER1 DEFER@ -> ['] * }T
+T{ ['] DEFER1 DEF@ -> ['] * }T
+T{ ACTION-OF DEFER1 -> ['] * }T
+T{ ACTION-DEFER1 -> ['] * }T
+T{ ['] + IS DEFER1 -> }T
+T{ 1 2 DEFER1 -> 3 }T
+T{ ['] DEFER1 DEFER@ -> ['] + }T
+T{ ['] DEFER1 DEF@ -> ['] + }T
+T{ ACTION-OF DEFER1 -> ['] + }T
+T{ ACTION-DEFER1 -> ['] + }T
+T{ ['] - IS-DEFER1 -> }T
+T{ 1 2 DEFER1 -> -1 }T
+T{ ['] DEFER1 DEFER@ -> ['] - }T
+T{ ['] DEFER1 DEF@ -> ['] - }T
+T{ ACTION-OF DEFER1 -> ['] - }T
+T{ ACTION-DEFER1 -> ['] - }T
+
+T{ ['] DUP IS DEFER2 -> }T
+T{ 1 DEFER2 -> 1 1 }T ;
+
+\ ----
+
 : target-test
 #23 #53272 c! \ switch to upper/lower case mode
 test-basic-assumptions
@@ -1787,6 +1823,7 @@ test.cquote
 test.compile,
 test.ru.r
 test.pad-erase
+test.defer
 ." done" ;
 
 compile target-test

@@ -1329,3 +1329,8 @@ again ;
 .endof	inx
 	jmp	%branch%
 ;code
+
+\ This is obviously not a proper QUIT, but since we do not have QUIT on C64, this is at least something.
+:code	quit
+	jmp	%bye%
+;code
