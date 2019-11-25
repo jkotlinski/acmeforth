@@ -318,7 +318,8 @@ def compile(word):
 			w = Word(word, lambda word=word : sys.exit("code word " + word), False)
 			append(w.xt)
 		else:
-			sys.exit("unknown word '" + word + "'")
+			print("Undefined word", word)
+			QUIT()
 
 def interpret_tib():
 	while heap[to_in_addr] <= tib_count:
