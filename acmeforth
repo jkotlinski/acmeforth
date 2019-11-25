@@ -1442,7 +1442,7 @@ if len(sys.argv) > 1:
 	for infile in args:
 		evaluate_file(infile)
 else:
-	print("Hack n' Trade Forth Compiler v0.0.1 :: Copyright (C) 2019 Johan Kotlinski")
+	print("ACMEforth v0.0.1 :: Copyright (C) 2019 Johan Kotlinski")
 	try:
 		QUIT()
 	except EOFError:
