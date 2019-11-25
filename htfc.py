@@ -241,26 +241,29 @@ def REFILL():
 			INPUT_FILE = None
 
 def parse(delimiter):
-	if type(delimiter) == type(' '):
-		delimiter = ord(delimiter)
+	delimiter_is_space = delimiter == ' '
+
+	to_in = heap[to_in_addr]
 
 	# skips leading whitespace
-	while heap[to_in_addr] < tib_count:
-		if chr(heap[tib_addr + heap[to_in_addr]]).isspace():
-			heap[to_in_addr] += 1
+	while to_in < tib_count:
+		if heap.getchar(tib_addr + to_in).isspace():
+			to_in += 1
 		else:
 			break
 
 	# reads the word
 	word = ""
-	while heap[to_in_addr] < tib_count:
-		c = heap[tib_addr + heap[to_in_addr]]
-		heap[to_in_addr] += 1
-		if delimiter == ord(' ') and chr(c).isspace():
+	while to_in < tib_count:
+		c = heap.getchar(tib_addr + to_in)
+		to_in += 1
+		if delimiter_is_space and c.isspace():
 			break
 		elif c == delimiter:
 			break
-		word += chr(c)
+		word += c
+
+	heap[to_in_addr] = to_in
 
 	return word
 
@@ -1434,13 +1437,14 @@ def evaluate_file(filename):
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 evaluate_file(os.path.join(__location__, "src/words.fs"))
 
-if len(sys.argv) > 1:
-	args = sys.argv[1:]
-	for infile in args:
-		evaluate_file(infile)
-else:
-	print("Hack n' Trade Forth Compiler v0.0.1 :: Copyright (C) 2019 Johan Kotlinski")
-	try:
-		QUIT()
-	except EOFError:
-		pass
+def go():
+	if len(sys.argv) > 1:
+		args = sys.argv[1:]
+		for infile in args:
+			evaluate_file(infile)
+	else:
+		print("Hack n' Trade Forth Compiler v0.0.1 :: Copyright (C) 2019 Johan Kotlinski")
+		try:
+			QUIT()
+		except EOFError:
+			pass
