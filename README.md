@@ -7,7 +7,7 @@ All Forth 2012 Core and Core Extension words are supported, although interpretin
 
 ## Examples
 
-`sh run_examples.sh` runs the examples.
+`sh run_examples.sh`
 
 ## Why?
 
