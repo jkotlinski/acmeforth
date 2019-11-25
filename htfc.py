@@ -44,15 +44,15 @@ class Stack:
 			val = ord(val)
 		return val
 
-	def popchar(self):
-		return self.stack.pop()
+	def getchar(self):
+		return self.stack[-1]
 
 	def __len__(self):
 		return len(self.stack) - 32
 
 	def __getitem__(self, i):
 		c = self.stack[i]
-		return ord(c) if type(c) == chr else c
+		return ord(c) if type(c) == str else c
 
 	def __setitem__(self, i, val):
 		self.stack[i] = val
@@ -84,7 +84,10 @@ class Heap:
 
 	def __getitem__(self, i):
 		c = self.heap[i]
-		return ord(c) if type(c) == type(' ') else c
+		return ord(c) if type(c) == str else c
+
+	def getchar(self, i):
+		return self.heap[i]
 
 	def __setitem__(self, i, val):
 		self.heap[i] = val
@@ -171,7 +174,7 @@ def evaluate_number(word):
 		base = 2
 		word = word[1:]
 	elif word[0] == "'":
-		stack.append(ord(word[1]))
+		stack.append(word[1])
 		return
 	negate = word[0] == '-'
 	if negate:
@@ -301,7 +304,8 @@ def compile(word):
 	else:
 		if is_number(word):
 			evaluate_number(word)
-			if stack[-1] & 0xff00:
+			val = stack.getchar()
+			if type(val) == int and val & 0xff00:
 				append(words["lit"].xt)
 				COMMA()
 			else:
@@ -920,7 +924,8 @@ def COMMA():
 		append(None)
 
 def C_COMMA():
-	append(stack.pop() & 0xff)
+	append(stack.getchar())
+	stack.pop()
 
 def WHILE():
 	append(words["0branch"].xt)
@@ -946,12 +951,12 @@ def AGAIN():
 
 def CHAR():
 	w = read_word()
-	stack.append(ord(w[0]))
+	stack.append(w[0])
 
 def COMPILE_CHAR():
 	w = read_word()
 	append(LITC)
-	append(ord(w[0]))
+	append(w[0])
 
 def TICK():
 	w = read_word().lower()
@@ -990,7 +995,7 @@ def LIT():
 
 def LITC():
 	global ip
-	stack.append(heap[ip])
+	stack.append(heap.getchar(ip))
 	ip += 1
 
 def RECURSE():
@@ -1225,10 +1230,11 @@ def _OF():
 		BRANCH()
 
 def LITERAL():
-	if callable(stack[-1]):
+	top = stack.getchar()
+	if callable(top):
 		append(LIT)
 		COMMA()
-	elif stack[-1] & 0xff00:
+	elif type(top) == int and top & 0xff00:
 		append(LIT)
 		COMMA()
 	else:
