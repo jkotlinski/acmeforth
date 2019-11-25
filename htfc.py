@@ -240,6 +240,7 @@ def REFILL():
 			INPUT_FILE = None
 
 def parse(delimiter):
+	assert type(delimiter) == str
 	delimiter_is_space = delimiter == ' '
 
 	to_in = heap[to_in_addr]
@@ -1054,7 +1055,7 @@ def SOURCE(): # ( -- c-addr u )
 	stack.append(tib_count)
 
 def WORD():
-	w = parse(stack.pop())
+	w = parse(chr(stack.pop()))
 	l = len(w)
 	heap[word_addr] = l
 	for i in range(l):
