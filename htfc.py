@@ -40,8 +40,7 @@ class Stack:
 
 	def pop(self):
 		val = self.stack.pop()
-		if type(val) == str:
-			val = ord(val)
+		if type(val) == str: val = ord(val)
 		return val
 
 	def getchar(self):
@@ -60,6 +59,23 @@ class Stack:
 	def __repr__(self):
 		return str(self.stack[32:])
 
+class Heap:
+	def __init__(self, size):
+		self.heap = [None] * size
+
+	def __getitem__(self, i):
+		c = self.heap[i]
+		return ord(c) if type(c) == str else c
+
+	def getchar(self, i):
+		return self.heap[i]
+
+	def __setitem__(self, i, val):
+		self.heap[i] = val
+
+	def __len__(self):
+		return len(self.heap)
+
 words = {}
 xt_words = {}
 stack = Stack()
@@ -77,23 +93,6 @@ pictured_numeric_addr = word_addr + 40
 tib_addr = pictured_numeric_addr + 70
 original_tib_addr = tib_addr
 here = tib_addr + 200
-
-class Heap:
-	def __init__(self, size):
-		self.heap = [None] * size
-
-	def __getitem__(self, i):
-		c = self.heap[i]
-		return ord(c) if type(c) == str else c
-
-	def getchar(self, i):
-		return self.heap[i]
-
-	def __setitem__(self, i, val):
-		self.heap[i] = val
-
-	def __len__(self):
-		return len(self.heap)
 
 heap = Heap(65536)
 
