@@ -5,12 +5,9 @@
 HTFC is a cross-compiling 16-bit Forth targeting the Commodore 64, using ACME for assembling.
 All Forth 2012 Core and Core Extension words are supported, although interpreting and compiling only works on PC.
 
-## Example
+## Examples
 
-	./htfc.py examples/colorcycle.fs
-	acme -o colorcycle.prg -f cbm colorcycle.asm
-
-`sh run_tests.sh` runs the test suite.
+`sh run_examples.sh` runs the examples.
 
 ## Why?
 
