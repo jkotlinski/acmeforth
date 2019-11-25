@@ -30,10 +30,39 @@ class Word:
 	def __repr__(self):
 		return self.name
 
+class Stack:
+	stack_underflow_area = [-1] * 32
+	def __init__(self):
+		self.stack = self.stack_underflow_area.copy()
+
+	def append(self, val):
+		self.stack.append(val)
+
+	def pop(self):
+		val = self.stack.pop()
+		if type(val) == str:
+			val = ord(val)
+		return val
+
+	def popchar(self):
+		return self.stack.pop()
+
+	def __len__(self):
+		return len(self.stack) - 32
+
+	def __getitem__(self, i):
+		c = self.stack[i]
+		return ord(c) if type(c) == chr else c
+
+	def __setitem__(self, i, val):
+		self.stack[i] = val
+
+	def __repr__(self):
+		return str(self.stack[32:])
+
 words = {}
 xt_words = {}
-stack_underflow_area = [-1] * 32
-stack = stack_underflow_area.copy()
+stack = Stack()
 return_stack = []
 leave_stack = []
 tib_count = 0
@@ -159,9 +188,9 @@ def evaluate(word):
 	if word.lower() in words:
 		word = words[word.lower()]
 		word.xt()
-		if len(stack) < len(stack_underflow_area):
+		if len(stack) < 0:
 			print("Stack underflow in '" + word.name + "'")
-			stack = stack_underflow_area.copy()
+			stack = Stack()
 			QUIT()
 	else:
 		if is_number(word):
@@ -298,7 +327,7 @@ def interpret_tib():
 				print("EVALUATE", word)
 			evaluate(word)
 		if DEBUG:
-			print("stack", stack[len(stack_underflow_area):])
+			print("stack", stack)
 
 def C_STORE():
 	dst = stack[-1]
@@ -340,12 +369,12 @@ def docol(ip_):
 			if code():
 				return
 			if DEBUG:
-				print(stack[len(stack_underflow_area):], ip)
+				print(stack, ip)
 		else:
 			stack.append(code)
 
 def DEPTH():
-	stack.append(len(stack) - len(stack_underflow_area))
+	stack.append(len(stack))
 
 compiling_word = None
 
@@ -895,8 +924,8 @@ def C_COMMA():
 
 def WHILE():
 	append(words["0branch"].xt)
-	orig = here
-	stack.insert(-1, orig)
+	stack.append(here)
+	SWAP()
 	append(None)
 	append(None)
 
