@@ -1436,14 +1436,13 @@ def evaluate_file(filename):
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 evaluate_file(os.path.join(__location__, "src/words.fs"))
 
-def go():
-	if len(sys.argv) > 1:
-		args = sys.argv[1:]
-		for infile in args:
-			evaluate_file(infile)
-	else:
-		print("Hack n' Trade Forth Compiler v0.0.1 :: Copyright (C) 2019 Johan Kotlinski")
-		try:
-			QUIT()
-		except EOFError:
-			pass
+if len(sys.argv) > 1:
+	args = sys.argv[1:]
+	for infile in args:
+		evaluate_file(infile)
+else:
+	print("Hack n' Trade Forth Compiler v0.0.1 :: Copyright (C) 2019 Johan Kotlinski")
+	try:
+		QUIT()
+	except EOFError:
+		pass
