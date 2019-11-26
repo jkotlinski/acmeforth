@@ -1335,3 +1335,8 @@ code	(of)
 code	quit
 	jmp	%bye%
 ;code
+
+code	page
+	lda	#$93
+	jsr	PUTCHR
+;code
