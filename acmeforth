@@ -305,7 +305,10 @@ def compile(word):
 		else:
 			append(words[word].xt)
 	else:
-		if is_number(word):
+		if word in xc.code_words:
+			w = Word(word, lambda word=word : sys.exit("code word " + word), False)
+			append(w.xt)
+		elif is_number(word):
 			evaluate_number(word)
 			val = stack.getchar()
 			if type(val) == int and val & 0xff00:
@@ -314,9 +317,6 @@ def compile(word):
 			else:
 				append(words["litc"].xt)
 				C_COMMA()
-		elif word in xc.code_words:
-			w = Word(word, lambda word=word : sys.exit("code word " + word), False)
-			append(w.xt)
 		else:
 			print("Undefined word", word)
 			QUIT()
@@ -1417,13 +1417,14 @@ add_word("to", TO, True)
 add_word("(of)", _OF)
 add_word("parse", PARSE)
 add_word("source-id", SOURCE_ID)
-add_word("bye", lambda:sys.exit(0))
+add_word("bye", lambda : sys.exit(0))
 add_word("words", WORDS)
 add_word("2drop", TWODROP)
 add_word(":code", COLON_CODE)
 add_word("compile,", COMPILE_COMMA)
 add_word("compile", COMPILE)
 add_word("d+", D_PLUS)
+add_word("0", lambda : stack.append(0))
 
 def evaluate_file(filename):
 	global INPUT_FILE

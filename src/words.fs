@@ -1,5 +1,12 @@
 variable base 10 base !
 
+:code 0
+	lda	#0
+	tay
+	jmp	%pushya%
+;code
+1 constant 1
+
 : chars ;
 : align ;
 : aligned ;
@@ -524,12 +531,6 @@ over c@ digit? while
 	sta MSB + 1, x
 	inx
 	rts
-;code
-
-:code 1
-	lda	#1
-	ldy	#0
-	jmp	%pushya%
 ;code
 
 :code pushya
