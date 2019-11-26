@@ -1338,5 +1338,5 @@ code	quit
 
 code	page
 	lda	#$93
-	jsr	PUTCHR
+	jmp	PUTCHR
 ;code
