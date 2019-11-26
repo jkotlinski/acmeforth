@@ -1,6 +1,6 @@
 variable base 10 base !
 
-:code 0
+code 0
 	lda	#0
 	tay
 	jmp	%pushya%
@@ -103,7 +103,7 @@ create pad 84 allot
 : IS STATE @ IF POSTPONE ['] POSTPONE DEFER! ELSE ' DEFER! THEN ; IMMEDIATE
 : HOLDS BEGIN DUP WHILE 1- 2DUP + C@ HOLD REPEAT 2DROP ;
 
-:code	d+	; ( d1 d2 -- d3 )
+code	d+	; ( d1 d2 -- d3 )
 	clc
 	lda	LSB+1,x
 	adc	LSB+3,x
@@ -138,7 +138,7 @@ over c@ digit? while
 
 \ ----- C64 primitives below
 
-:code	c@
+code	c@
 	lda	LSB,x
 	sta	+ + 1
 	lda	MSB,x
@@ -150,7 +150,7 @@ over c@ digit? while
 	rts
 ;code
 
-:code c!
+code c!
 	lda	LSB,x
 	sta	+ + 1
 	lda	MSB,x
@@ -162,14 +162,14 @@ over c@ digit? while
 	rts
 ;code
 
-:code 1+
+code 1+
 	inc LSB, x
 	bne +
 	inc MSB, x
 +	rts
 ;code
 
-:code litc
+code litc
 	dex
 
 	; load IP
@@ -194,7 +194,7 @@ over c@ digit? while
 +	jmp (W)
 ;code
 
-:code lit
+code lit
 	dex
 
 	; load IP
@@ -221,7 +221,7 @@ over c@ digit? while
 +	jmp $1234
 ;code
 
-:code (loop)
+code (loop)
 	stx	W	; x = stack pointer
 	tsx
 
@@ -261,7 +261,7 @@ over c@ digit? while
 	jmp	(W2)
 ;code
 
-:code 0branch
+code 0branch
 	inx
 	lda	LSB-1, x
 	ora	MSB-1, x
@@ -281,7 +281,7 @@ over c@ digit? while
 	rts
 ;code
 
-:code !
+code !
 	lda LSB, x
 	sta W
 	lda MSB, x
@@ -299,12 +299,12 @@ over c@ digit? while
 	rts
 ;code
 
-:code negate
+code negate
 	jsr %invert%
 	jmp %1+%
 ;code
 
-:code 0<
+code 0<
 	lda	MSB,x
 	and	#$80
 	beq	+
@@ -314,7 +314,7 @@ over c@ digit? while
 	rts
 ;code
 
-:code dup
+code dup
 	dex
 	lda MSB + 1, x
 	sta MSB, x
@@ -323,7 +323,7 @@ over c@ digit? while
 	rts
 ;code
 
-:code type
+code type
 -	lda LSB,x
 	ora MSB,x
 	bne +
@@ -338,7 +338,7 @@ over c@ digit? while
 	jmp -
 ;code
 
-:code depth
+code depth
 	txa
 	eor #$ff
 	tay
@@ -350,7 +350,7 @@ over c@ digit? while
 	rts
 ;code
 
-:code @
+code @
 	lda LSB,x
 	sta W
 	lda MSB,x
@@ -365,7 +365,7 @@ over c@ digit? while
 	rts
 ;code
 
-:code =
+code =
 	ldy #0
 	lda LSB, x
 	cmp LSB + 1, x
@@ -380,7 +380,7 @@ over c@ digit? while
 	rts
 ;code
 
-:code (do)
+code (do)
 	pla
 	sta	W
 	pla
@@ -406,11 +406,11 @@ over c@ digit? while
 	rts
 ;code
 
-:code	i
+code	i
 	jmp %r@%
 ;code
 
-:code	j
+code	j
 	txa
 	tsx
 	ldy	$107,x
@@ -424,7 +424,7 @@ over c@ digit? while
 	rts
 ;code
 
-:code +
+code +
 	lda LSB, x
 	clc
 	adc LSB + 1, x
@@ -438,7 +438,7 @@ over c@ digit? while
 	rts
 ;code
 
-:code 0=
+code 0=
 	ldy #0
 	lda MSB, x
 	bne +
@@ -450,7 +450,7 @@ over c@ digit? while
 	rts
 ;code
 
-:code sliteral
+code sliteral
 	jsr	%r>%
 	jsr	%1+%
 	jsr	%dup%
@@ -464,7 +464,7 @@ over c@ digit? while
 	rts
 ;code
 
-:code 1-
+code 1-
 	lda LSB, x
 	bne +
 	dec MSB, x
@@ -472,12 +472,12 @@ over c@ digit? while
 	rts
 ;code
 
-:code 2dup
+code 2dup
 	jsr %over%
 	jmp %over%
 ;code
 
-:code over
+code over
 	dex
 	lda MSB + 2, x
 	sta MSB, x
@@ -486,7 +486,7 @@ over c@ digit? while
 	rts
 ;code
 
-:code swap
+code swap
 	ldy MSB, x
 	lda MSB + 1, x
 	sta MSB, x
@@ -499,19 +499,19 @@ over c@ digit? while
 	rts
 ;code
 
-:code cr
+code cr
 	jsr	%litc%
 	!byte	$d
 	jmp	%emit%
 ;code
 
-:code emit
+code emit
 	lda	LSB, x
 	inx
 	jmp	PUTCHR
 ;code
 
-:code /string
+code /string
 	jsr %dup%
 	jsr %>r%
 	jsr %-%
@@ -521,7 +521,7 @@ over c@ digit? while
 	jmp %swap%
 ;code
 
-:code -
+code -
 	lda LSB + 1, x
 	sec
 	sbc LSB, x
@@ -533,14 +533,14 @@ over c@ digit? while
 	rts
 ;code
 
-:code pushya
+code pushya
 	dex
 	sta	LSB, x
 	sty	MSB, x
 	rts
 ;code
 
-:code invert
+code invert
 	lda MSB, x
 	eor #$ff
 	sta MSB, x
@@ -550,7 +550,7 @@ over c@ digit? while
 	rts
 ;code
 
-:code branch
+code branch
 	pla
 	sta W
 	pla
@@ -565,12 +565,12 @@ over c@ digit? while
 +	jmp $1234
 ;code
 
-:code	dabs
+code	dabs
 	jsr	%dup%
 	jmp	%?dnegate%
 ;code
 
-:code	?dnegate
+code	?dnegate
 	jsr	%0<%
 	inx
 	lda	MSB-1,x
@@ -579,7 +579,7 @@ over c@ digit? while
 +	rts
 ;code
 
-:code	dnegate
+code	dnegate
 	jsr	%invert%
 	jsr	%>r%
 	jsr	%invert%
@@ -588,7 +588,7 @@ over c@ digit? while
 	jmp	%m+%
 ;code
 
-:code	m+
+code	m+
 	ldy #0
 	lda MSB,x
 	bpl +
@@ -610,7 +610,7 @@ over c@ digit? while
 	rts
 ;code
 
-:code	+!
+code	+!
 	lda	LSB,x
 	sta	W
 	lda	MSB,x
@@ -631,13 +631,13 @@ over c@ digit? while
 	rts
 ;code
 
-:code	2*
+code	2*
 	asl	LSB, x
 	rol	MSB, x
 	rts
 ;code
 
-:code	2/
+code	2/
 	lda	MSB,x
 	cmp	#$80
 	ror	MSB,x
@@ -645,7 +645,7 @@ over c@ digit? while
 	rts
 ;code
 
-:code	and
+code	and
 	lda	MSB, x
 	and	MSB + 1, x
 	sta	MSB + 1, x
@@ -658,7 +658,7 @@ over c@ digit? while
 	rts
 ;code
 
-:code	r>	; must be called using jsr
+code	r>	; must be called using jsr
 	pla
 	sta W
 	pla
@@ -675,7 +675,7 @@ over c@ digit? while
 	jmp (W)
 ;code
 
-:code	r@	; must be called using jsr
+code	r@	; must be called using jsr
 	txa
 	tsx
 	ldy $103,x
@@ -689,7 +689,7 @@ over c@ digit? while
 	rts
 ;code
 
-:code	>r	; must be called using jsr
+code	>r	; must be called using jsr
 	pla
 	sta W
 	pla
@@ -706,7 +706,7 @@ over c@ digit? while
 	jmp (W)
 ;code
 
-:code	or
+code	or
 	lda	MSB,x
 	ora	MSB+1,x
 	sta	MSB+1,x
@@ -717,7 +717,7 @@ over c@ digit? while
 	rts
 ;code
 
-:code	xor
+code	xor
 	lda	MSB,x
 	eor	MSB+1,x
 	sta	MSB+1,x
@@ -728,7 +728,7 @@ over c@ digit? while
 	rts
 ;code
 
-:code	lshift
+code	lshift
 -	dec	LSB,x
 	bmi	+
 	asl	LSB+1,x
@@ -738,7 +738,7 @@ over c@ digit? while
 	rts
 ;code
 
-:code	rshift
+code	rshift
 -	dec	LSB,x
 	bmi	+
 	lsr	MSB+1,x
@@ -748,7 +748,7 @@ over c@ digit? while
 	rts
 ;code
 
-:code	<
+code	<
     ldy #0
     sec
     lda LSB+1,x
@@ -765,12 +765,12 @@ over c@ digit? while
     rts
 ;code
 
-:code	>
+code	>
 	jsr	%swap%
 	jmp	%<%
 ;code
 
-:code	u<
+code	u<
     ldy #0
     lda MSB, x
     cmp MSB + 1, x
@@ -789,7 +789,7 @@ over c@ digit? while
     rts
 ;code
 
-:code	pick
+code	pick
     txa
     sta + + 1
     clc
@@ -804,7 +804,7 @@ over c@ digit? while
     rts
 ;code
 
-:code	rot
+code	rot
 	ldy	MSB+2,x
 	lda	MSB+1,x
 	sta	MSB+2,x
@@ -820,14 +820,14 @@ over c@ digit? while
 	rts
 ;code
 
-:code	abs
+code	abs
 	lda	MSB,x
 	bpl	+
 	jmp	%negate%
 +	rts
 ;code
 
-:code	m*
+code	m*
 	jsr	%2dup%
 	jsr	%xor%
 	jsr	%>r%
@@ -840,7 +840,7 @@ over c@ digit? while
 	jmp	%?dnegate%
 ;code
 
-:code	um*	; wastes W, W2, y
+code	um*	; wastes W, W2, y
 product = W
     lda #$00
     sta product+2 ; clear upper bits of product
@@ -876,13 +876,13 @@ rotate_r
     rts
 ;code
 
-:code	*
+code	*
 	jsr	%m*%
 	inx
 	rts
 ;code
 
-:code	fm/mod
+code	fm/mod
 	jsr	%dup%
 	jsr	%>r%
 	lda	MSB,x
@@ -907,7 +907,7 @@ rotate_r
 +	rts
 ;code
 
-:code	um/mod
+code	um/mod
         N = W
         SEC
         LDA     LSB+1,X     ; Subtract hi cell of dividend by
@@ -954,16 +954,16 @@ end:    INX
         jmp %swap%
 ;code
 
-:code	tuck
+code	tuck
 	jsr	%swap%
 	jmp	%over%
 ;code
 
-:code	char+
+code	char+
 	jmp	%1+%
 ;code
 
-:code	2@
+code	2@
 	jsr	%dup%
 	jsr	%2+%
 	jsr	%@%
@@ -971,7 +971,7 @@ end:    INX
 	jmp	%@%
 ;code
 
-:code	2!
+code	2!
 	jsr	%swap%
 	jsr	%over%
 	jsr	%!%
@@ -979,11 +979,11 @@ end:    INX
 	jmp	%!%
 ;code
 
-:code	bye
+code	bye
 	jmp	BYE
 ;code
 
-:code	execute
+code	execute
 	lda	LSB, x
 	sta	W
 	lda	MSB, x
@@ -992,7 +992,7 @@ end:    INX
 	jmp	(W)
 ;code
 
-:code	(+loop)
+code	(+loop)
 	; r> swap r> 2dup +
 	jsr	%r>%
 	jsr	%swap%
@@ -1035,7 +1035,7 @@ end:    INX
 	rts
 ;code
 
-:code	dodoes
+code	dodoes
     ; behavior pointer address => W
     pla
     sta W
@@ -1066,7 +1066,7 @@ end:    INX
     jmp (W2)
 ;code
 
-:code	move
+code	move
 ; routines adapted from cc65
 ; original by Ullrich von Bassewitz, Christian Krueger, Greg King
 SRC = W
@@ -1180,7 +1180,7 @@ CMOVE_BACK
 	jmp cmove_done
 ;code
 
-:code	fill
+code	fill
     lda	LSB, x
     tay
     lda	LSB + 2, x
@@ -1213,7 +1213,7 @@ CMOVE_BACK
     jmp	-
 ;code
 
-:code	key?
+code	key?
     lda $c6 ; number of characters in keyboard buffer
     beq +
     lda #$ff
@@ -1221,7 +1221,7 @@ CMOVE_BACK
     jmp %pushya%
 ;code
 
-:code	key
+code	key
 -   lda $c6
     beq -
     stx W
@@ -1256,17 +1256,17 @@ begin
 again ;
 
 \ Using this trampoline to avoid overriding the Python accept.
-:code	accept ; ( addr u -- u )
+code	accept ; ( addr u -- u )
 	jmp	%(accept)%
 ;code
 
-:code	>body
+code	>body
 	jsr	%litc%
 	!byte	5	; skips jsr dodoes and code pointer
 	jmp	%+%
 ;code
 
-:code	(?do)
+code	(?do)
 	lda	LSB,x
 	cmp	LSB+1,x
 	bne	.enter_loop
@@ -1313,7 +1313,7 @@ again ;
 	rts
 ;code
 
-:code	(of)
+code	(of)
 	lda	LSB,x
 	cmp	LSB+1,x
 	bne	.endof
@@ -1332,6 +1332,6 @@ again ;
 ;code
 
 \ This is obviously not a proper QUIT, but since we do not have QUIT on C64, this is at least something.
-:code	quit
+code	quit
 	jmp	%bye%
 ;code

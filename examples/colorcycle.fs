@@ -2,7 +2,7 @@ hex
 
 : forth begin key? 0= while d020 c@ 1+ d020 c! repeat key drop ;
 
-:code asm
+code asm
 -	inc	$d020
 	lda	$c6
 	beq	-

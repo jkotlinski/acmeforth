@@ -1272,7 +1272,7 @@ def COMPILE():
 	xc.compile(words, xt_words, heap, words[name], outfile)
 	print("ok")
 
-def COLON_CODE():
+def CODE():
 	word_name = parse(' ')
 	code = ""
 	prev_to_in = heap[to_in_addr]
@@ -1420,7 +1420,7 @@ add_word("source-id", SOURCE_ID)
 add_word("bye", lambda : sys.exit(0))
 add_word("words", WORDS)
 add_word("2drop", TWODROP)
-add_word(":code", COLON_CODE)
+add_word("code", CODE)
 add_word("compile,", COMPILE_COMMA)
 add_word("compile", COMPILE)
 add_word("d+", D_PLUS)
