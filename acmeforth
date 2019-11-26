@@ -223,6 +223,7 @@ def REFILL():
 			heap[tib_addr + tib_count] = c
 			tib_count += 1
 		heap[to_in_addr] = 0
+		heap[to_in_addr + 1] = 0
 		stack.append(-1)
 	else:
 		l = source_id.readline()
@@ -234,6 +235,7 @@ def REFILL():
 			for i in range(tib_count):
 				heap[tib_addr + i] = l[i]
 			heap[to_in_addr] = 0
+			heap[to_in_addr + 1] = 0
 			stack.append(-1)
 		else:	# EOF
 			stack.append(0)
