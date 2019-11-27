@@ -78,7 +78,8 @@ create pad 84 allot
 : ] -1 state ! ;
 : count dup 1+ swap c@ ;
 : /string dup >r - swap r> + swap ;
-: abort depth 0 do drop loop quit ;
+: abort depth 0 ?do drop loop quit ;
+: abort" postpone if postpone ." postpone cr postpone abort postpone then ; immediate
 : within over - >r - r> u< ; \ forth-standard.org
 : roll ?dup if swap >r 1- recurse r> swap then ;
 
