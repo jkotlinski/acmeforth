@@ -167,8 +167,6 @@ def compile_create_word(w):
 	add_primitive_dependency("pushya")
 
 	for i in range(w.body, w.body_end):
-		if heap[i] == None:
-			heap[i] = 0
 		if type(heap[i]) == type(0):
 			OUT.write("!byte\t" + str(heap[i]) + '\n')
 		elif callable(heap[i]):
@@ -199,10 +197,8 @@ def compile_body(w, start_ip = -1):
 		elif type(cell) == Ref:
 			OUT.write("\t!word IP_" + str(cell.addr) + "\n")
 			ip += 1
-		elif type(cell) == type(0):
+		elif type(cell) == int:
 			compile_byte(cell)
-		elif cell == None:
-			compile_byte(0)
 		else:
 			sys.exit("Unknown cell type " + str(cell))
 		ip += 1

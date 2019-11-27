@@ -54,6 +54,7 @@ class Stack:
 		return ord(c) if type(c) == str else c
 
 	def __setitem__(self, i, val):
+		assert type(val) == int or type(val) == str or callable(val) or type(val) == xc.Ref
 		self.stack[i] = val
 
 	def __repr__(self):
@@ -61,7 +62,7 @@ class Stack:
 
 class Heap:
 	def __init__(self, size):
-		self.heap = [None] * size
+		self.heap = [0] * size
 
 	def __getitem__(self, i):
 		c = self.heap[i]
@@ -71,6 +72,7 @@ class Heap:
 		return self.heap[i]
 
 	def __setitem__(self, i, val):
+		assert type(val) == int or type(val) == str or callable(val) or type(val) == xc.Ref
 		self.heap[i] = val
 
 	def __len__(self):
@@ -100,7 +102,6 @@ digits = "0123456789abcdefghijklmnopqrstuvwxyz"
 
 def append(val):
 	global here
-	assert type(val) == type(0) or type(val) == type("") or callable(val) or val == None or type(val) == xc.Ref
 	heap[here] = val
 	here += 1
 	if raw_data_word:
@@ -223,7 +224,6 @@ def REFILL():
 			heap[tib_addr + tib_count] = c
 			tib_count += 1
 		heap[to_in_addr] = 0
-		heap[to_in_addr + 1] = 0
 		stack.append(-1)
 	else:
 		l = source_id.readline()
@@ -235,7 +235,6 @@ def REFILL():
 			for i in range(tib_count):
 				heap[tib_addr + i] = l[i]
 			heap[to_in_addr] = 0
-			heap[to_in_addr + 1] = 0
 			stack.append(-1)
 		else:	# EOF
 			stack.append(0)
@@ -355,9 +354,9 @@ def STORE():
 	if type(v) == type(0):
 		heap[dst] = v & 0xff
 		heap[dst + 1] = v >> 8
-	elif callable(v) or v == None:
+	elif callable(v):
 		heap[dst] = v
-		heap[dst + 1] = None
+		heap[dst + 1] = 0
 	else:
 		assert False
 	DROP()
@@ -930,7 +929,7 @@ def COMMA():
 		append(v >> 8)
 	else:
 		append(v)
-		append(None)
+		append(0)
 
 def C_COMMA():
 	append(stack.getchar())
@@ -940,8 +939,8 @@ def WHILE():
 	append(words["0branch"].xt)
 	stack.append(here)
 	SWAP()
-	append(None)
-	append(None)
+	append(0)
+	append(0)
 
 def REPEAT():
 	append(words["branch"].xt)
