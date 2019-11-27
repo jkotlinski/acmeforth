@@ -39,6 +39,9 @@ class Stack:
 		self.stack.append(val)
 
 	def pop(self):
+		if len(stack) == 0:
+			print("Stack underflow")
+			ABORT()
 		val = self.stack.pop()
 		if type(val) == str: val = ord(val)
 		return val
@@ -194,9 +197,6 @@ def evaluate(word):
 	if word.lower() in words:
 		word = words[word.lower()]
 		word.xt()
-		if len(stack) < 0:
-			print("Stack underflow in '" + word.name + "'")
-			ABORT()
 	else:
 		if is_number(word):
 			evaluate_number(word)
