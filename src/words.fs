@@ -1358,10 +1358,10 @@ code	page
 
 : environment?
 2dup s" /COUNTED-STRING" s= if 2drop 255 true exit then
-2dup s" /HOLD" s= if 2drop 34 true exit then
-2dup s" /PAD" s= if 2drop 84 true exit then
-2dup s" ADDRESS-UNIT-BITS" s= if 2drop 8 true exit then
-2dup s" FLOORED" s= if 2drop true true exit then
+2dup s" /HOLD" s= if 2drop 34 true exit then \ minimum size: (2 x n) + 2 characters, where n is number of bits in a cell
+2dup s" /PAD" s= if 2drop 84 true exit then \ minimum size
+2dup s" ADDRESS-UNIT-BITS" s= if 2drop 8 true exit then \ 8 bits in a byte
+2dup s" FLOORED" s= if 2drop true true exit then \ symmetric division considered harmful
 2dup s" MAX-CHAR" s= if 2drop 255 true exit then
 2dup s" MAX-D" s= if 2drop -1 $7fff true exit then
 2dup s" MAX-N" s= if 2drop $7fff true exit then
