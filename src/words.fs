@@ -15,7 +15,7 @@ code 0
 : begin here ; immediate
 
 variable end
-create hold-buffer 80 allot
+create hold-buffer 34 allot
 : <# hold-buffer end ! ;
 : #> 2drop hold-buffer end @ over - ;
 : hold
@@ -1358,7 +1358,7 @@ code	page
 
 : environment?
 2dup s" /COUNTED-STRING" s= if 2drop 255 true exit then
-2dup s" /HOLD" s= if 2drop 80 true exit then
+2dup s" /HOLD" s= if 2drop 34 true exit then
 2dup s" /PAD" s= if 2drop 84 true exit then
 2dup s" ADDRESS-UNIT-BITS" s= if 2drop 8 true exit then
 2dup s" FLOORED" s= if 2drop true true exit then
@@ -1367,6 +1367,6 @@ code	page
 2dup s" MAX-N" s= if 2drop $7fff true exit then
 2dup s" MAX-U" s= if 2drop -1 true exit then
 2dup s" MAX-UD" s= if 2drop -1 -1 true exit then
-2dup s" RETURN-STACK-CELLS" s= if 2drop $80 true exit then
+2dup s" RETURN-STACK-CELLS" s= if 2drop $7a true exit then \ When entering start word, SP=$f4
 2dup s" STACK-CELLS" s= if 2drop $38 true exit then
 2drop false ;
