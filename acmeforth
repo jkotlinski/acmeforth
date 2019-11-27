@@ -471,6 +471,9 @@ def QUIT():
 	return_stack.clear()
 	tib_addr = original_tib_addr
 
+	if INPUT_FILE:
+		sys.exit(1)
+
 	while True:
 		REFILL()
 		stack.pop()
