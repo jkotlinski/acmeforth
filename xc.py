@@ -168,7 +168,7 @@ def compile_create_word(w):
 
 	for i in range(w.body, w.body_end):
 		if type(heap[i]) == type(0):
-			OUT.write("!byte\t" + str(heap[i]) + '\n')
+			OUT.write("\t!byte\t" + str(heap[i]) + '\n')
 		elif callable(heap[i]):
 			word = dictionary.xt_words[heap[i]]
 			if word not in words_to_export:
