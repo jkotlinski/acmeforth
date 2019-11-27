@@ -11,7 +11,7 @@ All [Forth 2012 core words](https://forth-standard.org/standard/core) are suppor
 
 ## Why?
 
- * Instant compiles
+ * Quick compiles
  * Lean output (no dictionary or unused words)
  * Macro support with CREATE/DOES>
  * Convenient text editing on PC
