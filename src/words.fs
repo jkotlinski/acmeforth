@@ -83,6 +83,20 @@ create pad 84 allot
 : within over - >r - r> u< ; \ forth-standard.org
 : roll ?dup if swap >r 1- recurse r> swap then ;
 
+\ from test suite
+: S=  \ ( ADDR1 C1 ADDR2 C2 -- T/F ) COMPARE TWO STRINGS.
+   >R SWAP R@ = IF         \ MAKE SURE STRINGS HAVE SAME LENGTH
+      R> ?DUP IF         \ IF NON-EMPTY STRINGS
+    0 DO
+       OVER C@ OVER C@ - IF 2DROP FALSE UNLOOP EXIT THEN
+       SWAP CHAR+ SWAP CHAR+
+         LOOP
+      THEN
+      2DROP TRUE         \ IF WE GET HERE, STRINGS MATCH
+   ELSE
+      R> DROP 2DROP FALSE      \ LENGTHS MISMATCH
+   THEN ;
+
 ( from FIG UK )
 : /mod >r s>d r> fm/mod ;
 : / /mod nip ;
