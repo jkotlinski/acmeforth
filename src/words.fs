@@ -1368,5 +1368,5 @@ code	page
 2dup s" MAX-U" s= if 2drop -1 true exit then
 2dup s" MAX-UD" s= if 2drop -1 -1 true exit then
 2dup s" RETURN-STACK-CELLS" s= if 2drop $80 true exit then
-2dup s" STACK-CELLS" s= if 2drop 19 true exit then
+2dup s" STACK-CELLS" s= if 2drop $38 2/ true exit then
 2drop false ;
