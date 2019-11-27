@@ -186,6 +186,9 @@ def evaluate_number(word):
 		number = -number
 	stack.append(ctypes.c_short(number).value)
 
+def ABORT():
+	words["abort"].xt()
+
 def evaluate(word):
 	global stack
 	if word.lower() in words:
@@ -193,14 +196,13 @@ def evaluate(word):
 		word.xt()
 		if len(stack) < 0:
 			print("Stack underflow in '" + word.name + "'")
-			stack = Stack()
-			QUIT()
+			ABORT()
 	else:
 		if is_number(word):
 			evaluate_number(word)
 		else:
 			print("Undefined word", word)
-			QUIT()
+			ABORT()
 
 def SOURCE_ID():
 	if tib_addr != original_tib_addr:
@@ -320,7 +322,7 @@ def compile(word):
 				C_COMMA()
 		else:
 			print("Undefined word", word)
-			QUIT()
+			ABORT()
 
 def interpret_tib():
 	while heap[to_in_addr] <= tib_count:
