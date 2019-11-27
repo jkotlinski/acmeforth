@@ -28,6 +28,7 @@ hold-buffer dup 1+ end @ hold-buffer - move
 dup $a < if 7 - then $37 + hold ;
 : #s # begin 2dup or while # repeat ;
 
+: i postpone r@ ; immediate
 : nip swap drop ;
 : \ refill 0= if source nip >in ! then ; immediate
 : 2r@ r> r> r> 2dup >r >r rot rot swap >r ;
@@ -419,10 +420,6 @@ code (do)
 	lda	W
 	pha
 	rts
-;code
-
-code	i
-	jmp %r@%
 ;code
 
 code	j
