@@ -640,7 +640,7 @@ def S_BACKSLASH_QUOTE():
 			elif 	c == ord('f'): l = [12]
 			elif 	c == ord('l'): l = [10]
 			elif 	c == ord('m'): l = [13, 10]
-			elif 	c == ord('n'): l = [13] # This value is correct for C64, wrong for PC :(
+			elif 	c == ord('n'): l = [xc.NEWLINE]
 			elif 	c == ord('q'): l = [34]
 			elif 	c == ord('r'): l = [13]
 			elif 	c == ord('t'): l = [9]
@@ -693,11 +693,9 @@ def R_FETCH():
 	stack.append(return_stack[-1])
 
 def TYPE():
-	l = heap[stack[-2] : stack[-2] + stack[-1]]
-	for i in range(len(l)):
-		if type(l[i]) == int:
-			l[i] = chr(l[i])
-	print("".join(l), end='', flush=True)
+	for c in heap[stack[-2] : stack[-2] + stack[-1]]:
+		stack.append(c)
+		EMIT()
 	words["2drop"].xt()
 
 def EXIT():
@@ -1154,7 +1152,12 @@ def SPACE():
 	print(" ", end='')
 
 def EMIT():
-	print(chr(stack.pop()), end='')
+	c = stack.pop()
+	if c == xc.NEWLINE:
+		c = '\n'
+	else:
+		c = chr(c)
+	print(c, end='')
 
 def DABS():
 	d = ctypes.c_int(stack[-1])
