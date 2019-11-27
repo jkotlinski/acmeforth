@@ -15,12 +15,12 @@ code 0
 : begin here ; immediate
 
 variable end
-create #buffer 80 allot
-: <# #buffer end ! ;
-: #> 2drop #buffer end @ over - ;
+create hold-buffer 80 allot
+: <# hold-buffer end ! ;
+: #> 2drop hold-buffer end @ over - ;
 : hold
-#buffer dup 1+ end @ #buffer - move
-1 end +!  #buffer c! ;
+hold-buffer dup 1+ end @ hold-buffer - move
+1 end +!  hold-buffer c! ;
 : sign 0< if '-' hold then ;
 : ud/mod
 >r 0 r@ um/mod r> swap >r um/mod r> ;
@@ -1355,3 +1355,18 @@ code	page
 	lda	#$93
 	jmp	PUTCHR
 ;code
+
+: environment?
+2dup s" /COUNTED-STRING" s= if 2drop 255 true exit then
+2dup s" /HOLD" s= if 2drop 80 true exit then
+2dup s" /PAD" s= if 2drop 84 true exit then
+2dup s" ADDRESS-UNIT-BITS" s= if 2drop 8 true exit then
+2dup s" FLOORED" s= if 2drop true true exit then
+2dup s" MAX-CHAR" s= if 2drop 255 true exit then
+2dup s" MAX-D" s= if 2drop -1 $7fff true exit then
+2dup s" MAX-N" s= if 2drop $7fff true exit then
+2dup s" MAX-U" s= if 2drop -1 true exit then
+2dup s" MAX-UD" s= if 2drop -1 -1 true exit then
+2dup s" RETURN-STACK-CELLS" s= if 2drop $80 true exit then
+2dup s" STACK-CELLS" s= if 2drop 19 true exit then
+2drop false ;
