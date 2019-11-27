@@ -41,7 +41,6 @@ K_SPACE = ' '
 	stx INIT_S
 	ldx #X_INIT
 	jsr WORD_0
-
 BYE
 INIT_S = * + 1
 	ldx	#0

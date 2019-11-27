@@ -318,7 +318,7 @@ def add_primitive(word_name):
 def write_header():
 	location = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 	asm_header_path = os.path.join(location, "src/header.asm")
-	OUT.write(open(asm_header_path, "r").read())
+	OUT.write(open(asm_header_path, "r").read() + "\n")
 
 def export_doer(ip):
 	if ip in exported_doers:
