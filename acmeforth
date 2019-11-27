@@ -3,6 +3,7 @@
 DEBUG = 0
 
 import ctypes
+import dictionary
 import os
 import readline
 import sys
@@ -23,9 +24,8 @@ class Word:
 	@xt.setter
 	def xt(self, xt):
 		self.__xt = xt
-		if xt in xt_words:
-			sys.exit("xt " + str(xt) + " used by multiple words")
-		xt_words[xt] = self
+		assert xt not in dictionary.xt_words
+		dictionary.xt_words[xt] = self
 
 	def __repr__(self):
 		return self.name
@@ -81,13 +81,11 @@ class Heap:
 	def __len__(self):
 		return len(self.heap)
 
-words = {}
-xt_words = {}
+dictionary = dictionary.Dictionary()
 stack = Stack()
 return_stack = []
 leave_stack = []
 tib_count = 0
-latest = None
 ip = 0
 
 # Forth variable space.
@@ -122,11 +120,11 @@ def TO_IN():
 	stack.append(to_in_addr)
 
 def add_word(name, xt, immediate = False):
-	words[name] = Word(name, xt, immediate)
+	dictionary.words[name] = Word(name, xt, immediate)
 
 def get_base():
-	if "base" in words:
-		words["base"].xt()
+	if "base" in dictionary.words:
+		dictionary.words["base"].xt()
 		base_addr = stack.pop()
 		base = heap[base_addr]
 	if not base:
@@ -190,12 +188,12 @@ def evaluate_number(word):
 	stack.append(ctypes.c_short(number).value)
 
 def ABORT():
-	words["abort"].xt()
+	dictionary.words["abort"].xt()
 
 def evaluate(word):
 	global stack
-	if word.lower() in words:
-		word = words[word.lower()]
+	if word.lower() in dictionary.words:
+		word = dictionary.words[word.lower()]
 		word.xt()
 	else:
 		if is_number(word):
@@ -279,19 +277,18 @@ def read_word():
 		stack.pop()
 
 def CREATE():
-	global latest
 	global raw_data_word
-	latest = read_word().lower()
+	dictionary.latest = read_word().lower()
 	previous_word = None
-	if latest in words:
-		previous_word = words[latest]
+	if dictionary.latest in dictionary.words:
+		previous_word = dictionary.words[dictionary.latest]
 		SOURCE_ID()
 		if stack.pop() == 0:
 			print("redefined " + previous_word.name)
-	words[latest] = Word(latest, lambda l=here : stack.append(xc.Ref(l)), False)
-	words[latest].body = here
-	words[latest].body_end = here
-	raw_data_word = words[latest]
+	dictionary.words[dictionary.latest] = Word(dictionary.latest, lambda l=here : stack.append(xc.Ref(l)), False)
+	dictionary.words[dictionary.latest].body = here
+	dictionary.words[dictionary.latest].body_end = here
+	raw_data_word = dictionary.words[dictionary.latest]
 	return previous_word
 
 def VARIABLE():
@@ -301,24 +298,25 @@ def VARIABLE():
 
 def compile(word):
 	global stack
-	if word.lower() in words:
+	words = dictionary.words
+	if word.lower() in dictionary.words:
 		word = word.lower()
-		if words[word].immediate:
-			words[word].xt()
+		if dictionary.words[word].immediate:
+			dictionary.words[word].xt()
 		else:
-			append(words[word].xt)
+			append(dictionary.words[word].xt)
 	else:
-		if word in xc.code_words:
+		if word in dictionary.code_words:
 			w = Word(word, lambda word=word : sys.exit("code word " + word), False)
 			append(w.xt)
 		elif is_number(word):
 			evaluate_number(word)
 			val = stack.getchar()
 			if type(val) == int and val & 0xff00:
-				append(words["lit"].xt)
+				append(dictionary.words["lit"].xt)
 				COMMA()
 			else:
-				append(words["litc"].xt)
+				append(dictionary.words["litc"].xt)
 				C_COMMA()
 		else:
 			print("Undefined word", word)
@@ -344,7 +342,7 @@ def C_STORE():
 	dst = stack[-1]
 	v = stack[-2]
 	heap[dst] = v & 0xff
-	words["2drop"].xt()
+	dictionary.words["2drop"].xt()
 
 def STORE():
 	dst = stack[-1]
@@ -393,18 +391,18 @@ def COLON():
 	global compiling_word
 	global raw_data_word
 	old_word = CREATE()
-	compiling_word = words[latest]
+	compiling_word = dictionary.words[dictionary.latest]
 	raw_data_word = None
-	words[latest] = old_word
+	dictionary.words[dictionary.latest] = old_word
 	compiling_word.xt = lambda ip = compiling_word.body : docol(ip)
 	set_state(True)
 
 def SEMICOLON():
 	global compiling_word
-	append(words["exit"].xt)
+	append(dictionary.words["exit"].xt)
 	set_state(False)
 	if compiling_word:
-		words[latest] = compiling_word
+		dictionary.words[dictionary.latest] = compiling_word
 		compiling_word.body_end = here
 		compiling_word = None
 
@@ -449,7 +447,7 @@ def ZBRANCH():
 		BRANCH()
 
 def ELSE():
-	append(words["branch"].xt)
+	append(dictionary.words["branch"].xt)
 	stack.append(0)
 	COMMA()
 	heap[stack[-1]] = xc.Ref(here)
@@ -490,7 +488,7 @@ def J():
 	stack.append(return_stack[-4])
 
 def DO():
-	append(words["(do)"].xt)
+	append(dictionary.words["(do)"].xt)
 	stack.append(here)
 
 def _DO():
@@ -503,7 +501,7 @@ def _QUESTION_DO():
 	EQUALS()
 	if stack.pop():
 		# Don't enter loop.
-		words["2drop"].xt()
+		dictionary.words["2drop"].xt()
 		BRANCH()
 	else:
 		# Enter loop.
@@ -511,7 +509,7 @@ def _QUESTION_DO():
 		ip += 2
 
 def QUESTION_DO():
-	append(words["(?do)"].xt)
+	append(dictionary.words["(?do)"].xt)
 	leave_stack.append(here)
 	stack.append(0)
 	COMMA()
@@ -527,7 +525,7 @@ def resolve_leaves():
 		heap[dst] = xc.Ref(here)
 
 def LOOP():
-	append(words["(loop)"].xt)
+	append(dictionary.words["(loop)"].xt)
 	DUP()
 	COMMA()
 	resolve_leaves()
@@ -545,15 +543,15 @@ def _LOOP():
 
 def LEAVE():
 	UNLOOP()
-	append(words["branch"].xt)
+	append(dictionary.words["branch"].xt)
 	leave_stack.append(here)
 	stack.append(0)
 	COMMA()
 
 def UNLOOP():
-	append(words["r>"].xt)
-	append(words["r>"].xt)
-	append(words["2drop"].xt)
+	append(dictionary.words["r>"].xt)
+	append(dictionary.words["r>"].xt)
+	append(dictionary.words["2drop"].xt)
 
 # forth-standard.org
 def WITHIN(): # ( test lower upper -- flag )
@@ -565,7 +563,7 @@ def WITHIN(): # ( test lower upper -- flag )
 	U_LESS()
 
 def PLUSLOOP():
-	append(words["(+loop)"].xt)
+	append(dictionary.words["(+loop)"].xt)
 	DUP()
 	COMMA()
 	resolve_leaves()
@@ -622,7 +620,7 @@ def S_QUOTE():
 		if c == ord('"'):
 			break
 		s += chr(c)
-	append(words["sliteral"].xt)
+	append(dictionary.words["sliteral"].xt)
 	append(len(s))
 	for c in s:
 		append(c)
@@ -663,15 +661,15 @@ def S_BACKSLASH_QUOTE():
 		else:
 			s += chr(c)
 
-	append(words["sliteral"].xt)
+	append(dictionary.words["sliteral"].xt)
 	append(len(s))
 	for c in s:
 		append(c)
 
 def C_QUOTE():
 	S_QUOTE()
-	append(words["drop"].xt)
-	append(words["1-"].xt)
+	append(dictionary.words["drop"].xt)
+	append(dictionary.words["1-"].xt)
 
 def FETCH():
 	src = stack[-1]
@@ -698,7 +696,7 @@ def TYPE():
 	for c in heap[stack[-2] : stack[-2] + stack[-1]]:
 		stack.append(c)
 		EMIT()
-	words["2drop"].xt()
+	dictionary.words["2drop"].xt()
 
 def EXIT():
 	global ip
@@ -783,8 +781,8 @@ def CONSTANT():
 	global raw_data_word
 	CREATE()
 	v = stack.pop()
-	words[latest].xt = lambda : stack.append(v)
-	words[latest].constant_value = v
+	dictionary.words[dictionary.latest].xt = lambda : stack.append(v)
+	dictionary.words[dictionary.latest].constant_value = v
 	raw_data_word = None
 
 def TWOMUL():
@@ -895,6 +893,7 @@ def Q_D_NEGATE():
 
 def POSTPONE():
 	name = read_word().lower()
+	words = dictionary.words
 	if words[name].immediate:
 		# Compiles the word instead of executing it immediately.
 		append(words[name].xt)
@@ -911,13 +910,13 @@ def HERE():
 	word = None
 	if raw_data_word:
 		word = raw_data_word
-	elif words[latest] and not "CREATE" in str(words[latest].xt):
+	elif dictionary.words[dictionary.latest] and not "CREATE" in str(dictionary.words[dictionary.latest].xt):
 		label = "here_" + str(here)
-		if label not in words:
+		if label not in dictionary.words:
 			raw_data_word = Word(label, lambda : None, False)
 			raw_data_word.body = here
 			raw_data_word.body_end = here
-			words[label] = raw_data_word
+			dictionary.words[label] = raw_data_word
 			word = raw_data_word
 	stack.append(xc.Ref(here, word))
 
@@ -936,25 +935,25 @@ def C_COMMA():
 	stack.pop()
 
 def WHILE():
-	append(words["0branch"].xt)
+	append(dictionary.words["0branch"].xt)
 	stack.append(here)
 	SWAP()
 	append(0)
 	append(0)
 
 def REPEAT():
-	append(words["branch"].xt)
+	append(dictionary.words["branch"].xt)
 	COMMA()
 	orig = stack.pop()
 	heap[orig] = here & 0xff
 	heap[orig + 1] = here >> 8
 
 def UNTIL():
-	append(words["0branch"].xt)
+	append(dictionary.words["0branch"].xt)
 	COMMA()
 
 def AGAIN():
-	append(words["branch"].xt)
+	append(dictionary.words["branch"].xt)
 	COMMA()
 
 def CHAR():
@@ -968,7 +967,7 @@ def COMPILE_CHAR():
 
 def TICK():
 	w = read_word().lower()
-	xt = words[w].xt
+	xt = dictionary.words[w].xt
 	stack.append(xt)
 
 def COMPILE_TICK():
@@ -976,15 +975,15 @@ def COMPILE_TICK():
 	LITERAL()
 
 def IMMEDIATE():
-	words[latest].immediate = True
+	dictionary.words[dictionary.latest].immediate = True
 
 def FIND(): # ( c-addr -- c-addr 0 | xt 1 | xt -1 )
 	wordname = ""
 	addr = stack[-1]
 	for i in range(heap[addr]):
 		wordname += chr(heap[addr + i + 1]).lower()
-	if wordname in words:
-		word = words[wordname]
+	if wordname in dictionary.words:
+		word = dictionary.words[wordname]
 		stack[-1] = word.xt
 		stack.append(1 if word.immediate else -1)
 	else:
@@ -1013,13 +1012,13 @@ def DOES_TO():
 	def dodoes(code, data):
 		stack.append(data)
 		docol(code)
-	w = words[latest]
+	w = dictionary.words[dictionary.latest]
 	w.xt = lambda code=ip, data=w.body : dodoes(code, data)
 	w.xt_ip = ip
 	EXIT()
 
 def TO_BODY(): # ( xt -- a-addr )
-	for word in words.values():
+	for word in dictionary.words.values():
 		assert word
 		if word.xt == stack[-1]:
 			stack[-1] = xc.Ref(word.body)
@@ -1098,7 +1097,7 @@ def HASH_S(): # ( ud1 -- ud2 )
 
 def RT_HASH(): # ( xd -- c-addr u )
 	global format_addr
-	words["2drop"].xt()
+	dictionary.words["2drop"].xt()
 	stack.append(pictured_numeric_addr)
 	stack.append(format_addr - here)
 	dst = pictured_numeric_addr
@@ -1136,19 +1135,19 @@ def FILL(): # ( c-addr u char -- )
 		heap[stack[-3]] = stack[-1]
 		stack[-2] -= 1
 		stack[-3] += 1
-	words["2drop"].xt()
+	dictionary.words["2drop"].xt()
 	DROP()
 
 def MOVE(): # ( src dst u -- )
 	tmp = heap[stack[-3] : stack[-3] + stack[-1]]
 	for i in range(len(tmp)):
 		heap[stack[-2] + i] = tmp[i]
-	words["2drop"].xt()
+	dictionary.words["2drop"].xt()
 	DROP()
 
 def DOT_QUOTE():
 	S_QUOTE()
-	append(words["type"].xt)
+	append(dictionary.words["type"].xt)
 
 def SPACE():
 	print(" ", end='')
@@ -1183,15 +1182,14 @@ def DOT_LPAREN():
 noname_counter = 0
 def COLON_NONAME():
 	global compiling_word
-	global latest
 	global noname_counter
 	global raw_data_word
-	latest = "_:NONAME" + str(noname_counter)
+	dictionary.latest = "_:NONAME" + str(noname_counter)
 	noname_counter += 1
 	ip = here
-	compiling_word = Word(latest, lambda ip=ip : docol(ip), False)
-	words[latest] = compiling_word
-	words[latest].body = ip
+	compiling_word = Word(dictionary.latest, lambda ip=ip : docol(ip), False)
+	dictionary.words[dictionary.latest] = compiling_word
+	dictionary.words[dictionary.latest].body = ip
 	stack.append(compiling_word.xt)
 	compiling_word.ip = ip
 	raw_data_word = None
@@ -1207,15 +1205,15 @@ def UNUSED():
 	stack.append(ctypes.c_short(len(heap) - here).value)
 
 def MARKER():
-	old_words = words.copy()
+	old_dictionary = dictionary.copy()
 	old_here = here
 	CREATE()
 	def restore():
 		global here
-		global words
+		global dictionary
 		here = old_here
-		words = old_words
-	words[latest].xt = restore
+		dictionary = old_dictionary
+	dictionary.words[dictionary.latest].xt = restore
 
 def COMPILE_COMMA():
 	append(stack.pop())
@@ -1227,7 +1225,7 @@ def TO():
 		stack.append(LIT)
 		COMPILE_COMMA()
 		COMMA()
-		stack.append(words["!"].xt)
+		stack.append(dictionary.words["!"].xt)
 		COMPILE_COMMA()
 	else:
 		STORE()
@@ -1269,7 +1267,7 @@ def PARSE():
 
 def WORDS():
 	l = []
-	for k in words.keys():
+	for k in dictionary.words.keys():
 		l.append(str(k))
 	l.sort()
 	print(" ".join(l))
@@ -1278,7 +1276,7 @@ def COMPILE():
 	name = parse(' ')
 	outfile = name + ".asm"
 	print("compile", name, "to", outfile, "...")
-	xc.compile(words, xt_words, heap, words[name], outfile)
+	xc.compile(dictionary, heap, name, outfile)
 	print("ok")
 
 def CODE():
@@ -1289,7 +1287,7 @@ def CODE():
 		w = parse(' ')
 		if w:
 			if w.lower() == ";code":
-				xc.code_words[word_name] = code
+				dictionary.code_words[word_name] = code
 				return
 			code += "".join(heap[tib_addr + prev_to_in : tib_addr + heap[to_in_addr]])
 			prev_to_in = heap[to_in_addr]

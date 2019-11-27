@@ -6,7 +6,6 @@ import sys
 
 NEWLINE = 256
 
-code_words = {}
 OUT = None
 
 refs = {}
@@ -69,19 +68,17 @@ def word_name_hash(word_name):
 		word_hashes.append(word_name)
 	return "WORD_" + str(word_hashes.index(word_name))
 
-def compile(words_, xt_words_, heap_, start_word, outfile):
-	global words
-	global xt_words
+def compile(dictionary_, heap_, start_word_name, outfile):
+	global dictionary
 	global heap
 	global OUT
 
 	OUT = open(outfile, "w")
 
-	words = words_
-	xt_words = xt_words_
+	dictionary = dictionary_
 	heap = heap_
 
-	words_to_export.append(start_word)
+	words_to_export.append(dictionary.words[start_word_name])
 
 	write_header()
 
@@ -150,7 +147,7 @@ def compile_constant_word(w):
 		OUT.write("\tldy\t#" + str((w.constant_value >> 8) & 0xff) + "\n")
 		OUT.write("\tlda\t#" + str(w.constant_value & 0xff) + "\n")
 	elif callable(w.constant_value):
-		word = xt_words[w.constant_value]
+		word = dictionary.xt_words[w.constant_value]
 		if word not in words_to_export:
 			words_to_export.append(word)
 		OUT.write("\tldy\t#>" + word_name_hash(word.name) + "\t; " + word.name + "\n")
@@ -173,7 +170,7 @@ def compile_create_word(w):
 		if type(heap[i]) == type(0):
 			OUT.write("!byte\t" + str(heap[i]) + '\n')
 		elif callable(heap[i]):
-			word = xt_words[heap[i]]
+			word = dictionary.xt_words[heap[i]]
 			if word not in words_to_export:
 				words_to_export.append(word)
 			OUT.write("\t!word " + word_name_hash(word.name) + "\t; " + word.name + "\n")
@@ -195,7 +192,7 @@ def compile_body(w, start_ip = -1):
 		OUT.write("IP_" + str(ip) + "\n")
 		cell = heap[ip]
 		if callable(cell):
-			cell_word = xt_words[cell]
+			cell_word = dictionary.xt_words[cell]
 			ip = compile_call(cell_word, ip)
 		elif type(cell) == Ref:
 			OUT.write("\t!word IP_" + str(cell.addr) + "\n")
@@ -262,7 +259,7 @@ def compile_call(callee, ip):
 		ip += 1
 		val = heap.getchar(ip)
 		if callable(val):
-			word = xt_words[heap[ip]]
+			word = dictionary.xt_words[heap[ip]]
 			if word not in words_to_export:
 				words_to_export.append(word)
 			OUT.write("\t!word " + word_name_hash(word.name) + "\t; " + word.name + "\n")
@@ -298,11 +295,11 @@ def add_primitive(word_name):
 		return
 	added_primitives.add(word_name)
 
-	if word_name in code_words:
+	if word_name in dictionary.code_words:
 		OUT.write(word_name_hash(word_name) + "\t; " + word_name + "\n")
 		# Expands %FORTH_WORD% to the corresponding assembly label.
 		pattern = re.compile("(.*)%(.*)%(.*)")
-		for line in code_words[word_name].split('\n'):
+		for line in dictionary.code_words[word_name].split('\n'):
 			m = pattern.match(line)
 			if m:
 				pre,word,post = m.groups()
@@ -312,7 +309,7 @@ def add_primitive(word_name):
 			OUT.write(line + "\n")
 		OUT.write("\n")
 	else:
-		for w in words.values():
+		for w in dictionary.words.values():
 			if w.name == word_name and w.body:
 				export_word(w)
 				return
@@ -327,7 +324,7 @@ def export_doer(ip):
 	if ip in exported_doers:
 		return
 	exported_doers.add(ip)
-	for w in words.values():
+	for w in dictionary.words.values():
 		if w.body and w.body_end and w.body <= ip and ip < w.body_end:
 			OUT.write("\t;doer " + w.name + "\n")
 			compile_body(w, ip)
