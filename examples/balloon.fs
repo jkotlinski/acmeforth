@@ -16,7 +16,7 @@ begin $d011 c@ $80 and until ;
 4 $d015 c! \ enable sprite 2
 13 $7fa c! \ sprite 2 data from 13th block
 sprite $340 63 move \ copy sprite to 13th block
-begin 200 0 do 
+begin 200 0 do
 vsync vsync vsync vsync \ slow down
 i $d004 c! i $d005 c! \ move sprite
 loop again ;
