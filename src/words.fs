@@ -1192,37 +1192,89 @@ CMOVE_BACK
 	jmp cmove_done
 ;code
 
+\ from cc65 memset.s
+\ Ullrich von Bassewitz, 29.05.1998
+\ Performance increase (about 20%) by
+\ Christian Krueger, 12.09.2009, slightly improved 12.01.2011
 code	fill
-    lda	LSB, x
-    tay
-    lda	LSB + 2, x
-    sta	.fdst
-    lda	MSB + 2, x
-    sta	.fdst + 1
-    lda	LSB + 1, x
-    eor	#$ff
-    sta	W
-    lda	MSB + 1, x
-    eor	#$ff
-    sta	W + 1
-    inx
-    inx
-    inx
--
-    inc	W
-    bne	+
-    inc	W + 1
-    bne	+
-    rts
-+
-.fdst = * + 1
-    sty	$ffff ; overwrite
+ptr1 = W
+ptr2 = W2
+ptr3 = W3
 
-    ; advance
-    inc	.fdst
-    bne	-
-    inc	.fdst + 1
-    jmp	-
+	txa
+	pha
+
+	lda	MSB+1,x
+	sta	ptr3+1
+	lda	LSB+1,x
+        sta     ptr3            ; Save n
+
+	; ptr1 = c-addr
+	lda	MSB+2,x
+	sta	ptr1+1
+	lda	LSB+2,x
+	sta	ptr1
+
+	; x = char
+	lda	LSB,x
+        tax
+	ldy	#0
+
+        lsr     ptr3+1          ; divide number of
+        ror     ptr3            ; bytes by two to increase
+        bcc     evenCount       ; speed (ptr3 = ptr3/2)
+oddCount:
+                                ; y is still 0 here
+        txa                     ; restore fill value
+        sta     (ptr1),y        ; save value and increase
+        inc     ptr1            ; dest. pointer
+        bne     evenCount
+        inc     ptr1+1
+evenCount:
+        lda     ptr1            ; build second pointer section
+        clc
+        adc     ptr3            ; ptr2 = ptr1 + (length/2) <- ptr3
+        sta     ptr2
+        lda     ptr1+1
+        adc     ptr3+1
+        sta     ptr2+1
+
+        txa                     ; restore fill value
+        ldx     ptr3+1          ; Get high byte of n
+        beq     L2              ; Jump if zero
+
+; Set 256/512 byte blocks
+                                ; y is still 0 here
+L1:
+        sta     (ptr1),y        ; Set byte in lower section
+        sta     (ptr2),y        ; Set byte in upper section
+        iny
+        sta     (ptr1),y        ; Set byte in lower section
+        sta     (ptr2),y        ; Set byte in upper section
+        iny
+
+        bne     L1
+        inc     ptr1+1
+        inc     ptr2+1
+        dex                     ; Next 256 byte block
+        bne     L1              ; Repeat if any
+
+; Set the remaining bytes if any
+
+L2:     ldy     ptr3            ; Get the low byte of n
+        beq     leave           ; something to set? No -> leave
+
+L3:     dey
+        sta     (ptr1),y                ; set bytes in low
+        sta     (ptr2),y                ; and high section
+        bne     L3              ; flags still up to date from dey!
+leave:
+	pla
+	tax
+	inx
+	inx
+	inx
+	rts
 ;code
 
 code	key?
