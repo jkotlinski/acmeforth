@@ -38,7 +38,7 @@ dup $a < if 7 - then $37 + hold ;
 : 2+ 1+ 1+ ;
 : cell+ 2+ ;
 : 2@ dup cell+ @ swap @ ;
-: 2! swap over ! cell+ ! ;
+: 2! swap over ! 2+ ! ;
 : cells 2* ;
 : s>d dup 0< ;
 : min 2dup < if drop else nip then ;
@@ -981,14 +981,6 @@ code	2@
 	jsr	%@%
 	jsr	%swap%
 	jmp	%@%
-;code
-
-code	2!
-	jsr	%swap%
-	jsr	%over%
-	jsr	%!%
-	jsr	%2+%
-	jmp	%!%
 ;code
 
 code	bye
