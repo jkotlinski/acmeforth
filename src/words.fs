@@ -1117,15 +1117,15 @@ ptr3 = W3
 ; handle fractions of a page size first
 
         ldy     ptr3            ; count, low byte
-        bne     @entry          ; something to copy?
+        bne     .entry          ; something to copy?
         beq     PageSizeCopy    ; here like bra...
 
-@copyByte:
+.copyByte:
         lda     (ptr1),y
         sta     (ptr2),y
-@entry:
+.entry:
         dey
-        bne     @copyByte
+        bne     .copyByte
         lda     (ptr1),y        ; copy remaining byte
         sta     (ptr2),y
 
@@ -1133,11 +1133,11 @@ PageSizeCopy:                   ; assert Y = 0
         ldx     ptr3+1          ; number of pages
         beq     done            ; none? -> done
 
-@initBase:
+.initBase:
         dec     ptr1+1          ; adjust base...
         dec     ptr2+1
         dey                     ; in entry case: 0 -> FF
-@copyBytes:
+.copyBytes:
         lda     (ptr1),y        ; important: unrolling three times gives a nice
         sta     (ptr2),y        ; 255/3 = 85 loop which ends at 0
         dey
@@ -1147,12 +1147,12 @@ PageSizeCopy:                   ; assert Y = 0
         lda     (ptr1),y        ; important: unrolling three times gives a nice
         sta     (ptr2),y        ; 255/3 = 85 loop which ends at 0
         dey
-@copyEntry:                     ; in entry case: 0 -> FF
-        bne     @copyBytes
+.copyEntry:                     ; in entry case: 0 -> FF
+        bne     .copyBytes
         lda     (ptr1),y        ; Y = 0, copy last byte
         sta     (ptr2),y
         dex                     ; one page to copy less
-        bne     @initBase       ; still a page to copy?
+        bne     .initBase       ; still a page to copy?
 
 done
 	pla
