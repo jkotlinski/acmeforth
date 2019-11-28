@@ -1243,7 +1243,7 @@ def LITERAL():
 	if callable(top):
 		append(LIT)
 		COMMA()
-	elif type(top) == int and top & 0xff00:
+	elif (type(top) == int and top & 0xff00) or type(top) == xc.Ref:
 		append(LIT)
 		COMMA()
 	else:
