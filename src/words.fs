@@ -1078,118 +1078,140 @@ code	dodoes
     jmp (W2)
 ;code
 
+\ from cc65 memmove.s
+\ 2003-08-20, Ullrich von Bassewitz
+\ 2009-09-13, Christian Krueger -- performance increase (about 20%), 2013-07-25 improved unrolling
+\ 2015-10-23, Greg King
 code	move
-; routines adapted from cc65
-; original by Ullrich von Bassewitz, Christian Krueger, Greg King
-SRC = W
-DST = W2
-LEN = W3
-    jsr %>r%
-    jsr %2dup%
-    jsr %u<%
-    jsr %r>%
-    jsr %swap%
-    jsr %0branch%
-    !word CMOVE
-    jmp CMOVE_BACK
-CMOVE
-    txa
-    pha
-	jsr cmove_getparams
-	ldy #0
-	ldx	LEN + 1
-	beq	.l2
-.l1
-	lda	(SRC),y ; copy byte
-	sta	(DST),y
-	iny
-	lda	(SRC),y ; copy byte again, to make it faster
-	sta	(DST),y
-	iny
-	bne .l1
-	inc	SRC + 1
-	inc DST + 1
-	dex ; next 256-byte block
-	bne .l1
-.l2
-	ldx	LEN
-	beq cmove_done
-.l3
-	lda (SRC),y
-	sta	(DST),y
-	iny
-	dex
-	bne	.l3
-cmove_done
-	pla
-    clc
-	adc #3
-	tax
-	rts
-
-cmove_getparams:
-	lda	LSB, x
-	sta	LEN
-	lda	MSB, x
-	sta	LEN + 1
-	lda	LSB + 1, x
-	sta	DST
-	lda	MSB + 1, x
-	sta	DST + 1
-	lda	LSB + 2, x
-	sta	SRC
-	lda	MSB + 2, x
-	sta	SRC + 1
-	rts
-
-CMOVE_BACK
+; Check for the copy direction. If dest < src, we must copy upwards (start at
+; low addresses and increase pointers), otherwise we must copy downwards
+; (start at high addresses and decrease pointers).
+ptr1 = W
+ptr2 = W2
+ptr3 = W3
 	txa
 	pha
-	jsr cmove_getparams
-    ; copy downwards. adjusts pointers to the end of memory regions.
-    lda SRC + 1
-    clc
-    adc LEN + 1
-    sta SRC + 1
-    lda DST + 1
-    clc
-    adc LEN + 1
-    sta DST + 1
 
-    ldy LEN
-    bne .entry
-    beq .pagesizecopy
-.copybyte
-    lda (SRC),y
-    sta (DST),y
-.entry
-    dey
-    bne .copybyte
-    lda (SRC),y
-    sta (DST),y
-.pagesizecopy
-    ldx LEN + 1
-    beq cmove_done
-.initbase
-    dec SRC + 1
-    dec DST + 1
-    dey
-    lda (SRC),y
-    sta (DST),y
-    dey
-.copybytes
-    lda (SRC),y
-    sta (DST),y
-    dey
-    lda (SRC),y
-    sta (DST),y
-    dey
-    bne .copybytes
-    lda (SRC),y
-    sta (DST),y
-    dex
-    bne .initbase
-	jmp cmove_done
+	ldy	#0
+
+	; ptr3 = n
+	lda	MSB,x
+	sta	ptr3+1
+	lda	LSB,x
+	sta	ptr3
+
+	; ptr1 = src
+	lda	MSB+2,x
+	sta	ptr1+1
+	lda	LSB+2,x
+	sta	ptr1
+
+	; ptr2 = dst
+	lda	MSB+1,x
+	sta	ptr2+1
+	lda	LSB+1,x
+	sta	ptr2
+
+; Check for the copy direction. If dest < src, we must copy upwards (start at
+; low addresses and increase pointers), otherwise we must copy downwards
+; (start at high addresses and decrease pointers).
+
+        cmp     ptr1
+	lda	ptr2+1
+        sbc     ptr1+1
+        bcc     memcpy_upwards  ; Branch if dest < src (upwards copy)
+
+; Copy downwards. Adjust the pointers to the end of the memory regions.
+
+        lda     ptr1+1
+	clc
+        adc     ptr3+1
+        sta     ptr1+1
+
+        lda     ptr2+1
+	clc
+        adc     ptr3+1
+        sta     ptr2+1
+
+; handle fractions of a page size first
+
+        ldy     ptr3            ; count, low byte
+        bne     @entry          ; something to copy?
+        beq     PageSizeCopy    ; here like bra...
+
+@copyByte:
+        lda     (ptr1),y
+        sta     (ptr2),y
+@entry:
+        dey
+        bne     @copyByte
+        lda     (ptr1),y        ; copy remaining byte
+        sta     (ptr2),y
+
+PageSizeCopy:                   ; assert Y = 0
+        ldx     ptr3+1          ; number of pages
+        beq     done            ; none? -> done
+
+@initBase:
+        dec     ptr1+1          ; adjust base...
+        dec     ptr2+1
+        dey                     ; in entry case: 0 -> FF
+@copyBytes:
+        lda     (ptr1),y        ; important: unrolling three times gives a nice
+        sta     (ptr2),y        ; 255/3 = 85 loop which ends at 0
+        dey
+        lda     (ptr1),y        ; important: unrolling three times gives a nice
+        sta     (ptr2),y        ; 255/3 = 85 loop which ends at 0
+        dey
+        lda     (ptr1),y        ; important: unrolling three times gives a nice
+        sta     (ptr2),y        ; 255/3 = 85 loop which ends at 0
+        dey
+@copyEntry:                     ; in entry case: 0 -> FF
+        bne     @copyBytes
+        lda     (ptr1),y        ; Y = 0, copy last byte
+        sta     (ptr2),y
+        dex                     ; one page to copy less
+        bne     @initBase       ; still a page to copy?
+
+done
+	pla
+	tax
+	inx
+	inx
+	inx
+	rts
+
+memcpy_upwards:                 ; assert Y = 0
+        ldx     ptr3+1          ; Get high byte of n
+        beq     L2              ; Jump if zero
+
+L1:
+        lda     (ptr1),Y        ; copy a byte
+        sta     (ptr2),Y
+        iny
+        lda     (ptr1),Y        ; copy a byte
+        sta     (ptr2),Y
+        iny
+        bne     L1
+        inc     ptr1+1
+        inc     ptr2+1
+        dex                     ; Next 256 byte block
+        bne     L1              ; Repeat if any
+
+        ; the following section could be 10% faster if we were able to copy
+        ; back to front - unfortunately we are forced to copy strict from
+        ; low to high since this function is also used for
+        ; memmove and blocks could be overlapping!
+L2:                             ; assert Y = 0
+        ldx     ptr3            ; Get the low byte of n
+        beq     done            ; something to copy
+
+L3:     lda     (ptr1),Y        ; copy a byte
+        sta     (ptr2),Y
+        iny
+        dex
+        bne     L3
+	jmp	done
 ;code
 
 \ from cc65 memset.s
@@ -1241,11 +1263,11 @@ evenCount:
 
         txa                     ; restore fill value
         ldx     ptr3+1          ; Get high byte of n
-        beq     L2              ; Jump if zero
+        beq     .L2              ; Jump if zero
 
 ; Set 256/512 byte blocks
                                 ; y is still 0 here
-L1:
+.L1:
         sta     (ptr1),y        ; Set byte in lower section
         sta     (ptr2),y        ; Set byte in upper section
         iny
@@ -1253,21 +1275,21 @@ L1:
         sta     (ptr2),y        ; Set byte in upper section
         iny
 
-        bne     L1
+        bne     .L1
         inc     ptr1+1
         inc     ptr2+1
         dex                     ; Next 256 byte block
-        bne     L1              ; Repeat if any
+        bne     .L1              ; Repeat if any
 
 ; Set the remaining bytes if any
 
-L2:     ldy     ptr3            ; Get the low byte of n
+.L2:     ldy     ptr3            ; Get the low byte of n
         beq     leave           ; something to set? No -> leave
 
-L3:     dey
+.L3:     dey
         sta     (ptr1),y                ; set bytes in low
         sta     (ptr2),y                ; and high section
-        bne     L3              ; flags still up to date from dey!
+        bne     .L3              ; flags still up to date from dey!
 leave:
 	pla
 	tax
