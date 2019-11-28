@@ -266,6 +266,8 @@ def compile_call(callee, ip):
 			ip += 1
 		elif type(val) == Ref:
 			ref = heap[ip]
+			if ref.word not in words_to_export:
+				words_to_export.append(ref.word)
 			OUT.write("\t!word IP_" + str(ref.addr) + "\t; " + str(ref.word) + "\n")
 			ip += 1
 		else:
