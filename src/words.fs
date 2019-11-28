@@ -8,6 +8,7 @@ code 0
 1 constant 1
 
 : chars ;
+: char+ 1+ ;
 : align ;
 : aligned ;
 
@@ -37,7 +38,7 @@ dup $a < if 7 - then $37 + hold ;
 : u> swap u< ;
 : 2+ 1+ 1+ ;
 : cell+ 2+ ;
-: 2@ dup cell+ @ swap @ ;
+: 2@ dup 2+ @ swap @ ;
 : 2! swap over ! 2+ ! ;
 : cells 2* ;
 : s>d dup 0< ;
@@ -969,18 +970,6 @@ end:    INX
 code	tuck
 	jsr	%swap%
 	jmp	%over%
-;code
-
-code	char+
-	jmp	%1+%
-;code
-
-code	2@
-	jsr	%dup%
-	jsr	%2+%
-	jsr	%@%
-	jsr	%swap%
-	jmp	%@%
 ;code
 
 code	bye

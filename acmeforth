@@ -1384,7 +1384,6 @@ add_word("postpone", POSTPONE, True)
 add_word("here", HERE)
 add_word(",", COMMA)
 add_word("c,", C_COMMA)
-add_word("char+", lambda : ONEPLUS())	# Using lambda to separate xt's for the cross compiler.
 add_word("c@", C_FETCH)
 add_word("c!", C_STORE)
 add_word("while", WHILE, True)
