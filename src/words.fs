@@ -12,6 +12,7 @@ code 0
 : align ;
 : aligned ;
 
+: negate invert 1+ ;
 : if postpone 0branch here 0 , ; immediate
 : begin here ; immediate
 
@@ -314,11 +315,6 @@ code !
 	inx
 	inx
 	rts
-;code
-
-code negate
-	jsr %invert%
-	jmp %1+%
 ;code
 
 code 0<

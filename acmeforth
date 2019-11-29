@@ -124,7 +124,7 @@ def add_word(name, xt, immediate = False):
 
 def get_base():
 	if "base" in dictionary.words:
-		dictionary.words["base"].xt()
+		execute("base")
 		base_addr = stack.pop()
 		base = heap[base_addr]
 	if not base:
@@ -187,8 +187,11 @@ def evaluate_number(word):
 		number = -number
 	stack.append(ctypes.c_short(number).value)
 
+def execute(word_name):
+	dictionary.words[word_name].xt()
+
 def ABORT():
-	dictionary.words["abort"].xt()
+	execute("abort")
 
 def evaluate(word):
 	global stack
@@ -302,7 +305,7 @@ def compile(word):
 	if word.lower() in dictionary.words:
 		word = word.lower()
 		if dictionary.words[word].immediate:
-			dictionary.words[word].xt()
+			execute(word)
 		else:
 			append(dictionary.words[word].xt)
 	else:
@@ -342,7 +345,7 @@ def C_STORE():
 	dst = stack[-1]
 	v = stack[-2]
 	heap[dst] = v & 0xff
-	dictionary.words["2drop"].xt()
+	execute("2drop")
 
 def STORE():
 	dst = stack[-1]
@@ -461,10 +464,6 @@ def THEN():
 def ZERO_LT():
 	stack[-1] = -1 if stack[-1] < 0 else 0
 
-def NEGATE():
-	INVERT()
-	ONEPLUS()
-
 def QUIT():
 	global tib_addr
 	return_stack.clear()
@@ -499,7 +498,7 @@ def _QUESTION_DO():
 	EQUALS()
 	if stack.pop():
 		# Don't enter loop.
-		dictionary.words["2drop"].xt()
+		execute("2drop")
 		BRANCH()
 	else:
 		# Enter loop.
@@ -694,7 +693,7 @@ def TYPE():
 	for c in heap[stack[-2] : stack[-2] + stack[-1]]:
 		stack.append(c)
 		EMIT()
-	dictionary.words["2drop"].xt()
+	execute("2drop")
 
 def EXIT():
 	global ip
@@ -862,7 +861,7 @@ def FM_MOD(): # ( d n -- rem quot )
 	DUP()
 	ZERO_LT()
 	if stack.pop():
-		NEGATE()
+		execute("negate")
 		TO_R()
 		D_NEGATE()
 		R_TO()
@@ -880,14 +879,8 @@ def FM_MOD(): # ( d n -- rem quot )
 	ZERO_LT()
 	if stack.pop():
 		SWAP()
-		NEGATE()
+		execute("negate")
 		SWAP()
-
-# from FIG UK : ?dnegate 0< if dnegate then ;
-def Q_D_NEGATE():
-	ZERO_LT()
-	if stack.pop():
-		D_NEGATE()
 
 def POSTPONE():
 	name = read_word().lower()
@@ -1095,7 +1088,7 @@ def HASH_S(): # ( ud1 -- ud2 )
 
 def RT_HASH(): # ( xd -- c-addr u )
 	global format_addr
-	dictionary.words["2drop"].xt()
+	execute("2drop")
 	stack.append(pictured_numeric_addr)
 	stack.append(format_addr - here)
 	dst = pictured_numeric_addr
@@ -1133,14 +1126,14 @@ def FILL(): # ( c-addr u char -- )
 		heap[stack[-3]] = stack[-1]
 		stack[-2] -= 1
 		stack[-3] += 1
-	dictionary.words["2drop"].xt()
+	execute("2drop")
 	DROP()
 
 def MOVE(): # ( src dst u -- )
 	tmp = heap[stack[-3] : stack[-3] + stack[-1]]
 	for i in range(len(tmp)):
 		heap[stack[-2] + i] = tmp[i]
-	dictionary.words["2drop"].xt()
+	execute("2drop")
 	DROP()
 
 def DOT_QUOTE():
@@ -1325,7 +1318,6 @@ add_word("drop", DROP)
 add_word("0<", ZERO_LT)
 add_word("0branch", ZBRANCH)
 add_word("branch", BRANCH)
-add_word("negate", NEGATE)
 add_word("else", ELSE, True)
 add_word("then", THEN, True)
 add_word("cr", CR)
