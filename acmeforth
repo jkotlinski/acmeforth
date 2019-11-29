@@ -834,15 +834,6 @@ def UM_MOD(): # ( lsw msw divisor -- rem quot )
 	stack[-2] = ctypes.c_short(n // d).value
 	stack.pop()
 
-def M_PLUS(): # ( d1 u -- d2 )
-	lsw = stack[-3]
-	msw = stack[-2]
-	n = (msw << 16) | ctypes.c_ushort(lsw).value
-	n += stack[-1]
-	stack[-3] = ctypes.c_short(n).value
-	stack[-2] = ctypes.c_short(n >> 16).value
-	stack.pop()
-
 def POSTPONE():
 	name = read_word().lower()
 	words = dictionary.words
@@ -1382,7 +1373,6 @@ add_word("code", CODE)
 add_word("compile,", COMPILE_COMMA)
 add_word("compile", COMPILE)
 add_word("d+", D_PLUS)
-add_word("m+", M_PLUS)
 add_word("page", PAGE)
 add_word("0", lambda : stack.append(0))
 

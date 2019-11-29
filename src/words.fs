@@ -100,28 +100,7 @@ create pad 84 allot
       R> DROP 2DROP FALSE      \ LENGTHS MISMATCH
    THEN ;
 
-code	m+
-	ldy #0
-	lda MSB,x
-	bpl +
-	dey
-+	clc
-	lda LSB,x
-	adc LSB+2,x
-	sta LSB+2,x
-	lda MSB,x
-	adc MSB+2,x
-	sta MSB+2,x
-	tya
-	adc LSB+1,x
-	sta LSB+1,x
-	tya
-	adc MSB+1,x
-	sta MSB+1,x
-	inx
-	rts
-;code
-
+: m+ s>d d+ ;
 : dnegate invert >r invert r> 1 m+ ;
 
 : fm/mod \ from Gforth
