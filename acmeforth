@@ -843,45 +843,6 @@ def M_PLUS(): # ( d1 u -- d2 )
 	stack[-2] = ctypes.c_short(n >> 16).value
 	stack.pop()
 
-# from FIG UK
-def D_NEGATE():
-	INVERT()
-	TO_R()
-	INVERT()
-	R_TO()
-	stack.append(1)
-	M_PLUS()
-
-# from Gforth
-def FM_MOD(): # ( d n -- rem quot )
-	# dup >r
-	DUP()
-	TO_R()
-	# dup 0< if negate >r dnegate r> then
-	DUP()
-	ZERO_LT()
-	if stack.pop():
-		execute("negate")
-		TO_R()
-		D_NEGATE()
-		R_TO()
-	# over 0< if tuck + swap then
-	OVER()
-	ZERO_LT()
-	if stack.pop():
-		TUCK()
-		PLUS()
-		SWAP()
-	# um/mod
-	UM_MOD()
-	# r> 0< if swap negate swap then
-	R_TO()
-	ZERO_LT()
-	if stack.pop():
-		SWAP()
-		execute("negate")
-		SWAP()
-
 def POSTPONE():
 	name = read_word().lower()
 	words = dictionary.words
@@ -1368,7 +1329,6 @@ add_word("u<", U_LESS)
 add_word("*", MULTIPLY)
 add_word("m*", M_MULTIPLY)
 add_word("um*", UM_MULTIPLY)
-add_word("fm/mod", FM_MOD)
 add_word("um/mod", UM_MOD)
 add_word("tuck", TUCK)
 add_word("literal", LITERAL, True)
@@ -1422,6 +1382,7 @@ add_word("code", CODE)
 add_word("compile,", COMPILE_COMMA)
 add_word("compile", COMPILE)
 add_word("d+", D_PLUS)
+add_word("m+", M_PLUS)
 add_word("page", PAGE)
 add_word("0", lambda : stack.append(0))
 

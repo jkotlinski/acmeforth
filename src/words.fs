@@ -100,6 +100,35 @@ create pad 84 allot
       R> DROP 2DROP FALSE      \ LENGTHS MISMATCH
    THEN ;
 
+code	m+
+	ldy #0
+	lda MSB,x
+	bpl +
+	dey
++	clc
+	lda LSB,x
+	adc LSB+2,x
+	sta LSB+2,x
+	lda MSB,x
+	adc MSB+2,x
+	sta MSB+2,x
+	tya
+	adc LSB+1,x
+	sta LSB+1,x
+	tya
+	adc MSB+1,x
+	sta MSB+1,x
+	inx
+	rts
+;code
+
+: dnegate invert >r invert r> 1 m+ ;
+
+: fm/mod \ from Gforth
+dup >r dup 0< if negate >r dnegate r> then
+over 0< if tuck + swap then um/mod
+r> 0< if swap negate swap then ;
+
 ( from FIG UK )
 : /mod >r s>d r> fm/mod ;
 : / /mod nip ;
@@ -588,37 +617,6 @@ code	?dnegate
 +	rts
 ;code
 
-code	dnegate
-	jsr	%invert%
-	jsr	%>r%
-	jsr	%invert%
-	jsr	%r>%
-	jsr	%1%
-	jmp	%m+%
-;code
-
-code	m+
-	ldy #0
-	lda MSB,x
-	bpl +
-	dey
-+	clc
-	lda LSB,x
-	adc LSB+2,x
-	sta LSB+2,x
-	lda MSB,x
-	adc MSB+2,x
-	sta MSB+2,x
-	tya
-	adc LSB+1,x
-	sta LSB+1,x
-	tya
-	adc MSB+1,x
-	sta MSB+1,x
-	inx
-	rts
-;code
-
 code	+!
 	lda	LSB,x
 	sta	W
@@ -889,31 +887,6 @@ code	*
 	jsr	%m*%
 	inx
 	rts
-;code
-
-code	fm/mod
-	jsr	%dup%
-	jsr	%>r%
-	lda	MSB,x
-	bpl	+
-	jsr	%negate%
-	jsr	%>r%
-	jsr	%dnegate%
-	jsr	%r>%
-+	lda	MSB+1,x
-	bpl	+
-	jsr	%tuck%
-	jsr	%+%
-	jsr	%swap%
-+	jsr	%um/mod%
-	jsr	%r>%
-	inx
-	lda	MSB-1,x
-	bpl	+
-	jsr	%swap%
-	jsr	%negate%
-	jsr	%swap%
-+	rts
 ;code
 
 code	um/mod
